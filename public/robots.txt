@@ -1,14 +1,27 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
+# Allow all bots including AI crawlers
 User-agent: *
 Allow: /
+
+# Explicit AI/answer engine bots
+User-agent: GPTBot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# Sitemaps
+Sitemap: https://anamechi.com/sitemap.xml
+Sitemap: https://anamechi.com/sitemap-blogs.xml
+
+# LLMs documentation index (optional but helpful for AEO)
+Allow: /llms.txt
+Allow: /llms-full.txt

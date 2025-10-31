@@ -1,0 +1,32 @@
+# ANAMECHI Marketing - Complete URL Index
+
+## Core Pages
+https://anamechi.com/
+https://anamechi.com/about/
+https://anamechi.com/services/
+https://anamechi.com/contact/
+https://anamechi.com/faq/
+
+## Blog & Resources
+https://anamechi.com/blog/
+https://anamechi.com/blog/aeo-guide-2025/
+https://anamechi.com/blog/structured-data-for-ai-citation/
+https://anamechi.com/blog/eeat-principles-2025/
+https://anamechi.com/blog/gohighlevel-automation-playbook/
+https://anamechi.com/blog/citation-health-monitoring/
+https://anamechi.com/blog/content-freshness-strategy/
+https://anamechi.com/blog/perplexity-optimization/
+
+## AI Tools
+https://anamechi.com/ai-tools/
+
+## Legal & Standards
+https://anamechi.com/privacy/
+https://anamechi.com/terms/
+https://anamechi.com/editorial-standards/
+
+## Updates & Health
+https://anamechi.com/updates/
+https://anamechi.com/citation-health/
+
+Last Updated: 2025-10-30
