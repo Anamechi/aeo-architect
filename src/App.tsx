@@ -7,8 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/admin/ProtectedRoute";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
+import PublicLayout from "@/components/layout/PublicLayout";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Services from "./pages/Services";
@@ -67,26 +66,19 @@ const App = () => (
               </Route>
 
               {/* Public routes */}
-              <Route path="/" element={
-                <div className="flex min-h-screen flex-col w-full">
-                  <Header />
-                  <main className="flex-1">
-                    <Routes>
-                      <Route index element={<Home />} />
-                      <Route path="about" element={<About />} />
-                      <Route path="services" element={<Services />} />
-                      <Route path="blog" element={<Blog />} />
-                      <Route path="blog/:slug" element={<BlogArticle />} />
-                      <Route path="faq" element={<FAQ />} />
-                      <Route path="contact" element={<Contact />} />
-                      <Route path="ai-tools" element={<AITools />} />
-                      <Route path="privacy" element={<Privacy />} />
-                      <Route path="terms" element={<Terms />} />
-                    </Routes>
-                  </main>
-                  <Footer />
-                </div>
-              } />
+              <Route element={<PublicLayout />}>
+                <Route index element={<Home />} />
+                <Route path="about" element={<About />} />
+                <Route path="services" element={<Services />} />
+                <Route path="blog" element={<Blog />} />
+                <Route path="blog/:slug" element={<BlogArticle />} />
+                <Route path="faq" element={<FAQ />} />
+                <Route path="contact" element={<Contact />} />
+                <Route path="ai-tools" element={<AITools />} />
+                <Route path="privacy" element={<Privacy />} />
+                <Route path="terms" element={<Terms />} />
+              </Route>
+
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
