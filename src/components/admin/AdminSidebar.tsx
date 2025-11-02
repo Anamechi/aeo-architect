@@ -1,0 +1,72 @@
+import { NavLink } from 'react-router-dom';
+import { 
+  LayoutDashboard, 
+  Wrench, 
+  FileText, 
+  MessageSquare, 
+  Image, 
+  Network,
+  Users,
+  Link,
+  Calendar,
+  Settings,
+  LogOut
+} from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+
+const navigation = [
+  { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+  { name: 'AI Tools', href: '/admin/tools', icon: Wrench },
+  { name: 'Blog Generator', href: '/admin/blog-generator', icon: FileText },
+  { name: 'QA Generator', href: '/admin/qa-generator', icon: MessageSquare },
+  { name: 'Image Generator', href: '/admin/image-generator', icon: Image },
+  { name: 'Diagram Generator', href: '/admin/diagram-generator', icon: Network },
+  { name: 'Authors', href: '/admin/authors', icon: Users },
+  { name: 'Citation Health', href: '/admin/citations', icon: Link },
+  { name: 'Content Updates', href: '/admin/updates', icon: Calendar },
+  { name: 'Settings', href: '/admin/settings', icon: Settings },
+];
+
+export default function AdminSidebar() {
+  const { signOut } = useAuth();
+
+  return (
+    <div className="flex h-full flex-col bg-card border-r border-border">
+      <div className="flex h-16 items-center border-b border-border px-6">
+        <h2 className="text-xl font-bold text-foreground">ANAMECHI Admin</h2>
+      </div>
+      
+      <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
+        {navigation.map((item) => (
+          <NavLink
+            key={item.name}
+            to={item.href}
+            end={item.href === '/admin'}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                isActive
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+              }`
+            }
+          >
+            <item.icon className="h-5 w-5" />
+            {item.name}
+          </NavLink>
+        ))}
+      </nav>
+
+      <div className="border-t border-border p-4">
+        <Button 
+          onClick={() => signOut()}
+          variant="ghost" 
+          className="w-full justify-start"
+        >
+          <LogOut className="h-5 w-5 mr-3" />
+          Sign Out
+        </Button>
+      </div>
+    </div>
+  );
+}
