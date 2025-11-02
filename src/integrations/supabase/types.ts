@@ -14,16 +14,385 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ai_tools: {
+        Row: {
+          api_key_required: boolean | null
+          category: string
+          cost_per_month: number | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          internal_notes: string | null
+          name: string
+          rating: number | null
+          status: Database["public"]["Enums"]["tool_status"] | null
+          updated_at: string | null
+          url: string | null
+          use_case: string | null
+        }
+        Insert: {
+          api_key_required?: boolean | null
+          category: string
+          cost_per_month?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          internal_notes?: string | null
+          name: string
+          rating?: number | null
+          status?: Database["public"]["Enums"]["tool_status"] | null
+          updated_at?: string | null
+          url?: string | null
+          use_case?: string | null
+        }
+        Update: {
+          api_key_required?: boolean | null
+          category?: string
+          cost_per_month?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          internal_notes?: string | null
+          name?: string
+          rating?: number | null
+          status?: Database["public"]["Enums"]["tool_status"] | null
+          updated_at?: string | null
+          url?: string | null
+          use_case?: string | null
+        }
+        Relationships: []
+      }
+      authors: {
+        Row: {
+          bio: string | null
+          created_at: string | null
+          credentials: Json | null
+          expertise_areas: string[] | null
+          id: string
+          is_reviewer: boolean | null
+          linkedin_url: string | null
+          name: string
+          photo_url: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string | null
+          credentials?: Json | null
+          expertise_areas?: string[] | null
+          id?: string
+          is_reviewer?: boolean | null
+          linkedin_url?: string | null
+          name: string
+          photo_url?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string | null
+          credentials?: Json | null
+          expertise_areas?: string[] | null
+          id?: string
+          is_reviewer?: boolean | null
+          linkedin_url?: string | null
+          name?: string
+          photo_url?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      blog_posts: {
+        Row: {
+          author_id: string | null
+          category: string | null
+          citations: Json | null
+          content: string | null
+          created_at: string | null
+          funnel_stage: Database["public"]["Enums"]["funnel_stage"] | null
+          id: string
+          meta_description: string | null
+          published_at: string | null
+          reviewed_by: string | null
+          schema_data: Json | null
+          seo_score: number | null
+          slug: string
+          status: Database["public"]["Enums"]["content_status"] | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          author_id?: string | null
+          category?: string | null
+          citations?: Json | null
+          content?: string | null
+          created_at?: string | null
+          funnel_stage?: Database["public"]["Enums"]["funnel_stage"] | null
+          id?: string
+          meta_description?: string | null
+          published_at?: string | null
+          reviewed_by?: string | null
+          schema_data?: Json | null
+          seo_score?: number | null
+          slug: string
+          status?: Database["public"]["Enums"]["content_status"] | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          category?: string | null
+          citations?: Json | null
+          content?: string | null
+          created_at?: string | null
+          funnel_stage?: Database["public"]["Enums"]["funnel_stage"] | null
+          id?: string
+          meta_description?: string | null
+          published_at?: string | null
+          reviewed_by?: string | null
+          schema_data?: Json | null
+          seo_score?: number | null
+          slug?: string
+          status?: Database["public"]["Enums"]["content_status"] | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "authors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_posts_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "authors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      citations: {
+        Row: {
+          authority_score: number | null
+          created_at: string | null
+          id: string
+          last_checked: string | null
+          status: Database["public"]["Enums"]["citation_status"] | null
+          title: string | null
+          updated_at: string | null
+          url: string
+          used_in_posts: number | null
+        }
+        Insert: {
+          authority_score?: number | null
+          created_at?: string | null
+          id?: string
+          last_checked?: string | null
+          status?: Database["public"]["Enums"]["citation_status"] | null
+          title?: string | null
+          updated_at?: string | null
+          url: string
+          used_in_posts?: number | null
+        }
+        Update: {
+          authority_score?: number | null
+          created_at?: string | null
+          id?: string
+          last_checked?: string | null
+          status?: Database["public"]["Enums"]["citation_status"] | null
+          title?: string | null
+          updated_at?: string | null
+          url?: string
+          used_in_posts?: number | null
+        }
+        Relationships: []
+      }
+      content_updates: {
+        Row: {
+          change_type: string | null
+          changed_at: string | null
+          changed_by: string | null
+          description: string | null
+          id: string
+          post_id: string | null
+          post_type: string | null
+        }
+        Insert: {
+          change_type?: string | null
+          changed_at?: string | null
+          changed_by?: string | null
+          description?: string | null
+          id?: string
+          post_id?: string | null
+          post_type?: string | null
+        }
+        Update: {
+          change_type?: string | null
+          changed_at?: string | null
+          changed_by?: string | null
+          description?: string | null
+          id?: string
+          post_id?: string | null
+          post_type?: string | null
+        }
+        Relationships: []
+      }
+      generated_images: {
+        Row: {
+          alt_text: string | null
+          created_at: string | null
+          created_by: string | null
+          filename: string
+          id: string
+          prompt_used: string | null
+          storage_url: string | null
+          tool_used: string | null
+          used_in_posts: string[] | null
+        }
+        Insert: {
+          alt_text?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          filename: string
+          id?: string
+          prompt_used?: string | null
+          storage_url?: string | null
+          tool_used?: string | null
+          used_in_posts?: string[] | null
+        }
+        Update: {
+          alt_text?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          filename?: string
+          id?: string
+          prompt_used?: string | null
+          storage_url?: string | null
+          tool_used?: string | null
+          used_in_posts?: string[] | null
+        }
+        Relationships: []
+      }
+      qa_articles: {
+        Row: {
+          answer: string
+          author_id: string | null
+          citations: Json | null
+          created_at: string | null
+          faq_schema: Json | null
+          funnel_stage: Database["public"]["Enums"]["funnel_stage"] | null
+          id: string
+          meta_description: string | null
+          published_at: string | null
+          question: string
+          reviewed_by: string | null
+          slug: string
+          status: Database["public"]["Enums"]["content_status"] | null
+          tags: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          answer: string
+          author_id?: string | null
+          citations?: Json | null
+          created_at?: string | null
+          faq_schema?: Json | null
+          funnel_stage?: Database["public"]["Enums"]["funnel_stage"] | null
+          id?: string
+          meta_description?: string | null
+          published_at?: string | null
+          question: string
+          reviewed_by?: string | null
+          slug: string
+          status?: Database["public"]["Enums"]["content_status"] | null
+          tags?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          answer?: string
+          author_id?: string | null
+          citations?: Json | null
+          created_at?: string | null
+          faq_schema?: Json | null
+          funnel_stage?: Database["public"]["Enums"]["funnel_stage"] | null
+          id?: string
+          meta_description?: string | null
+          published_at?: string | null
+          question?: string
+          reviewed_by?: string | null
+          slug?: string
+          status?: Database["public"]["Enums"]["content_status"] | null
+          tags?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qa_articles_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "authors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "qa_articles_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "authors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "editor"
+      citation_status: "valid" | "broken" | "outdated"
+      content_status: "draft" | "review" | "published" | "archived"
+      funnel_stage: "TOFU" | "MOFU" | "BOFU"
+      tool_status: "active" | "testing" | "deprecated"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +519,12 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "editor"],
+      citation_status: ["valid", "broken", "outdated"],
+      content_status: ["draft", "review", "published", "archived"],
+      funnel_stage: ["TOFU", "MOFU", "BOFU"],
+      tool_status: ["active", "testing", "deprecated"],
+    },
   },
 } as const
