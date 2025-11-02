@@ -248,6 +248,83 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_quotes: {
+        Row: {
+          client_business: string | null
+          client_email: string
+          client_name: string
+          client_revenue_range: string | null
+          created_at: string | null
+          created_by: string | null
+          discount_amount: number | null
+          discount_percent: number | null
+          expiration_date: string | null
+          id: string
+          line_items: Json | null
+          notes: string | null
+          package_id: string | null
+          responded_at: string | null
+          sent_at: string | null
+          status: string | null
+          subtotal: number | null
+          total: number
+          updated_at: string | null
+          viewed_at: string | null
+        }
+        Insert: {
+          client_business?: string | null
+          client_email: string
+          client_name: string
+          client_revenue_range?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          discount_amount?: number | null
+          discount_percent?: number | null
+          expiration_date?: string | null
+          id?: string
+          line_items?: Json | null
+          notes?: string | null
+          package_id?: string | null
+          responded_at?: string | null
+          sent_at?: string | null
+          status?: string | null
+          subtotal?: number | null
+          total: number
+          updated_at?: string | null
+          viewed_at?: string | null
+        }
+        Update: {
+          client_business?: string | null
+          client_email?: string
+          client_name?: string
+          client_revenue_range?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          discount_amount?: number | null
+          discount_percent?: number | null
+          expiration_date?: string | null
+          id?: string
+          line_items?: Json | null
+          notes?: string | null
+          package_id?: string | null
+          responded_at?: string | null
+          sent_at?: string | null
+          status?: string | null
+          subtotal?: number | null
+          total?: number
+          updated_at?: string | null
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_quotes_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "service_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       generated_images: {
         Row: {
           alt_text: string | null
@@ -281,6 +358,42 @@ export type Database = {
           storage_url?: string | null
           tool_used?: string | null
           used_in_posts?: string[] | null
+        }
+        Relationships: []
+      }
+      pricing_settings: {
+        Row: {
+          default_cta_text: string | null
+          default_display_type: string | null
+          id: string
+          pricing_philosophy: string | null
+          quote_request_enabled: boolean | null
+          quote_request_redirect_url: string | null
+          show_pricing_publicly: boolean | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          default_cta_text?: string | null
+          default_display_type?: string | null
+          id?: string
+          pricing_philosophy?: string | null
+          quote_request_enabled?: boolean | null
+          quote_request_redirect_url?: string | null
+          show_pricing_publicly?: boolean | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          default_cta_text?: string | null
+          default_display_type?: string | null
+          id?: string
+          pricing_philosophy?: string | null
+          quote_request_enabled?: boolean | null
+          quote_request_redirect_url?: string | null
+          show_pricing_publicly?: boolean | null
+          updated_at?: string | null
+          updated_by?: string | null
         }
         Relationships: []
       }
@@ -352,6 +465,66 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      service_packages: {
+        Row: {
+          base_price: number | null
+          category: string | null
+          created_at: string | null
+          created_by: string | null
+          cta_link: string | null
+          cta_text: string | null
+          description: string | null
+          display_type: string | null
+          features: Json | null
+          id: string
+          is_addon: boolean | null
+          name: string
+          price_range_max: number | null
+          price_range_min: number | null
+          sort_order: number | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          base_price?: number | null
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          cta_link?: string | null
+          cta_text?: string | null
+          description?: string | null
+          display_type?: string | null
+          features?: Json | null
+          id?: string
+          is_addon?: boolean | null
+          name: string
+          price_range_max?: number | null
+          price_range_min?: number | null
+          sort_order?: number | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          base_price?: number | null
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          cta_link?: string | null
+          cta_text?: string | null
+          description?: string | null
+          display_type?: string | null
+          features?: Json | null
+          id?: string
+          is_addon?: boolean | null
+          name?: string
+          price_range_max?: number | null
+          price_range_min?: number | null
+          sort_order?: number | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

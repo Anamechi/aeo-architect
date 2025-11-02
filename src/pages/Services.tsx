@@ -1,3 +1,5 @@
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { SEO } from "@/components/SEO";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,10 +12,7 @@ import {
   Zap, 
   Target, 
   CheckCircle2,
-  ArrowRight,
-  FileText,
-  BarChart3,
-  Settings
+  ArrowRight
 } from "lucide-react";
 
 const Services = () => {
@@ -26,195 +25,232 @@ const Services = () => {
     ]
   };
 
-  const coreServices = [
-    {
-      icon: Bot,
-      title: "AI Engine Optimization (AEO)",
-      description: "Position your brand for AI citation across ChatGPT, Gemini, Perplexity, and other LLMs",
-      features: [
-        "Structured data implementation (JSON-LD schemas)",
-        "Answer-first content formatting",
-        "Citation hygiene and source management",
-        "LLMs.txt corpus documentation",
-        "AI model submission and monitoring"
-      ],
-      price: "From $2,500/month"
+  const { data: packages, isLoading: packagesLoading } = useQuery({
+    queryKey: ['service-packages-public'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('service_packages')
+        .select('*')
+        .eq('status', 'active')
+        .order('sort_order', { ascending: true });
+      
+      if (error) throw error;
+      return data;
     },
-    {
-      icon: Search,
-      title: "SEO & Content Strategy",
-      description: "Rank in traditional search engines and AI overviews with EEAT-focused content",
-      features: [
-        "Technical SEO audits and optimization",
-        "EEAT authority building",
-        "Content silo architecture",
-        "Featured snippet optimization",
-        "Freshness and update management"
-      ],
-      price: "From $1,800/month"
-    },
-    {
-      icon: Zap,
-      title: "Marketing Automation",
-      description: "Scale your operations with GoHighLevel CRM and workflow automation",
-      features: [
-        "GoHighLevel setup and configuration",
-        "CRM pipeline design",
-        "Workflow automation",
-        "Email and SMS campaigns",
-        "Attribution and analytics"
-      ],
-      price: "From $1,200/month"
-    },
-    {
-      icon: Target,
-      title: "Brand Visibility",
-      description: "Build authority through strategic content, PR, and community engagement",
-      features: [
-        "Digital PR and link building",
-        "Guest posting and podcast appearances",
-        "Community Q&A seeding (Reddit, Quora)",
-        "Social proof and testimonial management",
-        "Reputation monitoring"
-      ],
-      price: "From $1,500/month"
-    }
-  ];
+  });
 
-  const addOns = [
-    {
-      icon: FileText,
-      title: "Content Production",
-      description: "1 long-form article/week + 3 QA posts + monthly case study",
-      price: "$800/month"
+  const { data: settings } = useQuery({
+    queryKey: ['pricing-settings-public'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('pricing_settings')
+        .select('*')
+        .single();
+      
+      if (error) throw error;
+      return data;
     },
-    {
-      icon: BarChart3,
-      title: "Advanced Analytics",
-      description: "Custom dashboards, citation tracking, and competitive monitoring",
-      price: "$400/month"
-    },
-    {
-      icon: Settings,
-      title: "Technical Maintenance",
-      description: "Performance optimization, IndexNow, sitemap management",
-      price: "$300/month"
+  });
+
+  const getPriceDisplay = (pkg: any) => {
+    if (!settings?.show_pricing_publicly || pkg.display_type === 'hidden') {
+      return null;
     }
-  ];
+
+    switch (pkg.display_type) {
+      case 'starting_at':
+        return pkg.base_price ? `Starting at $${pkg.base_price.toLocaleString()}` : null;
+      case 'range':
+        return pkg.price_range_min && pkg.price_range_max 
+          ? `$${pkg.price_range_min.toLocaleString()} - $${pkg.price_range_max.toLocaleString()}` 
+          : null;
+      case 'custom':
+        return 'Investment varies based on your goals';
+      default:
+        return null;
+    }
+  };
+
+  const corePackages = packages?.filter(pkg => !pkg.is_addon) || [];
+  const addons = packages?.filter(pkg => pkg.is_addon) || [];
+
+  // Default icon mapping
+  const iconMap: { [key: string]: any } = {
+    'AEO': Bot,
+    'SEO': Search,
+    'Automation': Zap,
+    'Visibility': Target,
+  };
+
+  const getIcon = (category: string) => {
+    return iconMap[category] || CheckCircle2;
+  };
 
   return (
     <>
-      <SEO
-        title="AEO & Digital Marketing Services for Service Businesses"
-        description="Comprehensive AI Engine Optimization, SEO, content strategy, and marketing automation services. Get your brand cited by AI models and search engines."
-        canonical="/services"
+      <SEO 
+        title="AI-Powered Marketing Services | ANAMECHI Marketing"
+        description="Transform your business with AI Engine Optimization, SEO, marketing automation, and brand visibility services. Customized strategies for ambitious entrepreneurs."
+        type="website"
         structuredData={[breadcrumbsSchema]}
       />
 
-      <div className="container mx-auto px-4 py-12">
-        <Breadcrumbs items={[{ name: "Services", href: "/services" }]} />
-
-        {/* Hero */}
-        <div className="mb-16 text-center">
-          <Badge className="mb-4 bg-accent/10 text-accent hover:bg-accent/20">
-            Comprehensive Marketing Solutions
-          </Badge>
-          <h1 className="mb-6 text-4xl font-bold text-foreground md:text-5xl">
-            Services That Build AI-Citable Authority
-          </h1>
-          <p className="mx-auto max-w-3xl text-xl text-muted-foreground">
-            Strategic marketing services designed to position your service business as a trusted authority that AI models and search engines recommend.
-          </p>
+      <div className="min-h-screen bg-gradient-to-b from-background to-background/80">
+        <div className="container mx-auto px-4 pt-6">
+          <Breadcrumbs items={[{ name: 'Services', href: '/services' }]} />
         </div>
+        
+        {/* Hero Section */}
+        <section className="container mx-auto px-4 py-16 text-center">
+          <Badge className="mb-4" variant="outline">Services</Badge>
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            Transform Your Marketing with AI-Powered Solutions
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
+            Leverage cutting-edge AI technology, automation, and strategic visibility to scale your business and free your time
+          </p>
+        </section>
+
+        {/* Pricing Philosophy */}
+        {settings?.pricing_philosophy && (
+          <section className="container mx-auto px-4 pb-12">
+            <Card className="bg-card/50 backdrop-blur border-primary/20">
+              <CardContent className="p-6 text-center">
+                <p className="text-lg text-muted-foreground">{settings.pricing_philosophy}</p>
+              </CardContent>
+            </Card>
+          </section>
+        )}
 
         {/* Core Services */}
-        <div className="mb-16">
-          <h2 className="mb-12 text-3xl font-bold text-foreground">Core Services</h2>
-          <div className="grid gap-8 lg:grid-cols-2">
-            {coreServices.map((service) => (
-              <Card key={service.title} className="border-border hover:shadow-xl transition-shadow">
-                <CardHeader>
-                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                    <service.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <CardTitle className="text-2xl">{service.title}</CardTitle>
-                  <CardDescription className="text-base">{service.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="mb-6 space-y-3">
-                    {service.features.map((feature) => (
-                      <li key={feature} className="flex items-start">
-                        <CheckCircle2 className="mr-2 h-5 w-5 shrink-0 text-success mt-0.5" />
-                        <span className="text-sm text-foreground">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="flex items-center justify-between border-t border-border pt-4">
-                    <span className="text-lg font-semibold text-foreground">{service.price}</span>
-                    <Button variant="outline" size="sm">
-                      Learn More
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Add-On Services */}
-        <div className="mb-16">
-          <h2 className="mb-12 text-3xl font-bold text-foreground">Add-On Services</h2>
-          <div className="grid gap-6 md:grid-cols-3">
-            {addOns.map((addon) => (
-              <Card key={addon.title} className="border-border">
-                <CardHeader>
-                  <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
-                    <addon.icon className="h-5 w-5 text-accent" />
-                  </div>
-                  <CardTitle className="text-xl">{addon.title}</CardTitle>
-                  <CardDescription>{addon.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <span className="text-lg font-semibold text-foreground">{addon.price}</span>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Industries */}
-        <Card className="mb-16 border-border bg-gradient-subtle">
-          <CardContent className="p-8 md:p-12">
-            <h2 className="mb-6 text-3xl font-bold text-foreground text-center">
-              Industries We Serve
-            </h2>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {["Business Consultants", "Executive Coaches", "Marketing Agencies", "Financial Advisors", "Healthcare Practitioners", "Legal Professionals"].map((industry) => (
-                <div key={industry} className="rounded-lg bg-background p-4 text-center border border-border">
-                  <span className="font-medium text-foreground">{industry}</span>
-                </div>
-              ))}
+        <section className="container mx-auto px-4 py-12">
+          <h2 className="text-3xl font-bold mb-8 text-center">Core Services</h2>
+          {packagesLoading ? (
+            <div className="text-center py-12">Loading services...</div>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+              {corePackages.map((service, index) => {
+                const Icon = getIcon(service.category || '');
+                const priceDisplay = getPriceDisplay(service);
+                
+                return (
+                  <Card key={index} className="group hover:shadow-xl transition-all duration-300 border-border/50">
+                    <CardHeader>
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="p-3 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                          <Icon className="h-6 w-6 text-primary" />
+                        </div>
+                        {priceDisplay && (
+                          <Badge variant="outline" className="text-sm">
+                            {priceDisplay}
+                          </Badge>
+                        )}
+                      </div>
+                      <CardTitle className="text-2xl mb-2">{service.name}</CardTitle>
+                      <CardDescription className="text-base">{service.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="space-y-3 mb-6">
+                        {Array.isArray(service.features) && service.features.map((feature: string, idx: number) => (
+                          <li key={idx} className="flex items-start gap-2">
+                            <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                            <span className="text-sm text-muted-foreground">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <Link to={service.cta_link || '/contact'}>
+                        <Button className="w-full group">
+                          {service.cta_text}
+                          <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
-          </CardContent>
-        </Card>
+          )}
+        </section>
 
-        {/* CTA */}
-        <Card className="border-border bg-gradient-primary shadow-glow">
-          <CardContent className="p-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-primary-foreground md:text-4xl">
-              Ready to Get Started?
-            </h2>
-            <p className="mb-8 text-lg text-primary-foreground/90 max-w-2xl mx-auto">
-              Schedule a consultation to discuss your goals and create a custom AEO strategy for your business.
-            </p>
-            <Button asChild size="lg" className="bg-accent hover:bg-accent-hover text-accent-foreground">
-              <Link to="/contact">
-                Schedule Consultation
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+        {/* Add-ons */}
+        {addons.length > 0 && (
+          <section className="container mx-auto px-4 py-12">
+            <h2 className="text-3xl font-bold mb-8 text-center">Enhance Your Package</h2>
+            <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {addons.map((addon, index) => {
+                const priceDisplay = getPriceDisplay(addon);
+                
+                return (
+                  <Card key={index} className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <CardTitle className="text-xl">{addon.name}</CardTitle>
+                      {priceDisplay && (
+                        <Badge variant="secondary" className="w-fit mt-2">
+                          {priceDisplay}
+                        </Badge>
+                      )}
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4">{addon.description}</p>
+                      {addon.features && Array.isArray(addon.features) && addon.features.length > 0 && (
+                        <ul className="space-y-2">
+                          {addon.features.map((feature: string, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2 text-sm">
+                              <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                              <span className="text-muted-foreground">{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* Industries Section */}
+        <section className="container mx-auto px-4 py-12">
+          <h2 className="text-3xl font-bold mb-8 text-center">Industries We Serve</h2>
+          <div className="grid md:grid-cols-4 gap-6 max-w-4xl mx-auto text-center">
+            {[
+              "Coaching & Consulting",
+              "Digital Products",
+              "Professional Services",
+              "Nonprofits & Social Impact"
+            ].map((industry, index) => (
+              <Card key={index} className="p-6 hover:border-primary transition-colors">
+                <p className="font-medium">{industry}</p>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="container mx-auto px-4 py-16">
+          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+            <CardContent className="text-center p-12">
+              <h2 className="text-3xl font-bold mb-4">Ready to Scale Your Business?</h2>
+              <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+                Let's create a customized strategy that fits your goals, timeline, and budget
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link to="/contact">
+                  <Button size="lg" className="min-w-[200px]">
+                    Book Free Consultation
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+                <Link to="/contact">
+                  <Button size="lg" variant="outline" className="min-w-[200px]">
+                    Request Custom Quote
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
       </div>
     </>
   );

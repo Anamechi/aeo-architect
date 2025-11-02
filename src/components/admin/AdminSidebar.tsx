@@ -10,22 +10,20 @@ import {
   Link,
   Calendar,
   Settings,
-  LogOut
+  LogOut,
+  Package,
+  FileText as Quote
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-  { name: 'AI Tools', href: '/admin/tools', icon: Wrench },
   { name: 'Blog Generator', href: '/admin/blog-generator', icon: FileText },
-  { name: 'QA Generator', href: '/admin/qa-generator', icon: MessageSquare },
-  { name: 'Image Generator', href: '/admin/image-generator', icon: Image },
-  { name: 'Diagram Generator', href: '/admin/diagram-generator', icon: Network },
-  { name: 'Authors', href: '/admin/authors', icon: Users },
-  { name: 'Citation Health', href: '/admin/citations', icon: Link },
-  { name: 'Content Updates', href: '/admin/updates', icon: Calendar },
-  { name: 'Settings', href: '/admin/settings', icon: Settings },
+  { name: 'AI Tools', href: '/admin/ai-tools', icon: Wrench },
+  { name: 'Service Packages', href: '/admin/packages', icon: Package },
+  { name: 'Custom Quotes', href: '/admin/quotes', icon: Quote },
+  { name: 'Pricing Settings', href: '/admin/pricing-settings', icon: Settings },
 ];
 
 export default function AdminSidebar() {

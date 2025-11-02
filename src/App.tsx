@@ -25,6 +25,9 @@ import Signup from "./pages/admin/Signup";
 import Dashboard from "./pages/admin/Dashboard";
 import AdminAITools from "./pages/admin/AITools";
 import BlogGenerator from "./pages/admin/BlogGenerator";
+import Packages from "./pages/admin/Packages";
+import Quotes from "./pages/admin/Quotes";
+import PricingSettings from "./pages/admin/PricingSettings";
 
 const queryClient = new QueryClient();
 
@@ -42,8 +45,11 @@ const App = () => (
               <Route path="/admin/signup" element={<Signup />} />
               <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
                 <Route index element={<Dashboard />} />
-                <Route path="tools" element={<AdminAITools />} />
+                <Route path="ai-tools" element={<AdminAITools />} />
                 <Route path="blog-generator" element={<BlogGenerator />} />
+                <Route path="packages" element={<Packages />} />
+                <Route path="quotes" element={<Quotes />} />
+                <Route path="pricing-settings" element={<PricingSettings />} />
               </Route>
 
               {/* Public routes */}
