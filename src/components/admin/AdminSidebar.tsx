@@ -7,7 +7,7 @@ import {
   Image, 
   Network,
   Users,
-  Link,
+  Link as LinkIcon,
   Calendar,
   Settings,
   LogOut,
@@ -20,9 +20,16 @@ import { Button } from '@/components/ui/button';
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Blog Generator', href: '/admin/blog-generator', icon: FileText },
+  { name: 'QA Generator', href: '/admin/qa-generator', icon: MessageSquare },
+  { name: 'Authors', href: '/admin/authors', icon: Users },
+  { name: 'Citations Health', href: '/admin/citations', icon: LinkIcon },
   { name: 'AI Tools', href: '/admin/ai-tools', icon: Wrench },
   { name: 'Service Packages', href: '/admin/packages', icon: Package },
   { name: 'Custom Quotes', href: '/admin/quotes', icon: Quote },
+  { name: 'Image Generator', href: '/admin/images', icon: Image },
+  { name: 'Diagram Generator', href: '/admin/diagrams', icon: Network },
+  { name: 'Content Updates', href: '/admin/content-updates', icon: Calendar },
+  { name: 'SEO Settings', href: '/admin/seo-settings', icon: Settings },
   { name: 'Pricing Settings', href: '/admin/pricing-settings', icon: Settings },
 ];
 

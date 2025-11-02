@@ -28,6 +28,13 @@ import BlogGenerator from "./pages/admin/BlogGenerator";
 import Packages from "./pages/admin/Packages";
 import Quotes from "./pages/admin/Quotes";
 import PricingSettings from "./pages/admin/PricingSettings";
+import Authors from "./pages/admin/Authors";
+import QAGenerator from "./pages/admin/QAGenerator";
+import Citations from "./pages/admin/Citations";
+import SEOSettings from "./pages/admin/SEOSettings";
+import Images from "./pages/admin/Images";
+import Diagrams from "./pages/admin/Diagrams";
+import ContentUpdates from "./pages/admin/ContentUpdates";
 
 const queryClient = new QueryClient();
 
@@ -47,8 +54,15 @@ const App = () => (
                 <Route index element={<Dashboard />} />
                 <Route path="ai-tools" element={<AdminAITools />} />
                 <Route path="blog-generator" element={<BlogGenerator />} />
+                <Route path="qa-generator" element={<QAGenerator />} />
+                <Route path="authors" element={<Authors />} />
+                <Route path="citations" element={<Citations />} />
                 <Route path="packages" element={<Packages />} />
                 <Route path="quotes" element={<Quotes />} />
+                <Route path="images" element={<Images />} />
+                <Route path="diagrams" element={<Diagrams />} />
+                <Route path="content-updates" element={<ContentUpdates />} />
+                <Route path="seo-settings" element={<SEOSettings />} />
                 <Route path="pricing-settings" element={<PricingSettings />} />
               </Route>
 
