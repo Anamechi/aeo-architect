@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Sparkles, FileText, Target, TrendingUp, Plus, X } from 'lucide-react';
+import { Sparkles, FileText, Target, TrendingUp, Plus, X, Wand2, Loader2, Lightbulb } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -42,6 +42,12 @@ export default function BlogGenerator() {
   
   // SEO Score (calculated)
   const [seoScore, setSeoScore] = useState(0);
+  
+  // AI Generation
+  const [aiTopic, setAiTopic] = useState('');
+  const [aiKeywords, setAiKeywords] = useState('');
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
   
   const [loading, setLoading] = useState(false);
 
@@ -224,6 +230,59 @@ export default function BlogGenerator() {
     }
   };
 
+  const generateWithAI = async (action: 'outline' | 'full-content' | 'optimize') => {
+    if (!aiTopic && action !== 'optimize') {
+      toast.error('Please enter a topic first');
+      return;
+    }
+
+    setAiGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-blog-content', {
+        body: {
+          topic: action === 'optimize' ? content : aiTopic,
+          keywords: aiKeywords,
+          funnelStage,
+          action
+        }
+      });
+
+      if (error) {
+        if (error.message?.includes('429')) {
+          toast.error('Rate limit exceeded. Please try again in a moment.');
+        } else if (error.message?.includes('402')) {
+          toast.error('AI credits depleted. Please add funds to continue.');
+        } else {
+          throw error;
+        }
+        return;
+      }
+
+      const generatedContent = data.content;
+
+      if (action === 'outline') {
+        toast.success('Outline generated! Review and edit as needed.');
+        setContent(generatedContent);
+      } else if (action === 'full-content') {
+        toast.success('Full content generated! Review citations and optimize as needed.');
+        setContent(generatedContent);
+        // Auto-fill title and meta if they're empty
+        if (!title && generatedContent.includes('# ')) {
+          const titleMatch = generatedContent.match(/# (.+)/);
+          if (titleMatch) handleTitleChange(titleMatch[1]);
+        }
+      } else if (action === 'optimize') {
+        setAiSuggestions(generatedContent.split('\n').filter((s: string) => s.trim()));
+        toast.success('Optimization suggestions generated!');
+      }
+    } catch (error: any) {
+      console.error('AI generation error:', error);
+      toast.error(error.message || 'Failed to generate content');
+    } finally {
+      setAiGenerating(false);
+    }
+  };
+
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl">
       <div className="flex items-center justify-between mb-8">
@@ -248,13 +307,134 @@ export default function BlogGenerator() {
         </div>
       </div>
 
-      <Tabs defaultValue="content" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+      <Tabs defaultValue="ai-generate" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="ai-generate">
+            <Wand2 className="h-4 w-4 mr-2" />
+            AI Generate
+          </TabsTrigger>
           <TabsTrigger value="content">Content</TabsTrigger>
           <TabsTrigger value="seo">SEO & Meta</TabsTrigger>
           <TabsTrigger value="citations">Citations</TabsTrigger>
           <TabsTrigger value="schema">Schema Preview</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="ai-generate" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Wand2 className="h-5 w-5 text-primary" />
+                AI Blog Content Generator
+              </CardTitle>
+              <CardDescription>
+                Generate optimized blog content using AI - from outline to full article
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="ai-topic">Topic / Main Question *</Label>
+                  <Input
+                    id="ai-topic"
+                    placeholder="e.g., How to optimize website speed for better SEO"
+                    value={aiTopic}
+                    onChange={(e) => setAiTopic(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="ai-keywords">Target Keywords (optional)</Label>
+                  <Input
+                    id="ai-keywords"
+                    placeholder="e.g., website speed, page load time, SEO optimization"
+                    value={aiKeywords}
+                    onChange={(e) => setAiKeywords(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="ai-funnel">Funnel Stage</Label>
+                  <Select value={funnelStage} onValueChange={(v) => setFunnelStage(v as FunnelStage)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="TOFU">TOFU - Awareness Content</SelectItem>
+                      <SelectItem value="MOFU">MOFU - Consideration Content</SelectItem>
+                      <SelectItem value="BOFU">BOFU - Decision Content</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3 p-4 bg-muted rounded-lg">
+                <p className="text-sm font-medium">Generation Options:</p>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <Button
+                    onClick={() => generateWithAI('outline')}
+                    disabled={aiGenerating || !aiTopic}
+                    className="w-full"
+                    variant="outline"
+                  >
+                    {aiGenerating ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <FileText className="h-4 w-4 mr-2" />
+                    )}
+                    Generate Outline
+                  </Button>
+                  <Button
+                    onClick={() => generateWithAI('full-content')}
+                    disabled={aiGenerating || !aiTopic}
+                    className="w-full"
+                  >
+                    {aiGenerating ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Sparkles className="h-4 w-4 mr-2" />
+                    )}
+                    Generate Full Article
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Start with an outline to review structure, or generate the full article directly.
+                </p>
+              </div>
+
+              {content && (
+                <div className="space-y-3">
+                  <Button
+                    onClick={() => generateWithAI('optimize')}
+                    disabled={aiGenerating}
+                    variant="secondary"
+                    className="w-full"
+                  >
+                    {aiGenerating ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Lightbulb className="h-4 w-4 mr-2" />
+                    )}
+                    Get AI Optimization Suggestions
+                  </Button>
+
+                  {aiSuggestions.length > 0 && (
+                    <Alert>
+                      <Lightbulb className="h-4 w-4" />
+                      <AlertDescription>
+                        <strong className="block mb-2">AI Suggestions:</strong>
+                        <ul className="list-disc list-inside space-y-1 text-sm">
+                          {aiSuggestions.slice(0, 7).map((suggestion, i) => (
+                            <li key={i}>{suggestion}</li>
+                          ))}
+                        </ul>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="content" className="space-y-6">
           <Card>
