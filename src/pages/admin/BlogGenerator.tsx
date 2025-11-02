@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Sparkles, FileText, Target, TrendingUp, Plus, X, Wand2, Loader2, Lightbulb, Link2, ExternalLink } from 'lucide-react';
+import { Sparkles, FileText, Target, TrendingUp, Plus, X, Wand2, Loader2, Lightbulb, Link2, ExternalLink, Image, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -36,9 +36,21 @@ export default function BlogGenerator() {
   const [citations, setCitations] = useState<Array<{ url: string; title: string }>>([]);
   const [citationUrl, setCitationUrl] = useState('');
   const [citationTitle, setCitationTitle] = useState('');
+  const [citationValidation, setCitationValidation] = useState<any>(null);
+  const [validatingCitations, setValidatingCitations] = useState(false);
   
-  // Author selection (simplified for now)
+  // Author selection
   const [selectedAuthorId, setSelectedAuthorId] = useState('');
+  const [authors, setAuthors] = useState<any[]>([]);
+  
+  // Image generation
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [imagePrompt, setImagePrompt] = useState('');
+  const [generatingImage, setGeneratingImage] = useState(false);
+  
+  // AI Reoptimization
+  const [reoptimizationSuggestions, setReoptimizationSuggestions] = useState('');
+  const [reoptimizing, setReoptimizing] = useState(false);
   
   // SEO Score (calculated)
   const [seoScore, setSeoScore] = useState(0);
@@ -55,6 +67,25 @@ export default function BlogGenerator() {
   const [loadingLinks, setLoadingLinks] = useState(false);
   
   const [loading, setLoading] = useState(false);
+
+  // Fetch authors on mount
+  useEffect(() => {
+    const fetchAuthors = async () => {
+      const { data, error } = await supabase
+        .from('authors')
+        .select('id, name, title, expertise_areas')
+        .order('name');
+      
+      if (error) {
+        console.error('Error fetching authors:', error);
+        return;
+      }
+      
+      setAuthors(data || []);
+    };
+    
+    fetchAuthors();
+  }, []);
 
   // Auto-generate slug from title
   const handleTitleChange = (value: string) => {
@@ -329,6 +360,107 @@ export default function BlogGenerator() {
     toast.success('Link markdown copied to clipboard!');
   };
 
+  const generateImage = async () => {
+    if (!imagePrompt) {
+      toast.error('Please enter an image prompt');
+      return;
+    }
+
+    setGeneratingImage(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-blog-image', {
+        body: { prompt: imagePrompt, style: 'professional' }
+      });
+
+      if (error) {
+        if (error.message?.includes('429')) {
+          toast.error('Rate limit exceeded. Please try again later.');
+        } else if (error.message?.includes('402')) {
+          toast.error('AI credits depleted. Please add funds.');
+        } else {
+          throw error;
+        }
+        return;
+      }
+
+      setGeneratedImages([...generatedImages, data.imageUrl]);
+      toast.success('Image generated! Copy or download to use in your article.');
+      setImagePrompt('');
+    } catch (error: any) {
+      console.error('Image generation error:', error);
+      toast.error(error.message || 'Failed to generate image');
+    } finally {
+      setGeneratingImage(false);
+    }
+  };
+
+  const validateCitations = async () => {
+    if (citations.length === 0) {
+      toast.error('Add citations first to validate them');
+      return;
+    }
+
+    setValidatingCitations(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('validate-citations', {
+        body: { citations }
+      });
+
+      if (error) throw error;
+
+      setCitationValidation(data);
+      
+      const { summary } = data;
+      if (summary.broken > 0 || summary.error > 0) {
+        toast.warning(`Found ${summary.broken + summary.error} broken/error citations`);
+      } else {
+        toast.success(`All ${summary.valid} citations are valid!`);
+      }
+    } catch (error: any) {
+      console.error('Citation validation error:', error);
+      toast.error(error.message || 'Failed to validate citations');
+    } finally {
+      setValidatingCitations(false);
+    }
+  };
+
+  const reoptimizeContent = async () => {
+    if (!content || !title) {
+      toast.error('Add content and title first to reoptimize');
+      return;
+    }
+
+    setReoptimizing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('reoptimize-blog-content', {
+        body: {
+          postId: null, // New post, no ID yet
+          currentContent: content,
+          optimizationGoals: 'Improve SEO score, readability, and AI crawler visibility'
+        }
+      });
+
+      if (error) {
+        if (error.message?.includes('429')) {
+          toast.error('Rate limit exceeded. Please try again later.');
+        } else if (error.message?.includes('402')) {
+          toast.error('AI credits depleted. Please add funds.');
+        } else {
+          throw error;
+        }
+        return;
+      }
+
+      setReoptimizationSuggestions(data.suggestions);
+      toast.success('Optimization suggestions generated!');
+    } catch (error: any) {
+      console.error('Reoptimization error:', error);
+      toast.error(error.message || 'Failed to generate optimization suggestions');
+    } finally {
+      setReoptimizing(false);
+    }
+  };
+
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl">
       <div className="flex items-center justify-between mb-8">
@@ -354,19 +486,23 @@ export default function BlogGenerator() {
       </div>
 
       <Tabs defaultValue="ai-generate" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7 text-xs">
           <TabsTrigger value="ai-generate">
-            <Wand2 className="h-4 w-4 mr-2" />
+            <Wand2 className="h-4 w-4 mr-1" />
             AI Generate
           </TabsTrigger>
           <TabsTrigger value="content">Content</TabsTrigger>
-          <TabsTrigger value="seo">SEO & Meta</TabsTrigger>
+          <TabsTrigger value="seo">SEO</TabsTrigger>
           <TabsTrigger value="funnel-links">
-            <Link2 className="h-4 w-4 mr-2" />
-            Funnel Links
+            <Link2 className="h-4 w-4 mr-1" />
+            Links
+          </TabsTrigger>
+          <TabsTrigger value="media">
+            <Image className="h-4 w-4 mr-1" />
+            Media
           </TabsTrigger>
           <TabsTrigger value="citations">Citations</TabsTrigger>
-          <TabsTrigger value="schema">Schema Preview</TabsTrigger>
+          <TabsTrigger value="schema">Schema</TabsTrigger>
         </TabsList>
 
         <TabsContent value="ai-generate" className="space-y-6">
@@ -529,6 +665,25 @@ export default function BlogGenerator() {
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="author">Author (E-E-A-T)</Label>
+                <Select value={selectedAuthorId} onValueChange={setSelectedAuthorId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an author..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {authors.map(author => (
+                      <SelectItem key={author.id} value={author.id}>
+                        {author.name} {author.title && `- ${author.title}`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Boost E-E-A-T by assigning a credentialed author
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -747,6 +902,125 @@ export default function BlogGenerator() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="media" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Image className="h-5 w-5 text-primary" />
+                AI Image Generation
+              </CardTitle>
+              <CardDescription>
+                Generate professional images for your blog article using AI
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="image-prompt">Image Description</Label>
+                  <Textarea
+                    id="image-prompt"
+                    placeholder="E.g., A modern workspace with a laptop showing analytics dashboard, professional lighting, clean design"
+                    value={imagePrompt}
+                    onChange={(e) => setImagePrompt(e.target.value)}
+                    rows={3}
+                  />
+                </div>
+
+                <Button
+                  onClick={generateImage}
+                  disabled={generatingImage || !imagePrompt}
+                  className="w-full"
+                >
+                  {generatingImage ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Image className="h-4 w-4 mr-2" />
+                  )}
+                  Generate Professional Image
+                </Button>
+              </div>
+
+              {generatedImages.length > 0 && (
+                <div className="space-y-4 border-t pt-4">
+                  <Label>Generated Images ({generatedImages.length})</Label>
+                  <div className="grid grid-cols-2 gap-4">
+                    {generatedImages.map((imgUrl, index) => (
+                      <div key={index} className="space-y-2">
+                        <img 
+                          src={imgUrl} 
+                          alt={`Generated ${index + 1}`}
+                          className="w-full rounded-lg border"
+                        />
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1 text-xs"
+                            onClick={() => {
+                              const link = document.createElement('a');
+                              link.href = imgUrl;
+                              link.download = `blog-image-${index + 1}.png`;
+                              link.click();
+                            }}
+                          >
+                            Download
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1 text-xs"
+                            onClick={() => {
+                              navigator.clipboard.writeText(imgUrl);
+                              toast.success('Image URL copied!');
+                            }}
+                          >
+                            Copy URL
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <Alert>
+                    <Lightbulb className="h-4 w-4" />
+                    <AlertDescription className="text-xs">
+                      <strong>Pro Tip:</strong> Download and upload images to your own hosting for better SEO. 
+                      Add descriptive alt text when inserting into your article.
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              )}
+
+              <div className="flex gap-2 pt-4 border-t">
+                <Button
+                  onClick={reoptimizeContent}
+                  disabled={reoptimizing || !content}
+                  variant="secondary"
+                  className="flex-1"
+                >
+                  {reoptimizing ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                  )}
+                  AI Content Reoptimization
+                </Button>
+              </div>
+
+              {reoptimizationSuggestions && (
+                <Alert>
+                  <Lightbulb className="h-4 w-4" />
+                  <AlertDescription>
+                    <strong className="block mb-2">Reoptimization Suggestions:</strong>
+                    <div className="text-sm whitespace-pre-wrap max-h-[400px] overflow-y-auto">
+                      {reoptimizationSuggestions}
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="citations" className="space-y-6">
           <Card>
             <CardHeader>
@@ -781,34 +1055,93 @@ export default function BlogGenerator() {
                   </div>
                 </div>
 
+                <div className="flex gap-2">
+                  <Button
+                    onClick={validateCitations}
+                    disabled={validatingCitations || citations.length === 0}
+                    variant="secondary"
+                    className="flex-1"
+                  >
+                    {validatingCitations ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                    )}
+                    Validate All Citations
+                  </Button>
+                </div>
+
+                {citationValidation && (
+                  <Alert>
+                    <CheckCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      <strong className="block mb-2">Validation Results:</strong>
+                      <div className="flex gap-4 text-xs">
+                        <span className="text-green-600">✓ Valid: {citationValidation.summary.valid}</span>
+                        {citationValidation.summary.broken > 0 && (
+                          <span className="text-red-600">✗ Broken: {citationValidation.summary.broken}</span>
+                        )}
+                        {citationValidation.summary.slow > 0 && (
+                          <span className="text-yellow-600">⚠ Slow: {citationValidation.summary.slow}</span>
+                        )}
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+                )}
+
                 <div className="space-y-2">
                   <Label>Added Citations ({citations.length})</Label>
                   {citations.length === 0 ? (
                     <p className="text-sm text-muted-foreground">No citations added yet</p>
                   ) : (
                     <div className="space-y-2">
-                      {citations.map((citation, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                          <div className="flex-1">
-                            <p className="font-medium text-sm">{citation.title}</p>
-                            <a 
-                              href={citation.url} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-xs text-primary hover:underline"
+                      {citations.map((citation, index) => {
+                        const validation = citationValidation?.results?.find(
+                          (r: any) => r.url === citation.url
+                        );
+                        
+                        return (
+                          <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium text-sm">{citation.title}</p>
+                                {validation && (
+                                  <Badge 
+                                    variant={validation.status === 'valid' ? 'default' : 'destructive'}
+                                    className="text-xs"
+                                  >
+                                    {validation.status === 'valid' ? (
+                                      <><CheckCircle className="h-3 w-3 mr-1" /> Valid</>
+                                    ) : (
+                                      <><AlertCircle className="h-3 w-3 mr-1" /> {validation.status}</>
+                                    )}
+                                  </Badge>
+                                )}
+                              </div>
+                              <a 
+                                href={citation.url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-xs text-primary hover:underline"
+                              >
+                                {citation.url}
+                              </a>
+                              {validation && (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {validation.message}
+                                </p>
+                              )}
+                            </div>
+                            <Button 
+                              onClick={() => removeCitation(index)} 
+                              variant="ghost" 
+                              size="icon"
                             >
-                              {citation.url}
-                            </a>
+                              <X className="h-4 w-4" />
+                            </Button>
                           </div>
-                          <Button 
-                            onClick={() => removeCitation(index)} 
-                            variant="ghost" 
-                            size="icon"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>

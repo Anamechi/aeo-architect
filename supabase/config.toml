@@ -5,3 +5,12 @@ verify_jwt = true
 
 [functions.suggest-funnel-links]
 verify_jwt = true
+
+[functions.generate-blog-image]
+verify_jwt = true
+
+[functions.validate-citations]
+verify_jwt = true
+
+[functions.reoptimize-blog-content]
+verify_jwt = true
