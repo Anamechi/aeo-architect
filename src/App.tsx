@@ -21,6 +21,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/admin/Login";
+import Signup from "./pages/admin/Signup";
 import Dashboard from "./pages/admin/Dashboard";
 import AdminAITools from "./pages/admin/AITools";
 
@@ -37,6 +38,7 @@ const App = () => (
             <Routes>
               {/* Admin routes */}
               <Route path="/admin/login" element={<Login />} />
+              <Route path="/admin/signup" element={<Signup />} />
               <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
                 <Route index element={<Dashboard />} />
                 <Route path="tools" element={<AdminAITools />} />
