@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Sparkles, FileText, Target, TrendingUp, Plus, X, Wand2, Loader2, Lightbulb } from 'lucide-react';
+import { Sparkles, FileText, Target, TrendingUp, Plus, X, Wand2, Loader2, Lightbulb, Link2, ExternalLink } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -48,6 +48,11 @@ export default function BlogGenerator() {
   const [aiKeywords, setAiKeywords] = useState('');
   const [aiGenerating, setAiGenerating] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
+  
+  // Funnel Linking
+  const [linkSuggestions, setLinkSuggestions] = useState<any[]>([]);
+  const [linkingStrategy, setLinkingStrategy] = useState('');
+  const [loadingLinks, setLoadingLinks] = useState(false);
   
   const [loading, setLoading] = useState(false);
 
@@ -283,6 +288,47 @@ export default function BlogGenerator() {
     }
   };
 
+  const suggestFunnelLinks = async () => {
+    if (!category && tags.length === 0) {
+      toast.error('Please add a category or tags first to get relevant link suggestions');
+      return;
+    }
+
+    setLoadingLinks(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('suggest-funnel-links', {
+        body: {
+          currentFunnelStage: funnelStage,
+          category,
+          tags,
+          currentSlug: slug
+        }
+      });
+
+      if (error) throw error;
+
+      setLinkSuggestions(data.suggestions || []);
+      setLinkingStrategy(data.strategy || '');
+      
+      if (data.suggestions?.length > 0) {
+        toast.success(`Found ${data.suggestions.length} strategic link suggestions`);
+      } else {
+        toast.info('No relevant articles found. Try publishing more content in different funnel stages.');
+      }
+    } catch (error: any) {
+      console.error('Link suggestion error:', error);
+      toast.error(error.message || 'Failed to generate link suggestions');
+    } finally {
+      setLoadingLinks(false);
+    }
+  };
+
+  const copyLinkMarkdown = (title: string, slug: string) => {
+    const markdown = `[${title}](/blog/${slug})`;
+    navigator.clipboard.writeText(markdown);
+    toast.success('Link markdown copied to clipboard!');
+  };
+
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl">
       <div className="flex items-center justify-between mb-8">
@@ -308,13 +354,17 @@ export default function BlogGenerator() {
       </div>
 
       <Tabs defaultValue="ai-generate" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="ai-generate">
             <Wand2 className="h-4 w-4 mr-2" />
             AI Generate
           </TabsTrigger>
           <TabsTrigger value="content">Content</TabsTrigger>
           <TabsTrigger value="seo">SEO & Meta</TabsTrigger>
+          <TabsTrigger value="funnel-links">
+            <Link2 className="h-4 w-4 mr-2" />
+            Funnel Links
+          </TabsTrigger>
           <TabsTrigger value="citations">Citations</TabsTrigger>
           <TabsTrigger value="schema">Schema Preview</TabsTrigger>
         </TabsList>
@@ -564,6 +614,135 @@ export default function BlogGenerator() {
                   ))}
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="funnel-links" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Link2 className="h-5 w-5 text-primary" />
+                TOFU-MOFU-BOFU Strategic Linking
+              </CardTitle>
+              <CardDescription>
+                Get AI-powered suggestions for internal links that guide readers through your funnel
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Alert>
+                <TrendingUp className="h-4 w-4" />
+                <AlertDescription>
+                  <strong className="block mb-1">Current Stage: {funnelStage}</strong>
+                  {funnelStage === 'TOFU' && 'Guide readers from awareness to consideration with MOFU links'}
+                  {funnelStage === 'MOFU' && 'Provide context with TOFU links and guide to decision with BOFU links'}
+                  {funnelStage === 'BOFU' && 'Add supporting detail with MOFU links'}
+                </AlertDescription>
+              </Alert>
+
+              <div className="flex flex-col gap-3">
+                <Button
+                  onClick={suggestFunnelLinks}
+                  disabled={loadingLinks || (!category && tags.length === 0)}
+                  className="w-full"
+                >
+                  {loadingLinks ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Link2 className="h-4 w-4 mr-2" />
+                  )}
+                  Analyze & Suggest Strategic Links
+                </Button>
+                <p className="text-xs text-muted-foreground text-center">
+                  Add category and tags first for best results
+                </p>
+              </div>
+
+              {linkSuggestions.length > 0 && (
+                <div className="space-y-4">
+                  <div className="border-t pt-4">
+                    <h3 className="font-semibold mb-2 text-sm">{linkingStrategy}</h3>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Found {linkSuggestions.length} strategic link opportunities
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    {linkSuggestions.map((suggestion, index) => (
+                      <Card key={suggestion.id} className="border-2">
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="text-xs">
+                                  {suggestion.funnelStage}
+                                </Badge>
+                                {suggestion.category && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    {suggestion.category}
+                                  </Badge>
+                                )}
+                                <Badge className="text-xs">
+                                  Score: {suggestion.relevanceScore}
+                                </Badge>
+                              </div>
+                              
+                              <h4 className="font-semibold text-sm leading-tight">
+                                {suggestion.title}
+                              </h4>
+                              
+                              <p className="text-xs text-muted-foreground">
+                                {suggestion.linkReason}
+                              </p>
+                              
+                              {suggestion.metaDescription && (
+                                <p className="text-xs text-muted-foreground italic line-clamp-2">
+                                  "{suggestion.metaDescription}"
+                                </p>
+                              )}
+                              
+                              <div className="flex items-center gap-2 pt-1">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => copyLinkMarkdown(suggestion.title, suggestion.slug)}
+                                  className="text-xs h-7"
+                                >
+                                  Copy Link Markdown
+                                </Button>
+                                <a
+                                  href={`/blog/${suggestion.slug}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-primary hover:underline flex items-center gap-1"
+                                >
+                                  Preview <ExternalLink className="h-3 w-3" />
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+
+                  <Alert>
+                    <Lightbulb className="h-4 w-4" />
+                    <AlertDescription className="text-xs">
+                      <strong>Pro Tip:</strong> Copy the markdown and paste it into your content where contextually relevant. 
+                      Use 2-4 internal links per article for optimal SEO and user experience.
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              )}
+
+              {linkSuggestions.length === 0 && !loadingLinks && linkingStrategy && (
+                <Alert>
+                  <AlertDescription>
+                    No relevant articles found yet. Publish more content across different funnel stages to enable strategic linking.
+                  </AlertDescription>
+                </Alert>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

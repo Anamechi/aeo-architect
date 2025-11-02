@@ -2,3 +2,6 @@ project_id = "hjbylbjbxjotbijzrwma"
 
 [functions.generate-blog-content]
 verify_jwt = true
+
+[functions.suggest-funnel-links]
+verify_jwt = true
