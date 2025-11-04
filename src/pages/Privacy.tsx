@@ -7,8 +7,8 @@ const Privacy = () => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://anamechi.com/" },
-      { "@type": "ListItem", "position": 2, "name": "Privacy Policy", "item": "https://anamechi.com/privacy/" }
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://home.anamechimarketing.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Privacy Policy", "item": "https://home.anamechimarketing.com/privacy/" }
     ]
   };
 
@@ -89,8 +89,8 @@ const Privacy = () => {
               <h2 className="text-2xl font-semibold text-foreground mb-4">7. Contact Us</h2>
               <p className="text-muted-foreground">
                 For privacy-related questions or requests, contact us at:{" "}
-                <a href="mailto:privacy@anamechi.com" className="text-primary hover:underline">
-                  privacy@anamechi.com
+                <a href="mailto:privacy@anamechimarketing.com" className="text-primary hover:underline">
+                  privacy@anamechimarketing.com
                 </a>
               </p>
             </section>

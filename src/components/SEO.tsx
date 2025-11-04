@@ -19,11 +19,11 @@ export const SEO = ({
   description,
   canonical,
   type = "website",
-  image = "https://anamechi.com/assets/og-image.png",
+  image = "https://home.anamechimarketing.com/assets/og-image.png",
   article,
   structuredData = [],
 }: SEOProps) => {
-  const siteUrl = "https://anamechi.com";
+  const siteUrl = "https://home.anamechimarketing.com";
   const fullTitle = `${title} | ANAMECHI Marketing`;
   const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
 

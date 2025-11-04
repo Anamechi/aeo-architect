@@ -134,10 +134,10 @@ Remember: AEO is an ongoing practice, not a one-time project. Regular updates, f
       "name": "ANAMECHI Marketing",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://anamechi.com/assets/logo.png"
+        "url": "https://home.anamechimarketing.com/assets/logo.png"
       }
     },
-    "mainEntityOfPage": `https://anamechi.com/blog/${article.slug}/`,
+    "mainEntityOfPage": `https://home.anamechimarketing.com/blog/${article.slug}/`,
     "citation": [
       "https://developers.google.com/search/docs/appearance/structured-data",
       "https://moz.com/learn/seo"
@@ -148,9 +148,9 @@ Remember: AEO is an ongoing practice, not a one-time project. Regular updates, f
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://anamechi.com/" },
-      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://anamechi.com/blog/" },
-      { "@type": "ListItem", "position": 3, "name": article.title, "item": `https://anamechi.com/blog/${article.slug}/` }
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://home.anamechimarketing.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://home.anamechimarketing.com/blog/" },
+      { "@type": "ListItem", "position": 3, "name": article.title, "item": `https://home.anamechimarketing.com/blog/${article.slug}/` }
     ]
   };
 

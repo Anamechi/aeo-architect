@@ -7,8 +7,8 @@ const Terms = () => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://anamechi.com/" },
-      { "@type": "ListItem", "position": 2, "name": "Terms of Service", "item": "https://anamechi.com/terms/" }
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://home.anamechimarketing.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Terms of Service", "item": "https://home.anamechimarketing.com/terms/" }
     ]
   };
 
@@ -86,8 +86,8 @@ const Terms = () => {
               <h2 className="text-2xl font-semibold text-foreground mb-4">8. Contact Information</h2>
               <p className="text-muted-foreground">
                 For questions about these Terms of Service, contact:{" "}
-                <a href="mailto:legal@anamechi.com" className="text-primary hover:underline">
-                  legal@anamechi.com
+                <a href="mailto:legal@anamechimarketing.com" className="text-primary hover:underline">
+                  legal@anamechimarketing.com
                 </a>
               </p>
             </section>

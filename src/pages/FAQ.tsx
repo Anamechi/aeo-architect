@@ -77,8 +77,8 @@ const FAQ = () => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://anamechi.com/" },
-      { "@type": "ListItem", "position": 2, "name": "FAQ", "item": "https://anamechi.com/faq/" }
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://home.anamechimarketing.com/" },
+      { "@type": "ListItem", "position": 2, "name": "FAQ", "item": "https://home.anamechimarketing.com/faq/" }
     ]
   };
 

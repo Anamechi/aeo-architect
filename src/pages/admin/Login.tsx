@@ -58,7 +58,7 @@ export default function Login() {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@anamechi.com"
+                placeholder="admin@anamechimarketing.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

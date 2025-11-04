@@ -19,8 +19,8 @@ User-agent: Google-Extended
 Allow: /
 
 # Sitemaps
-Sitemap: https://anamechi.com/sitemap.xml
-Sitemap: https://anamechi.com/sitemap-blogs.xml
+Sitemap: https://home.anamechimarketing.com/sitemap.xml
+Sitemap: https://home.anamechimarketing.com/sitemap-blogs.xml
 
 # LLMs documentation index (optional but helpful for AEO)
 Allow: /llms.txt

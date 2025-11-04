@@ -10,8 +10,8 @@ const AITools = () => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://anamechi.com/" },
-      { "@type": "ListItem", "position": 2, "name": "AI Tools", "item": "https://anamechi.com/ai-tools/" }
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://home.anamechimarketing.com/" },
+      { "@type": "ListItem", "position": 2, "name": "AI Tools", "item": "https://home.anamechimarketing.com/ai-tools/" }
     ]
   };
 

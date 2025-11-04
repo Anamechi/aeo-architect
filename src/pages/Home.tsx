@@ -20,8 +20,8 @@ const Home = () => {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "ANAMECHI Marketing",
-    "url": "https://anamechi.com",
-    "logo": "https://anamechi.com/assets/logo.png",
+    "url": "https://home.anamechimarketing.com",
+    "logo": "https://home.anamechimarketing.com/assets/logo.png",
     "sameAs": [
       "https://www.linkedin.com/in/deannaromulus",
       "https://x.com/anamechi",
@@ -38,10 +38,10 @@ const Home = () => {
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "url": "https://anamechi.com",
+    "url": "https://home.anamechimarketing.com",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://anamechi.com/search?q={query}",
+      "target": "https://home.anamechimarketing.com/search?q={query}",
       "query-input": "required name=query"
     }
   };

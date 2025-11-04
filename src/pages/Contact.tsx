@@ -12,8 +12,8 @@ const Contact = () => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://anamechi.com/" },
-      { "@type": "ListItem", "position": 2, "name": "Contact", "item": "https://anamechi.com/contact/" }
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://home.anamechimarketing.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Contact", "item": "https://home.anamechimarketing.com/contact/" }
     ]
   };
 
@@ -21,9 +21,9 @@ const Contact = () => {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "name": "ANAMECHI Marketing",
-    "url": "https://anamechi.com",
+    "url": "https://home.anamechimarketing.com",
     "telephone": "+1-800-990-3623",
-    "email": "contact@anamechi.com",
+    "email": "contact@anamechimarketing.com",
     "address": {
       "@type": "PostalAddress",
       "addressLocality": "Plano",
@@ -109,8 +109,8 @@ const Contact = () => {
                     <Mail className="h-5 w-5 text-primary mt-0.5" />
                     <div>
                       <p className="font-medium text-foreground">Email</p>
-                      <a href="mailto:contact@anamechi.com" className="text-sm hover:text-primary">
-                        contact@anamechi.com
+                      <a href="mailto:contact@anamechimarketing.com" className="text-sm hover:text-primary">
+                        contact@anamechimarketing.com
                       </a>
                     </div>
                   </div>
