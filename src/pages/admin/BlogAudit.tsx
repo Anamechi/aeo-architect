@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 interface BlogPost {
   id: string;
   title: string;
+  slug: string;
   status: string;
   featured_image_url: string | null;
   funnel_stage: string | null;
@@ -60,7 +61,7 @@ export default function BlogAudit() {
     setLoading(true);
     const { data, error } = await supabase
       .from('blog_posts')
-      .select('id, title, status, featured_image_url, funnel_stage, category')
+      .select('id, title, slug, status, featured_image_url, funnel_stage, category')
       .in('status', ['published', 'draft'])
       .order('created_at', { ascending: false });
 
@@ -266,6 +267,25 @@ export default function BlogAudit() {
     }
   };
 
+  const handlePublish = async (postId: string, publish: boolean, postTitle: string) => {
+    try {
+      const { error } = await supabase
+        .from('blog_posts')
+        .update({
+          status: publish ? 'published' : 'draft',
+          published_at: publish ? new Date().toISOString() : null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', postId);
+
+      if (error) throw error;
+      toast.success(`${publish ? 'Published' : 'Unpublished'}: ${postTitle}`);
+      await fetchPosts();
+    } catch (e) {
+      console.error('Publish toggle failed:', e);
+      toast.error('Failed to change publish status');
+    }
+  };
   const optimizePost = async (postId: string, postTitle: string) => {
     setOptimizing(postId);
     const auditResult = auditResults.find(r => r.postId === postId);
@@ -558,6 +578,37 @@ export default function BlogAudit() {
                           </>
                         )}
                       </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => (window.location.href = `/admin/blog/edit/${result.postId}`)}
+                      >
+                        Open Editor
+                      </Button>
+                      {(() => {
+                        const postMeta = posts.find(p => p.id === result.postId);
+                        const isPublished = postMeta?.status === 'published';
+                        return (
+                          <>
+                            <Button
+                              size="sm"
+                              variant={isPublished ? 'ghost' : 'secondary'}
+                              onClick={() => handlePublish(result.postId, !isPublished, result.title)}
+                            >
+                              {isPublished ? 'Unpublish' : 'Publish'}
+                            </Button>
+                            {isPublished && postMeta?.slug && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => window.open(`/blog/${postMeta.slug}`, '_blank')}
+                              >
+                                View
+                              </Button>
+                            )}
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
                 </CardHeader>

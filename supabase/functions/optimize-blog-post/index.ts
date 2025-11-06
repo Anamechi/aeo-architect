@@ -113,9 +113,33 @@ Category: ${post.category || 'Marketing'}
     }
 
     const data = await response.json();
-    const optimizedContent = JSON.parse(
-      data.choices[0].message.tool_calls[0].function.arguments
-    );
+
+    // Robust parsing: prefer tool calls, fallback to JSON content
+    let optimizedContent: any = null;
+    const choice = data.choices?.[0];
+    const toolArgs = choice?.message?.tool_calls?.[0]?.function?.arguments;
+
+    try {
+      if (toolArgs) {
+        optimizedContent = JSON.parse(toolArgs);
+      } else if (choice?.message?.content) {
+        // Try parsing direct JSON content
+        const content = choice.message.content.trim();
+        // Remove code fences if present
+        const cleaned = content.replace(/^```(json)?/i, '').replace(/```$/i, '').trim();
+        optimizedContent = JSON.parse(cleaned);
+      }
+    } catch (e) {
+      console.error('Failed to parse optimized content:', e);
+    }
+
+    if (!optimizedContent || !optimizedContent.title || !optimizedContent.content) {
+      console.error('Invalid optimized content payload:', JSON.stringify(choice));
+      return new Response(
+        JSON.stringify({ error: 'AI did not return a valid optimized payload' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      );
+    }
 
     return new Response(
       JSON.stringify(optimizedContent),
