@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run secrets detection script
+node scripts/detect-secrets.js
+
+# If the script exits with non-zero, the commit will be blocked
