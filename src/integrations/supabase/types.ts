@@ -332,6 +332,45 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_submissions: {
+        Row: {
+          email: string
+          ghl_contact_id: string | null
+          id: string
+          ip_address: string | null
+          message: string | null
+          name: string
+          phone: string | null
+          service: string | null
+          submitted_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          email: string
+          ghl_contact_id?: string | null
+          id?: string
+          ip_address?: string | null
+          message?: string | null
+          name: string
+          phone?: string | null
+          service?: string | null
+          submitted_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          email?: string
+          ghl_contact_id?: string | null
+          id?: string
+          ip_address?: string | null
+          message?: string | null
+          name?: string
+          phone?: string | null
+          service?: string | null
+          submitted_at?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       content_updates: {
         Row: {
           change_type: string | null
