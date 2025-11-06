@@ -260,6 +260,16 @@ const Home = () => {
           </Card>
         </div>
       </section>
+
+      {/* Discreet Admin Access */}
+      <div className="py-4 text-center">
+        <Link 
+          to="/admin" 
+          className="text-xs text-muted-foreground/30 hover:text-muted-foreground/60 transition-colors"
+        >
+          •
+        </Link>
+      </div>
     </>
   );
 };
