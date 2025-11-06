@@ -13,6 +13,7 @@ import {
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [adminMenuOpen, setAdminMenuOpen] = useState(false);
+  const [clickCount, setClickCount] = useState(0);
   const location = useLocation();
   const clickCountRef = useRef(0);
   const clickTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -37,6 +38,7 @@ export const Header = () => {
 
   const handleLogoClick = () => {
     clickCountRef.current += 1;
+    setClickCount(clickCountRef.current);
 
     // Clear existing timer
     if (clickTimerRef.current) {
@@ -47,10 +49,12 @@ export const Header = () => {
     if (clickCountRef.current === 3) {
       setAdminMenuOpen(true);
       clickCountRef.current = 0;
+      setClickCount(0);
     } else {
       // Reset counter after 1 second
       clickTimerRef.current = setTimeout(() => {
         clickCountRef.current = 0;
+        setClickCount(0);
       }, 1000);
     }
   };
@@ -60,8 +64,24 @@ export const Header = () => {
       <nav className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-2" onClick={handleLogoClick}>
-          <div className="flex items-center space-x-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-primary" />
+          <div className="flex items-center space-x-2 relative">
+            <div 
+              className={`h-8 w-8 rounded-lg bg-gradient-primary transition-all duration-200 ${
+                clickCount === 1 ? 'scale-110 shadow-md' : 
+                clickCount === 2 ? 'scale-125 shadow-lg animate-pulse' : 
+                clickCount >= 3 ? 'scale-110 shadow-xl' : ''
+              }`}
+            />
+            {clickCount > 0 && (
+              <div className="absolute -top-1 -right-1 flex gap-0.5">
+                {[...Array(clickCount)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-1.5 w-1.5 rounded-full bg-primary animate-scale-in"
+                  />
+                ))}
+              </div>
+            )}
             <span className="text-xl font-bold text-foreground">ANAMECHI</span>
           </div>
         </Link>
