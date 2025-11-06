@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliate_clicks: {
+        Row: {
+          clicked_at: string
+          converted: boolean | null
+          converted_at: string | null
+          id: string
+          notes: string | null
+          referrer: string | null
+          tool_name: string
+          tool_url: string
+          user_agent: string | null
+        }
+        Insert: {
+          clicked_at?: string
+          converted?: boolean | null
+          converted_at?: string | null
+          id?: string
+          notes?: string | null
+          referrer?: string | null
+          tool_name: string
+          tool_url: string
+          user_agent?: string | null
+        }
+        Update: {
+          clicked_at?: string
+          converted?: boolean | null
+          converted_at?: string | null
+          id?: string
+          notes?: string | null
+          referrer?: string | null
+          tool_name?: string
+          tool_url?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       ai_tools: {
         Row: {
           api_key_required: boolean | null

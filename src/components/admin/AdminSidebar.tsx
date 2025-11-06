@@ -15,7 +15,8 @@ import {
   FileText as Quote,
   Lightbulb,
   HelpCircle,
-  CheckCircle
+  CheckCircle,
+  TrendingUp
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,7 @@ const navigation = [
   { name: 'Citations', href: '/admin/citations', icon: LinkIcon },
   { name: 'Citation Health', href: '/admin/citation-health', icon: CheckCircle },
   { name: 'AI Tools', href: '/admin/ai-tools', icon: Wrench },
+  { name: 'Referral Tracking', href: '/admin/referral-tracking', icon: TrendingUp },
   { name: 'Service Packages', href: '/admin/packages', icon: Package },
   { name: 'Custom Quotes', href: '/admin/quotes', icon: Quote },
   { name: 'Image Generator', href: '/admin/images', icon: Image },

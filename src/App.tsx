@@ -38,6 +38,7 @@ import ContentUpdates from "./pages/admin/ContentUpdates";
 import MasterPrompts from "./pages/admin/MasterPrompts";
 import CitationHealth from "./pages/admin/CitationHealth";
 import FAQManager from "./pages/admin/FAQManager";
+import ReferralTracking from "./pages/admin/ReferralTracking";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +72,7 @@ const App = () => (
                 <Route path="content-updates" element={<ContentUpdates />} />
                 <Route path="seo-settings" element={<SEOSettings />} />
                 <Route path="pricing-settings" element={<PricingSettings />} />
+                <Route path="referral-tracking" element={<ReferralTracking />} />
               </Route>
 
               {/* Public routes */}

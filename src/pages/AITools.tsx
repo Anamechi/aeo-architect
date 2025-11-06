@@ -4,8 +4,22 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Star } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const AITools = () => {
+  const handleToolClick = async (toolName: string, toolUrl: string) => {
+    try {
+      await supabase.from('affiliate_clicks').insert({
+        tool_name: toolName,
+        tool_url: toolUrl,
+        user_agent: navigator.userAgent,
+        referrer: document.referrer || null
+      });
+    } catch (error) {
+      console.error('Error tracking click:', error);
+    }
+    window.open(toolUrl, '_blank');
+  };
   const breadcrumbsSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -114,10 +128,12 @@ const AITools = () => {
                   <p className="text-sm font-medium text-foreground">Best For:</p>
                   <p className="text-sm text-muted-foreground">{tool.useCase}</p>
                 </div>
-                <Button variant="outline" className="w-full" asChild>
-                  <a href={tool.url} target="_blank" rel="noopener noreferrer">
-                    Visit Tool <ExternalLink className="ml-2 h-4 w-4" />
-                  </a>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => handleToolClick(tool.name, tool.url)}
+                >
+                  Visit Tool <ExternalLink className="ml-2 h-4 w-4" />
                 </Button>
               </CardContent>
             </Card>
