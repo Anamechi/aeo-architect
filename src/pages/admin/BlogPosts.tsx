@@ -26,6 +26,7 @@ interface BlogPost {
   published_at: string | null;
   created_at: string;
   updated_at: string;
+  featured_image_url: string | null;
 }
 
 export default function BlogPosts() {
@@ -265,7 +266,18 @@ export default function BlogPosts() {
           {filteredPosts.map((post) => (
             <Card key={post.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-6">
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-4">
+                  {/* Featured Image Thumbnail */}
+                  {post.featured_image_url && (
+                    <div className="flex-shrink-0">
+                      <img 
+                        src={post.featured_image_url} 
+                        alt={post.title}
+                        className="w-32 h-24 object-cover rounded-lg"
+                      />
+                    </div>
+                  )}
+                  
                   <div className="flex-1 space-y-3">
                     {/* Title and Badges */}
                     <div>

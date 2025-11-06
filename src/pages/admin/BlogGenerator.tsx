@@ -305,12 +305,30 @@ export default function BlogGenerator() {
         toast.success('Outline generated! Review and edit as needed.');
         setContent(generatedContent);
       } else if (action === 'full-content') {
-        toast.success('Full content generated! Review citations and optimize as needed.');
         setContent(generatedContent);
         // Auto-fill title and meta if they're empty
         if (!title && generatedContent.includes('# ')) {
           const titleMatch = generatedContent.match(/# (.+)/);
           if (titleMatch) handleTitleChange(titleMatch[1]);
+        }
+        
+        toast.success('Full content generated! Generating featured image...');
+        
+        // Auto-generate featured image
+        try {
+          const imagePrompt = `Blog post featured image for: ${title || aiTopic}. ${funnelStage === 'TOFU' ? 'Educational and informative visual' : funnelStage === 'MOFU' ? 'Comparison or evaluation focused visual' : 'Decision and action oriented visual'}`;
+          
+          const { data: imageData, error: imageError } = await supabase.functions.invoke('generate-blog-image', {
+            body: { prompt: imagePrompt, style: 'professional' }
+          });
+
+          if (!imageError && imageData?.imageUrl) {
+            setGeneratedImages([...generatedImages, imageData.imageUrl]);
+            toast.success('Featured image generated successfully!');
+          }
+        } catch (imgError) {
+          console.error('Image generation failed:', imgError);
+          toast.info('Content generated successfully (image generation failed)');
         }
       } else if (action === 'optimize') {
         setAiSuggestions(generatedContent.split('\n').filter((s: string) => s.trim()));
@@ -515,6 +533,22 @@ export default function BlogGenerator() {
           .replace(/--+/g, '-')
           .trim();
 
+        // Generate image for the blog post
+        let featuredImageUrl = null;
+        try {
+          const imagePrompt = `Blog post featured image for: ${extractedTitle}. ${stage === 'TOFU' ? 'Educational and informative visual' : stage === 'MOFU' ? 'Comparison or evaluation focused visual' : 'Decision and action oriented visual'}`;
+          
+          const { data: imageData, error: imageError } = await supabase.functions.invoke('generate-blog-image', {
+            body: { prompt: imagePrompt, style: 'professional' }
+          });
+
+          if (!imageError && imageData?.imageUrl) {
+            featuredImageUrl = imageData.imageUrl;
+          }
+        } catch (imageError) {
+          console.error('Failed to generate image, continuing without it:', imageError);
+        }
+
         // Save as draft
         const { error: saveError } = await supabase
           .from('blog_posts')
@@ -526,6 +560,7 @@ export default function BlogGenerator() {
             status: 'draft',
             author_id: selectedAuthorId || null,
             category: category || null,
+            featured_image_url: featuredImageUrl,
           } as any);
 
         if (saveError) throw saveError;
@@ -547,16 +582,16 @@ export default function BlogGenerator() {
         ));
       }
 
-      // Add small delay between requests to avoid rate limiting
+      // Add delay between requests to avoid rate limiting
       if (i < stages.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 3000)); // Increased to 3s for image generation
       }
     }
 
     setClusterGenerating(false);
     
     const successCount = results.filter(r => r.success).length;
-    toast.success(`Cluster generation complete! ${successCount}/6 blogs created as drafts.`);
+    toast.success(`Cluster generation complete! ${successCount}/6 blogs created with images.`);
   };
 
   return (
