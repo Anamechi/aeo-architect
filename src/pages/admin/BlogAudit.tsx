@@ -47,6 +47,8 @@ export default function BlogAudit() {
   const [optimizing, setOptimizing] = useState<string | null>(null);
   const [regeneratingImages, setRegeneratingImages] = useState(false);
   const [imageProgress, setImageProgress] = useState(0);
+  const [generatingAltText, setGeneratingAltText] = useState(false);
+  const [altTextProgress, setAltTextProgress] = useState(0);
   const [progress, setProgress] = useState(0);
   const [filter, setFilter] = useState<'all' | 'critical' | 'needs-images' | 'excellent'>('all');
 
@@ -114,6 +116,74 @@ export default function BlogAudit() {
     } catch (error) {
       console.error('Audit failed:', error);
       toast.error('Failed to audit post');
+    }
+  };
+
+  const bulkGenerateAltText = async () => {
+    if (posts.length === 0) {
+      toast.error('No posts to process');
+      return;
+    }
+
+    const confirmed = confirm(
+      `This will generate SEO-optimized alt text for all ${posts.length} blog post images. Continue?`
+    );
+
+    if (!confirmed) return;
+
+    setGeneratingAltText(true);
+    setAltTextProgress(0);
+
+    try {
+      // Process in batches of 10 for alt text (faster than image generation)
+      const batchSize = 10;
+      const batches = [];
+      for (let i = 0; i < posts.length; i += batchSize) {
+        batches.push(posts.slice(i, i + batchSize));
+      }
+
+      let totalProcessed = 0;
+      const allResults: any[] = [];
+
+      for (const batch of batches) {
+        const postIds = batch.map(p => p.id);
+        
+        const { data, error } = await supabase.functions.invoke('generate-image-alt-text', {
+          body: { postIds }
+        });
+
+        if (error) {
+          console.error('Batch failed:', error);
+          toast.error(`Batch failed: ${error.message}`);
+        } else if (data) {
+          allResults.push(...data.results);
+          totalProcessed += batch.length;
+          setAltTextProgress((totalProcessed / posts.length) * 100);
+          
+          toast.success(
+            `Batch complete: ${data.successful} alt texts generated`
+          );
+        }
+      }
+
+      // Summary
+      const successCount = allResults.filter(r => r.success).length;
+      const failureCount = allResults.filter(r => !r.success).length;
+
+      toast.success(
+        `Alt text generation complete! ${successCount} generated, ${failureCount} failed.`,
+        { duration: 5000 }
+      );
+
+      // Refresh posts
+      await fetchPosts();
+      
+    } catch (error) {
+      console.error('Alt text generation failed:', error);
+      toast.error('Alt text generation failed');
+    } finally {
+      setGeneratingAltText(false);
+      setAltTextProgress(0);
     }
   };
 
@@ -276,6 +346,24 @@ export default function BlogAudit() {
         </div>
         <div className="flex gap-2">
           <Button 
+            onClick={bulkGenerateAltText} 
+            disabled={generatingAltText || loading || posts.length === 0}
+            variant="outline"
+            size="lg"
+          >
+            {generatingAltText ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Generating Alt Text...
+              </>
+            ) : (
+              <>
+                <CheckCircle className="mr-2 h-4 w-4" />
+                Generate Alt Text
+              </>
+            )}
+          </Button>
+          <Button 
             onClick={bulkRegenerateImages} 
             disabled={regeneratingImages || loading || posts.length === 0}
             variant="outline"
@@ -321,6 +409,30 @@ export default function BlogAudit() {
           </CardHeader>
           <CardContent>
             <Progress value={progress} className="w-full" />
+          </CardContent>
+        </Card>
+      )}
+
+      {generatingAltText && (
+        <Card className="border-blue-500 bg-blue-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-blue-600" />
+              AI Alt Text Generation in Progress
+            </CardTitle>
+            <CardDescription>
+              Generating SEO-optimized, accessibility-compliant alt text for {posts.length} blog images...
+              <br />
+              <span className="text-blue-600 font-medium">
+                80-125 characters, keyword-rich, contextually relevant
+              </span>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Progress value={altTextProgress} className="w-full" />
+            <p className="text-sm text-muted-foreground mt-2">
+              {Math.round(altTextProgress)}% complete - Analyzing content context for each image
+            </p>
           </CardContent>
         </Card>
       )}

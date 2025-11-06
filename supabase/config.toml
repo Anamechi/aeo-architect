@@ -15,6 +15,9 @@ verify_jwt = true
 [functions.generate-bulk-faqs]
 verify_jwt = true
 
+[functions.generate-image-alt-text]
+verify_jwt = true
+
 [functions.optimize-blog-post]
 verify_jwt = true
 
