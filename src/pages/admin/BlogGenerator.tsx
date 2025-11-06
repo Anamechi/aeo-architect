@@ -61,6 +61,11 @@ export default function BlogGenerator() {
   const [aiGenerating, setAiGenerating] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
   
+  // Cluster Generation
+  const [clusterTopic, setClusterTopic] = useState('');
+  const [clusterGenerating, setClusterGenerating] = useState(false);
+  const [clusterProgress, setClusterProgress] = useState<Array<{stage: FunnelStage; status: 'pending' | 'generating' | 'complete' | 'error'; title?: string}>>([]);
+  
   // Funnel Linking
   const [linkSuggestions, setLinkSuggestions] = useState<any[]>([]);
   const [linkingStrategy, setLinkingStrategy] = useState('');
@@ -461,6 +466,99 @@ export default function BlogGenerator() {
     }
   };
 
+  const generateCluster = async () => {
+    if (!clusterTopic) {
+      toast.error('Please enter a topic for the cluster');
+      return;
+    }
+
+    setClusterGenerating(true);
+    
+    // Initialize progress tracking: 3 TOFU, 2 MOFU, 1 BOFU
+    const stages: FunnelStage[] = ['TOFU', 'TOFU', 'TOFU', 'MOFU', 'MOFU', 'BOFU'];
+    setClusterProgress(stages.map(stage => ({ stage, status: 'pending' })));
+
+    const results = [];
+
+    for (let i = 0; i < stages.length; i++) {
+      const stage = stages[i];
+      
+      // Update status to generating
+      setClusterProgress(prev => prev.map((item, idx) => 
+        idx === i ? { ...item, status: 'generating' } : item
+      ));
+
+      try {
+        // Generate content
+        const { data, error } = await supabase.functions.invoke('generate-blog-content', {
+          body: {
+            topic: clusterTopic,
+            keywords: '',
+            funnelStage: stage,
+            action: 'full-content'
+          }
+        });
+
+        if (error) throw error;
+
+        const generatedContent = data.content;
+        
+        // Extract title from generated content
+        const titleMatch = generatedContent.match(/# (.+)/);
+        const extractedTitle = titleMatch ? titleMatch[1] : `${clusterTopic} - ${stage} ${i + 1}`;
+        
+        // Generate slug
+        const generatedSlug = extractedTitle
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/--+/g, '-')
+          .trim();
+
+        // Save as draft
+        const { error: saveError } = await supabase
+          .from('blog_posts')
+          .insert({
+            title: extractedTitle,
+            slug: `${generatedSlug}-${Date.now()}`, // Add timestamp to ensure uniqueness
+            content: generatedContent,
+            funnel_stage: stage,
+            status: 'draft',
+            author_id: selectedAuthorId || null,
+            category: category || null,
+          } as any);
+
+        if (saveError) throw saveError;
+
+        results.push({ stage, title: extractedTitle, success: true });
+        
+        // Update status to complete
+        setClusterProgress(prev => prev.map((item, idx) => 
+          idx === i ? { ...item, status: 'complete', title: extractedTitle } : item
+        ));
+
+      } catch (error: any) {
+        console.error(`Error generating ${stage} blog ${i + 1}:`, error);
+        results.push({ stage, success: false, error: error.message });
+        
+        // Update status to error
+        setClusterProgress(prev => prev.map((item, idx) => 
+          idx === i ? { ...item, status: 'error' } : item
+        ));
+      }
+
+      // Add small delay between requests to avoid rate limiting
+      if (i < stages.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
+
+    setClusterGenerating(false);
+    
+    const successCount = results.filter(r => r.success).length;
+    toast.success(`Cluster generation complete! ${successCount}/6 blogs created as drafts.`);
+  };
+
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl">
       <div className="flex items-center justify-between mb-8">
@@ -506,14 +604,86 @@ export default function BlogGenerator() {
         </TabsList>
 
         <TabsContent value="ai-generate" className="space-y-6">
+          {/* Cluster Generation Card */}
+          <Card className="border-2 border-primary">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                Cluster Generation (6 Blogs)
+              </CardTitle>
+              <CardDescription>
+                Generate a complete content cluster: 3 TOFU, 2 MOFU, 1 BOFU blogs at once
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="cluster-topic">Main Topic / Theme *</Label>
+                  <Input
+                    id="cluster-topic"
+                    placeholder="e.g., Marketing Automation, AI in Business, Content Strategy"
+                    value={clusterTopic}
+                    onChange={(e) => setClusterTopic(e.target.value)}
+                    disabled={clusterGenerating}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    AI will create 6 related blogs covering different angles and funnel stages
+                  </p>
+                </div>
+
+                <Button
+                  onClick={generateCluster}
+                  disabled={clusterGenerating || !clusterTopic}
+                  className="w-full"
+                  size="lg"
+                >
+                  {clusterGenerating ? (
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-5 w-5 mr-2" />
+                  )}
+                  {clusterGenerating ? 'Generating Cluster...' : 'Generate 6-Blog Cluster'}
+                </Button>
+
+                {clusterProgress.length > 0 && (
+                  <div className="space-y-2 p-4 bg-muted rounded-lg">
+                    <p className="text-sm font-medium mb-3">Progress:</p>
+                    {clusterProgress.map((item, idx) => (
+                      <div key={idx} className="flex items-center gap-3 text-sm">
+                        {item.status === 'pending' && (
+                          <div className="h-4 w-4 rounded-full border-2 border-muted-foreground" />
+                        )}
+                        {item.status === 'generating' && (
+                          <Loader2 className="h-4 w-4 text-primary animate-spin" />
+                        )}
+                        {item.status === 'complete' && (
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                        )}
+                        {item.status === 'error' && (
+                          <AlertCircle className="h-4 w-4 text-destructive" />
+                        )}
+                        <Badge variant={item.status === 'complete' ? 'default' : 'outline'} className="text-xs">
+                          {item.stage}
+                        </Badge>
+                        {item.title && (
+                          <span className="text-xs text-muted-foreground truncate flex-1">{item.title}</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Wand2 className="h-5 w-5 text-primary" />
-                AI Blog Content Generator
+                Single Blog Generator
               </CardTitle>
               <CardDescription>
-                Generate optimized blog content using AI - from outline to full article
+                Generate individual blog content - from outline to full article
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
