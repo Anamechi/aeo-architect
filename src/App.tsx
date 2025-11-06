@@ -28,6 +28,7 @@ import BlogPosts from "./pages/admin/BlogPosts";
 import Packages from "./pages/admin/Packages";
 import Quotes from "./pages/admin/Quotes";
 import PricingSettings from "./pages/admin/PricingSettings";
+import BusinessSettings from "./pages/admin/BusinessSettings";
 import Authors from "./pages/admin/Authors";
 import QAGenerator from "./pages/admin/QAGenerator";
 import Citations from "./pages/admin/Citations";
@@ -73,6 +74,7 @@ const App = () => (
                 <Route path="content-updates" element={<ContentUpdates />} />
                 <Route path="seo-settings" element={<SEOSettings />} />
                 <Route path="pricing-settings" element={<PricingSettings />} />
+                <Route path="business-settings" element={<BusinessSettings />} />
                 <Route path="referral-tracking" element={<ReferralTracking />} />
               </Route>
 

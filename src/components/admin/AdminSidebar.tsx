@@ -10,6 +10,7 @@ import {
   Link as LinkIcon,
   Calendar,
   Settings,
+  Building,
   LogOut,
   Package,
   FileText as Quote,
@@ -39,6 +40,7 @@ const navigation = [
   { name: 'Content Updates', href: '/admin/content-updates', icon: Calendar },
   { name: 'SEO Settings', href: '/admin/seo-settings', icon: Settings },
   { name: 'Pricing Settings', href: '/admin/pricing-settings', icon: Settings },
+  { name: 'Business Settings', href: '/admin/business-settings', icon: Building },
 ];
 
 export default function AdminSidebar() {

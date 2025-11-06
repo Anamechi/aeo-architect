@@ -227,6 +227,75 @@ export type Database = {
           },
         ]
       }
+      business_settings: {
+        Row: {
+          address_city: string
+          address_state: string
+          address_street: string
+          address_zip: string
+          business_name: string
+          email: string
+          facebook_url: string | null
+          hours_monday_friday: string
+          hours_saturday: string
+          hours_sunday: string
+          id: string
+          instagram_url: string | null
+          linkedin_url: string | null
+          phone_local: string
+          phone_toll_free: string
+          timezone: string
+          twitter_url: string | null
+          updated_at: string | null
+          updated_by: string | null
+          youtube_url: string | null
+        }
+        Insert: {
+          address_city?: string
+          address_state?: string
+          address_street?: string
+          address_zip?: string
+          business_name?: string
+          email?: string
+          facebook_url?: string | null
+          hours_monday_friday?: string
+          hours_saturday?: string
+          hours_sunday?: string
+          id?: string
+          instagram_url?: string | null
+          linkedin_url?: string | null
+          phone_local?: string
+          phone_toll_free?: string
+          timezone?: string
+          twitter_url?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+          youtube_url?: string | null
+        }
+        Update: {
+          address_city?: string
+          address_state?: string
+          address_street?: string
+          address_zip?: string
+          business_name?: string
+          email?: string
+          facebook_url?: string | null
+          hours_monday_friday?: string
+          hours_saturday?: string
+          hours_sunday?: string
+          id?: string
+          instagram_url?: string | null
+          linkedin_url?: string | null
+          phone_local?: string
+          phone_toll_free?: string
+          timezone?: string
+          twitter_url?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+          youtube_url?: string | null
+        }
+        Relationships: []
+      }
       citations: {
         Row: {
           authority_score: number | null

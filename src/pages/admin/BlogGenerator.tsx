@@ -253,12 +253,34 @@ export default function BlogGenerator() {
     return schema;
   };
 
+  // Calculate reading time and excerpt automatically
+  const calculateReadingTimeAndExcerpt = () => {
+    // Calculate reading time
+    const words = content.trim().split(/\s+/).length;
+    const readingTime = Math.ceil(words / 200); // 200 words per minute
+    
+    // Generate excerpt (first 150-160 characters of plain text content)
+    const plainText = content
+      .replace(/#{1,6}\s/g, '') // Remove markdown headers
+      .replace(/\*\*/g, '') // Remove bold
+      .replace(/\*/g, '') // Remove italic
+      .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // Convert links to plain text
+      .replace(/\n/g, ' ') // Replace newlines with spaces
+      .trim();
+    
+    const excerpt = plainText.substring(0, 160).trim();
+    const excerptWithEllipsis = plainText.length > 160 ? `${excerpt}...` : excerpt;
+    
+    return { readingTime, excerpt: excerptWithEllipsis };
+  };
+
   const handleSaveDraft = async () => {
     setLoading(true);
     
     try {
       const score = calculateSEOScore();
       const schema = generateSchema();
+      const { readingTime, excerpt } = calculateReadingTimeAndExcerpt();
       
       const postData = {
         title,
@@ -273,6 +295,8 @@ export default function BlogGenerator() {
         seo_score: score,
         author_id: selectedAuthorId || null,
         featured_image_url: featuredImageUrl || null,
+        reading_time: readingTime,
+        excerpt: excerpt,
         status: 'draft'
       } as any;
 
@@ -320,6 +344,7 @@ export default function BlogGenerator() {
       }
       
       const schema = generateSchema();
+      const { readingTime, excerpt } = calculateReadingTimeAndExcerpt();
       
       const postData = {
         title,
@@ -334,6 +359,8 @@ export default function BlogGenerator() {
         seo_score: score,
         author_id: selectedAuthorId || null,
         featured_image_url: featuredImageUrl || null,
+        reading_time: readingTime,
+        excerpt: excerpt,
         status: 'published',
         published_at: new Date().toISOString()
       } as any;
