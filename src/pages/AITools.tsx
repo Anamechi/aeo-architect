@@ -53,7 +53,7 @@ const AITools = () => {
       category: "Marketing Automation",
       description: "All-in-one CRM, funnel builder, and marketing automation platform for agencies.",
       rating: 5,
-      url: "https://gohighlevel.com",
+      url: "https://www.gohighlevel.com/?fp_ref=anamechi-marketing42",
       useCase: "Client management, funnels, automation"
     },
     {
