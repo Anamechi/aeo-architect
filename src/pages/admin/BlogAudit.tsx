@@ -1,0 +1,364 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
+import { Loader2, CheckCircle, AlertTriangle, XCircle, Sparkles, Image as ImageIcon } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+
+interface BlogPost {
+  id: string;
+  title: string;
+  status: string;
+  featured_image_url: string | null;
+  funnel_stage: string | null;
+  category: string | null;
+}
+
+interface AuditResult {
+  postId: string;
+  title: string;
+  status: string;
+  audit: {
+    overallScore: number;
+    issues: Array<{
+      category: string;
+      severity: string;
+      description: string;
+    }>;
+    hasImage: boolean;
+    imageQuality: string;
+    wordCount: number;
+    readabilityGrade: number;
+    missingElements: string[];
+    needsRewrite: boolean;
+    suggestedImprovements: string[];
+  };
+}
+
+export default function BlogAudit() {
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [auditResults, setAuditResults] = useState<AuditResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [auditing, setAuditing] = useState(false);
+  const [optimizing, setOptimizing] = useState<string | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [filter, setFilter] = useState<'all' | 'critical' | 'needs-images' | 'excellent'>('all');
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const fetchPosts = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('id, title, status, featured_image_url, funnel_stage, category')
+      .in('status', ['published', 'draft'])
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      toast.error('Failed to fetch posts');
+      console.error(error);
+    } else {
+      setPosts(data || []);
+    }
+    setLoading(false);
+  };
+
+  const auditAllPosts = async () => {
+    setAuditing(true);
+    setProgress(0);
+    const results: AuditResult[] = [];
+
+    for (let i = 0; i < posts.length; i++) {
+      const post = posts[i];
+      try {
+        const { data, error } = await supabase.functions.invoke('audit-blog-content', {
+          body: { postId: post.id }
+        });
+
+        if (error) throw error;
+        results.push(data);
+        setProgress(((i + 1) / posts.length) * 100);
+      } catch (error) {
+        console.error(`Failed to audit ${post.title}:`, error);
+        toast.error(`Failed to audit: ${post.title}`);
+      }
+    }
+
+    setAuditResults(results);
+    setAuditing(false);
+    toast.success(`Audit complete! Analyzed ${results.length} posts.`);
+  };
+
+  const auditSinglePost = async (postId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('audit-blog-content', {
+        body: { postId }
+      });
+
+      if (error) throw error;
+      
+      setAuditResults(prev => {
+        const filtered = prev.filter(r => r.postId !== postId);
+        return [...filtered, data];
+      });
+      
+      toast.success('Post audited successfully');
+    } catch (error) {
+      console.error('Audit failed:', error);
+      toast.error('Failed to audit post');
+    }
+  };
+
+  const optimizePost = async (postId: string) => {
+    setOptimizing(postId);
+    const auditResult = auditResults.find(r => r.postId === postId);
+    
+    if (!auditResult) {
+      toast.error('Please audit this post first');
+      setOptimizing(null);
+      return;
+    }
+
+    try {
+      // Step 1: Optimize content
+      const { data: optimizedData, error: optimizeError } = await supabase.functions.invoke('optimize-blog-post', {
+        body: { postId, auditResults: auditResult.audit }
+      });
+
+      if (optimizeError) throw optimizeError;
+
+      // Step 2: Generate image if needed
+      let imageUrl = null;
+      if (!auditResult.audit.hasImage || auditResult.audit.imageQuality !== 'excellent') {
+        const { data: imageData, error: imageError } = await supabase.functions.invoke('generate-blog-image', {
+          body: { 
+            prompt: optimizedData.suggestedImagePrompt || `Professional blog header image for: ${optimizedData.title}`,
+            style: 'professional'
+          }
+        });
+
+        if (!imageError && imageData?.imageUrl) {
+          imageUrl = imageData.imageUrl;
+        }
+      }
+
+      // Step 3: Update post
+      const { error: updateError } = await supabase
+        .from('blog_posts')
+        .update({
+          title: optimizedData.title,
+          excerpt: optimizedData.excerpt,
+          content: optimizedData.content,
+          meta_description: optimizedData.metaDescription,
+          keywords: optimizedData.keywords || [],
+          ...(imageUrl && { featured_image_url: imageUrl }),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', postId);
+
+      if (updateError) throw updateError;
+
+      toast.success('Post optimized and updated successfully!');
+      await auditSinglePost(postId);
+      fetchPosts();
+    } catch (error) {
+      console.error('Optimization failed:', error);
+      toast.error('Failed to optimize post');
+    } finally {
+      setOptimizing(null);
+    }
+  };
+
+  const getScoreBadge = (score: number) => {
+    if (score >= 90) return <Badge className="bg-green-500">Excellent ({score})</Badge>;
+    if (score >= 70) return <Badge className="bg-yellow-500">Good ({score})</Badge>;
+    if (score >= 50) return <Badge className="bg-orange-500">Needs Work ({score})</Badge>;
+    return <Badge variant="destructive">Critical ({score})</Badge>;
+  };
+
+  const getSeverityIcon = (severity: string) => {
+    if (severity === 'critical') return <XCircle className="text-red-500" size={16} />;
+    if (severity === 'major') return <AlertTriangle className="text-orange-500" size={16} />;
+    return <AlertTriangle className="text-yellow-500" size={16} />;
+  };
+
+  const filteredResults = auditResults.filter(result => {
+    if (filter === 'critical') return result.audit.overallScore < 70;
+    if (filter === 'needs-images') return !result.audit.hasImage || result.audit.imageQuality === 'missing' || result.audit.imageQuality === 'poor';
+    if (filter === 'excellent') return result.audit.overallScore >= 90;
+    return true;
+  });
+
+  return (
+    <div className="p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">Blog Audit & Optimization</h1>
+          <p className="text-muted-foreground mt-1">
+            Analyze and optimize all blog posts to ANAMECHI Excellence Standards
+          </p>
+        </div>
+        <Button 
+          onClick={auditAllPosts} 
+          disabled={auditing || loading}
+          size="lg"
+        >
+          {auditing ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Auditing...
+            </>
+          ) : (
+            <>
+              <Sparkles className="mr-2 h-4 w-4" />
+              Audit All Posts
+            </>
+          )}
+        </Button>
+      </div>
+
+      {auditing && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Audit in Progress</CardTitle>
+            <CardDescription>Analyzing {posts.length} blog posts...</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Progress value={progress} className="w-full" />
+          </CardContent>
+        </Card>
+      )}
+
+      {auditResults.length > 0 && (
+        <>
+          <Tabs value={filter} onValueChange={(v) => setFilter(v as any)} className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="all">All ({auditResults.length})</TabsTrigger>
+              <TabsTrigger value="critical">
+                Critical ({auditResults.filter(r => r.audit.overallScore < 70).length})
+              </TabsTrigger>
+              <TabsTrigger value="needs-images">
+                Needs Images ({auditResults.filter(r => !r.audit.hasImage || r.audit.imageQuality === 'missing' || r.audit.imageQuality === 'poor').length})
+              </TabsTrigger>
+              <TabsTrigger value="excellent">
+                Excellent ({auditResults.filter(r => r.audit.overallScore >= 90).length})
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          <div className="grid gap-4">
+            {filteredResults.map((result) => (
+              <Card key={result.postId}>
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <CardTitle className="text-xl">{result.title}</CardTitle>
+                      <div className="flex gap-2 mt-2">
+                        {getScoreBadge(result.audit.overallScore)}
+                        <Badge variant="outline">{result.status}</Badge>
+                        {!result.audit.hasImage && (
+                          <Badge variant="destructive" className="gap-1">
+                            <ImageIcon size={12} />
+                            No Image
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => optimizePost(result.postId)}
+                      disabled={optimizing === result.postId}
+                      variant={result.audit.needsRewrite ? "default" : "outline"}
+                    >
+                      {optimizing === result.postId ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Optimizing...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="mr-2 h-4 w-4" />
+                          {result.audit.needsRewrite ? 'Rewrite & Optimize' : 'Optimize'}
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {result.audit.issues.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold mb-2">Issues Found:</h4>
+                      <div className="space-y-2">
+                        {result.audit.issues.map((issue, idx) => (
+                          <Alert key={idx} variant={issue.severity === 'critical' ? 'destructive' : 'default'}>
+                            <div className="flex items-start gap-2">
+                              {getSeverityIcon(issue.severity)}
+                              <div className="flex-1">
+                                <div className="font-medium">{issue.category}</div>
+                                <AlertDescription>{issue.description}</AlertDescription>
+                              </div>
+                            </div>
+                          </Alert>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {result.audit.missingElements.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold mb-2">Missing Elements:</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {result.audit.missingElements.map((element, idx) => (
+                          <Badge key={idx} variant="outline">{element}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {result.audit.suggestedImprovements.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold mb-2">Suggested Improvements:</h4>
+                      <ul className="list-disc list-inside space-y-1">
+                        {result.audit.suggestedImprovements.map((improvement, idx) => (
+                          <li key={idx} className="text-sm">{improvement}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-3 gap-4 pt-4 border-t">
+                    <div>
+                      <div className="text-sm text-muted-foreground">Word Count</div>
+                      <div className="font-medium">{result.audit.wordCount}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">Readability Grade</div>
+                      <div className="font-medium">{result.audit.readabilityGrade}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">Image Quality</div>
+                      <div className="font-medium capitalize">{result.audit.imageQuality}</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </>
+      )}
+
+      {!loading && posts.length === 0 && (
+        <Card>
+          <CardContent className="text-center py-12">
+            <p className="text-muted-foreground">No blog posts found to audit.</p>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}

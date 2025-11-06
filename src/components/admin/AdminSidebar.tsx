@@ -17,7 +17,8 @@ import {
   Lightbulb,
   HelpCircle,
   CheckCircle,
-  TrendingUp
+  TrendingUp,
+  Sparkles
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,7 @@ const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Master Prompts', href: '/admin/master-prompts', icon: Lightbulb },
   { name: 'Blog Posts', href: '/admin/blog', icon: FileText },
+  { name: 'Blog Audit', href: '/admin/blog/audit', icon: Sparkles },
   { name: 'QA Generator', href: '/admin/qa-generator', icon: MessageSquare },
   { name: 'FAQ Manager', href: '/admin/faq-manager', icon: HelpCircle },
   { name: 'Authors', href: '/admin/authors', icon: Users },

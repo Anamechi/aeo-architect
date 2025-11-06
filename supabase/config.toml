@@ -1,6 +1,21 @@
 project_id = "hjbylbjbxjotbijzrwma"
 
+[functions.audit-blog-content]
+verify_jwt = true
+
 [functions.generate-blog-content]
+verify_jwt = true
+
+[functions.generate-blog-image]
+verify_jwt = true
+
+[functions.generate-bulk-faqs]
+verify_jwt = true
+
+[functions.optimize-blog-post]
+verify_jwt = true
+
+[functions.reoptimize-blog-content]
 verify_jwt = true
 
 [functions.suggest-funnel-links]
@@ -9,14 +24,5 @@ verify_jwt = true
 [functions.suggest-internal-links]
 verify_jwt = true
 
-[functions.generate-blog-image]
-verify_jwt = true
-
 [functions.validate-citations]
-verify_jwt = true
-
-[functions.reoptimize-blog-content]
-verify_jwt = true
-
-[functions.generate-bulk-faqs]
 verify_jwt = true

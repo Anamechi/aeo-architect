@@ -25,6 +25,7 @@ import Dashboard from "./pages/admin/Dashboard";
 import AdminAITools from "./pages/admin/AITools";
 import BlogGenerator from "./pages/admin/BlogGenerator";
 import BlogPosts from "./pages/admin/BlogPosts";
+import BlogAudit from "./pages/admin/BlogAudit";
 import Packages from "./pages/admin/Packages";
 import Quotes from "./pages/admin/Quotes";
 import PricingSettings from "./pages/admin/PricingSettings";
@@ -62,6 +63,7 @@ const App = () => (
                 <Route path="blog" element={<BlogPosts />} />
                 <Route path="blog/new" element={<BlogGenerator />} />
                 <Route path="blog/edit/:id" element={<BlogGenerator />} />
+                <Route path="blog/audit" element={<BlogAudit />} />
                 <Route path="qa-generator" element={<QAGenerator />} />
                 <Route path="faq-manager" element={<FAQManager />} />
                 <Route path="authors" element={<Authors />} />
