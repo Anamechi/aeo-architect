@@ -18,7 +18,8 @@ import {
   HelpCircle,
   CheckCircle,
   TrendingUp,
-  Sparkles
+  Sparkles,
+  ImagePlus
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,7 @@ const navigation = [
   { name: 'Authors', href: '/admin/authors', icon: Users },
   { name: 'Citations', href: '/admin/citations', icon: LinkIcon },
   { name: 'Citation Health', href: '/admin/citation-health', icon: CheckCircle },
+  { name: 'Image Alt Text', href: '/admin/image-alt-text', icon: ImagePlus },
   { name: 'AI Tools', href: '/admin/ai-tools', icon: Wrench },
   { name: 'Referral Tracking', href: '/admin/referral-tracking', icon: TrendingUp },
   { name: 'Service Packages', href: '/admin/packages', icon: Package },

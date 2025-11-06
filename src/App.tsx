@@ -39,6 +39,7 @@ import Diagrams from "./pages/admin/Diagrams";
 import ContentUpdates from "./pages/admin/ContentUpdates";
 import MasterPrompts from "./pages/admin/MasterPrompts";
 import CitationHealth from "./pages/admin/CitationHealth";
+import ImageAltTextGenerator from "./pages/admin/ImageAltTextGenerator";
 import FAQManager from "./pages/admin/FAQManager";
 import FAQAnalytics from "./pages/admin/FAQAnalytics";
 import ReferralTracking from "./pages/admin/ReferralTracking";
@@ -71,6 +72,7 @@ const App = () => (
                 <Route path="authors" element={<Authors />} />
                 <Route path="citations" element={<Citations />} />
                 <Route path="citation-health" element={<CitationHealth />} />
+                <Route path="image-alt-text" element={<ImageAltTextGenerator />} />
                 <Route path="packages" element={<Packages />} />
                 <Route path="quotes" element={<Quotes />} />
                 <Route path="images" element={<Images />} />

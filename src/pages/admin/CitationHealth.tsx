@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Citation } from '@/types/content';
-import { CheckCircle, XCircle, AlertCircle, RefreshCw, ExternalLink } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle, RefreshCw, ExternalLink, Scan } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+interface CitationWithSource extends Citation {
+  usedInPosts: string[];
+}
+
 export default function CitationHealth() {
-  const [citations, setCitations] = useState<Citation[]>([]);
+  const [citations, setCitations] = useState<CitationWithSource[]>([]);
   const [loading, setLoading] = useState(false);
+  const [scanning, setScanning] = useState(false);
   const [stats, setStats] = useState({
     total: 0,
     valid: 0,
@@ -21,17 +26,44 @@ export default function CitationHealth() {
   }, []);
 
   const fetchCitations = async () => {
-    const { data, error } = await supabase
-      .from('citations')
-      .select('*')
-      .order('last_checked', { ascending: false });
+    // Fetch all citations from blog posts
+    const { data: posts, error: postsError } = await supabase
+      .from('blog_posts')
+      .select('id, title, citations');
 
-    if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    } else if (data) {
-      setCitations(data as Citation[]);
-      calculateStats(data as Citation[]);
+    if (postsError) {
+      toast({ title: 'Error', description: postsError.message, variant: 'destructive' });
+      return;
     }
+
+    // Extract all unique citations from posts
+    const citationMap = new Map<string, CitationWithSource>();
+    
+    posts?.forEach(post => {
+      const postCitations = post.citations as any[] || [];
+      postCitations.forEach((citation: any) => {
+        if (citation.url) {
+          const existing = citationMap.get(citation.url);
+          if (existing) {
+            existing.usedInPosts.push(post.title);
+          } else {
+            citationMap.set(citation.url, {
+              id: citation.id || crypto.randomUUID(),
+              url: citation.url,
+              title: citation.title || 'Untitled',
+              status: citation.status || 'valid',
+              last_checked: citation.last_checked || null,
+              authority_score: citation.authority_score || null,
+              usedInPosts: [post.title]
+            });
+          }
+        }
+      });
+    });
+
+    const allCitations = Array.from(citationMap.values());
+    setCitations(allCitations);
+    calculateStats(allCitations);
   };
 
   const calculateStats = (data: Citation[]) => {
@@ -77,16 +109,69 @@ export default function CitationHealth() {
     }
   };
 
-  const checkAllCitations = async () => {
+  const scanAndValidateAllCitations = async () => {
+    setScanning(true);
     setLoading(true);
     
-    for (const citation of citations) {
-      await checkCitation(citation);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      // Call edge function to validate all citations
+      const { data, error } = await supabase.functions.invoke('validate-citations', {
+        body: { 
+          citations: citations.map(c => ({ url: c.url, title: c.title })) 
+        }
+      });
+
+      if (error) throw error;
+
+      const results = data.results || [];
+      
+      // Update blog posts with validation results
+      const { data: posts } = await supabase
+        .from('blog_posts')
+        .select('id, citations');
+
+      if (posts) {
+        for (const post of posts) {
+          const updatedCitations = (post.citations as any[] || []).map((citation: any) => {
+            const result = results.find((r: any) => r.url === citation.url);
+            if (result) {
+              return {
+                ...citation,
+                status: result.status === 'valid' ? 'valid' : 'broken',
+                last_checked: new Date().toISOString()
+              };
+            }
+            return citation;
+          });
+
+          await supabase
+            .from('blog_posts')
+            .update({ citations: updatedCitations })
+            .eq('id', post.id);
+        }
+      }
+
+      toast({ 
+        title: 'Success', 
+        description: `Validated ${results.length} citations. Found ${data.summary.broken} broken links.` 
+      });
+      
+      // Refresh the list
+      await fetchCitations();
+    } catch (error: any) {
+      toast({ 
+        title: 'Error', 
+        description: error.message, 
+        variant: 'destructive' 
+      });
+    } finally {
+      setScanning(false);
+      setLoading(false);
     }
-    
-    toast({ title: 'Success', description: 'All citations checked' });
-    setLoading(false);
+  };
+
+  const checkAllCitations = async () => {
+    await scanAndValidateAllCitations();
   };
 
   const getStatusIcon = (status: Citation['status']) => {
@@ -118,14 +203,26 @@ export default function CitationHealth() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Citation Health</h1>
+        <div>
+          <h1 className="text-3xl font-bold">Citation Health Monitor</h1>
+          <p className="text-muted-foreground mt-1">Scan and validate all citations across your blog posts</p>
+        </div>
         <button
-          onClick={checkAllCitations}
-          disabled={loading}
+          onClick={scanAndValidateAllCitations}
+          disabled={loading || scanning}
           className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2"
         >
-          <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-          {loading ? 'Checking...' : 'Check All Citations'}
+          {scanning ? (
+            <>
+              <RefreshCw size={16} className="animate-spin" />
+              Scanning...
+            </>
+          ) : (
+            <>
+              <Scan size={16} />
+              Scan All Citations
+            </>
+          )}
         </button>
       </div>
 
@@ -223,6 +320,9 @@ export default function CitationHealth() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-sm font-medium">{citation.title}</div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Used in {citation.usedInPosts.length} post{citation.usedInPosts.length !== 1 ? 's' : ''}
+                    </div>
                   </td>
                   <td className="px-6 py-4">
                     <a
@@ -254,11 +354,11 @@ export default function CitationHealth() {
         </div>
       </div>
 
-      {citations.length === 0 && (
+      {citations.length === 0 && !loading && (
         <div className="text-center text-muted-foreground py-12">
-          <CheckCircle size={48} className="mx-auto mb-2 opacity-50" />
-          <p>No citations found</p>
-          <p className="text-sm mt-1">Citations from blog articles will appear here</p>
+          <Scan size={48} className="mx-auto mb-4 opacity-50" />
+          <p className="text-lg font-medium">No citations found</p>
+          <p className="text-sm mt-2">Click "Scan All Citations" to extract citations from your blog posts</p>
         </div>
       )}
     </div>
