@@ -1,9 +1,0 @@
-name = "anamechi-marketing"
-
-[build]
-command = "npm ci && npm run build"
-
-[build.environment]
-NODE_VERSION = "18"
-
-pages_build_output_dir = "dist"
