@@ -1,3 +1,5 @@
+name = "anamechi-marketing"
+
 [build]
 command = "npm ci && npm run build"
 
