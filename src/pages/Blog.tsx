@@ -206,15 +206,10 @@ const Blog = () => {
                   </div>
                 )}
                 <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center mb-2">
                     <Badge variant="outline" className="w-fit">
                       {post.category}
                     </Badge>
-                    {post.funnel_stage && (
-                      <Badge variant="secondary" className="text-xs">
-                        {post.funnel_stage}
-                      </Badge>
-                    )}
                   </div>
                   <Link to={`/blog/${post.slug}`}>
                     <CardTitle className="text-xl hover:text-primary transition-colors line-clamp-2">

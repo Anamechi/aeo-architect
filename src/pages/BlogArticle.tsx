@@ -171,11 +171,6 @@ const BlogArticle = () => {
             <Badge className="bg-accent/10 text-accent hover:bg-accent/20">
               {article.category}
             </Badge>
-            {article.funnel_stage && (
-              <Badge variant="secondary">
-                {article.funnel_stage}
-              </Badge>
-            )}
           </div>
           <h1 className="mb-6 text-4xl font-bold text-foreground md:text-5xl">
             {article.title}
