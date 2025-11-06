@@ -12,13 +12,15 @@ import {
   Settings,
   LogOut,
   Package,
-  FileText as Quote
+  FileText as Quote,
+  Lightbulb
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+  { name: 'Master Prompts', href: '/admin/master-prompts', icon: Lightbulb },
   { name: 'Blog Generator', href: '/admin/blog-generator', icon: FileText },
   { name: 'QA Generator', href: '/admin/qa-generator', icon: MessageSquare },
   { name: 'Authors', href: '/admin/authors', icon: Users },

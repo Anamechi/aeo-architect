@@ -114,10 +114,12 @@ export type Database = {
           citations: Json | null
           content: string | null
           created_at: string | null
+          featured_image_url: string | null
           funnel_stage: Database["public"]["Enums"]["funnel_stage"] | null
           id: string
           meta_description: string | null
           published_at: string | null
+          reading_time: number | null
           reviewed_by: string | null
           schema_data: Json | null
           seo_score: number | null
@@ -133,10 +135,12 @@ export type Database = {
           citations?: Json | null
           content?: string | null
           created_at?: string | null
+          featured_image_url?: string | null
           funnel_stage?: Database["public"]["Enums"]["funnel_stage"] | null
           id?: string
           meta_description?: string | null
           published_at?: string | null
+          reading_time?: number | null
           reviewed_by?: string | null
           schema_data?: Json | null
           seo_score?: number | null
@@ -152,10 +156,12 @@ export type Database = {
           citations?: Json | null
           content?: string | null
           created_at?: string | null
+          featured_image_url?: string | null
           funnel_stage?: Database["public"]["Enums"]["funnel_stage"] | null
           id?: string
           meta_description?: string | null
           published_at?: string | null
+          reading_time?: number | null
           reviewed_by?: string | null
           schema_data?: Json | null
           seo_score?: number | null
@@ -325,6 +331,36 @@ export type Database = {
           },
         ]
       }
+      generated_diagrams: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          mermaid_code: string
+          svg_url: string | null
+          title: string
+          used_in_posts: string[] | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          mermaid_code: string
+          svg_url?: string | null
+          title: string
+          used_in_posts?: string[] | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          mermaid_code?: string
+          svg_url?: string | null
+          title?: string
+          used_in_posts?: string[] | null
+        }
+        Relationships: []
+      }
       generated_images: {
         Row: {
           alt_text: string | null
@@ -358,6 +394,39 @@ export type Database = {
           storage_url?: string | null
           tool_used?: string | null
           used_in_posts?: string[] | null
+        }
+        Relationships: []
+      }
+      master_prompts: {
+        Row: {
+          category: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          prompt_text: string
+          updated_at: string | null
+          variables: string[] | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          prompt_text: string
+          updated_at?: string | null
+          variables?: string[] | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          prompt_text?: string
+          updated_at?: string | null
+          variables?: string[] | null
         }
         Relationships: []
       }

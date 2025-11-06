@@ -34,6 +34,7 @@ import SEOSettings from "./pages/admin/SEOSettings";
 import Images from "./pages/admin/Images";
 import Diagrams from "./pages/admin/Diagrams";
 import ContentUpdates from "./pages/admin/ContentUpdates";
+import MasterPrompts from "./pages/admin/MasterPrompts";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const App = () => (
               <Route path="/admin/signup" element={<Signup />} />
               <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
                 <Route index element={<Dashboard />} />
+                <Route path="master-prompts" element={<MasterPrompts />} />
                 <Route path="ai-tools" element={<AdminAITools />} />
                 <Route path="blog-generator" element={<BlogGenerator />} />
                 <Route path="qa-generator" element={<QAGenerator />} />
