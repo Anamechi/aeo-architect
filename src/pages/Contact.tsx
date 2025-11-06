@@ -8,11 +8,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { Mail, Phone, MapPin, Linkedin, Twitter, Youtube, Clock } from "lucide-react";
 
 const Contact = () => {
   const [settings, setSettings] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    service: '',
+    message: ''
+  });
+  const { toast } = useToast();
 
   useEffect(() => {
     loadSettings();
@@ -32,6 +42,54 @@ const Contact = () => {
       console.error('Error loading business settings:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Basic validation
+    if (!formData.name || !formData.email) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in your name and email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('submit-contact-to-ghl', {
+        body: formData
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Message Sent!",
+        description: "We've received your inquiry and will be in touch soon.",
+      });
+
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        service: '',
+        message: ''
+      });
+
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      toast({
+        title: "Submission Failed",
+        description: "There was an error sending your message. Please try again or email us directly.",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -101,25 +159,53 @@ const Contact = () => {
           {/* Contact Form */}
           <Card className="lg:col-span-2 border-border">
             <CardContent className="p-8">
-              <form className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid gap-6 md:grid-cols-2">
                   <div>
-                    <Label htmlFor="name">Full Name</Label>
-                    <Input id="name" placeholder="Dr. Jane Smith" className="mt-2" />
+                    <Label htmlFor="name">Full Name *</Label>
+                    <Input 
+                      id="name" 
+                      placeholder="Dr. Jane Smith" 
+                      className="mt-2"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      required
+                    />
                   </div>
                   <div>
-                    <Label htmlFor="email">Email Address</Label>
-                    <Input id="email" type="email" placeholder="jane@example.com" className="mt-2" />
+                    <Label htmlFor="email">Email Address *</Label>
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      placeholder="jane@example.com" 
+                      className="mt-2"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      required
+                    />
                   </div>
                 </div>
                 <div className="grid gap-6 md:grid-cols-2">
                   <div>
                     <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" type="tel" placeholder="+1 (555) 123-4567" className="mt-2" />
+                    <Input 
+                      id="phone" 
+                      type="tel" 
+                      placeholder="+1 (555) 123-4567" 
+                      className="mt-2"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    />
                   </div>
                   <div>
                     <Label htmlFor="service">Service Interested In</Label>
-                    <Input id="service" placeholder="AEO Strategy Audit" className="mt-2" />
+                    <Input 
+                      id="service" 
+                      placeholder="AEO Strategy Audit" 
+                      className="mt-2"
+                      value={formData.service}
+                      onChange={(e) => setFormData({ ...formData, service: e.target.value })}
+                    />
                   </div>
                 </div>
                 <div>
@@ -128,10 +214,12 @@ const Contact = () => {
                     id="message" 
                     placeholder="I want to improve my brand's visibility in AI-powered search results..." 
                     className="mt-2 min-h-[150px]"
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   />
                 </div>
-                <Button type="submit" size="lg" className="w-full">
-                  Request Consultation
+                <Button type="submit" size="lg" className="w-full" disabled={submitting}>
+                  {submitting ? 'Sending...' : 'Request Consultation'}
                 </Button>
               </form>
             </CardContent>
