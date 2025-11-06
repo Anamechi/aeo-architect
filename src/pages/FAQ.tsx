@@ -272,10 +272,10 @@ const FAQ = () => {
                       <AccordionContent className="text-base text-muted-foreground leading-relaxed space-y-4">
                         <div>{highlightText(faq.answer, searchQuery)}</div>
                         
-                        {/* Tags */}
-                        {faq.tags.length > 0 && (
+                        {/* Tags - exclude funnel stage abbreviations */}
+                        {faq.tags.filter(tag => !['TOFU', 'MOFU', 'BOFU'].includes(tag.toUpperCase())).length > 0 && (
                           <div className="flex flex-wrap gap-2 pt-2">
-                            {faq.tags.map((tag, i) => (
+                            {faq.tags.filter(tag => !['TOFU', 'MOFU', 'BOFU'].includes(tag.toUpperCase())).map((tag, i) => (
                               <Badge key={i} variant="secondary" className="text-xs">
                                 {tag}
                               </Badge>

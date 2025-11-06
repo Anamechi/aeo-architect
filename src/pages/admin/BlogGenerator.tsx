@@ -1626,6 +1626,94 @@ export default function BlogGenerator() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Featured Image Section */}
+              <div className="space-y-4 pb-4 border-b">
+                <Label className="text-base font-semibold">Featured Image</Label>
+                
+                {featuredImageUrl && (
+                  <div className="relative">
+                    <img 
+                      src={featuredImageUrl} 
+                      alt="Featured" 
+                      className="w-full max-h-64 object-cover rounded-lg border"
+                    />
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="absolute top-2 right-2"
+                      onClick={() => setFeaturedImageUrl('')}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+                
+                <div className="flex gap-2">
+                  <Button
+                    onClick={async () => {
+                      if (!title) {
+                        toast.error('Add a title first to generate featured image');
+                        return;
+                      }
+                      
+                      setGeneratingImage(true);
+                      try {
+                        const prompt = `Professional blog featured image for: ${title}. ${funnelStage === 'TOFU' ? 'Educational and informative visual' : funnelStage === 'MOFU' ? 'Comparison or evaluation focused visual' : 'Decision and action oriented visual'}. Modern, clean, professional style.`;
+                        
+                        const { data, error } = await supabase.functions.invoke('generate-blog-image', {
+                          body: { prompt, style: 'professional' }
+                        });
+
+                        if (error) {
+                          if (error.message?.includes('429')) {
+                            toast.error('Rate limit exceeded. Please try again later.');
+                          } else if (error.message?.includes('402')) {
+                            toast.error('AI credits depleted. Please add funds.');
+                          } else {
+                            throw error;
+                          }
+                          return;
+                        }
+
+                        setFeaturedImageUrl(data.imageUrl);
+                        toast.success('Featured image generated!');
+                      } catch (error: any) {
+                        console.error('Image generation error:', error);
+                        toast.error(error.message || 'Failed to generate image');
+                      } finally {
+                        setGeneratingImage(false);
+                      }
+                    }}
+                    disabled={generatingImage || !title}
+                    className="flex-1"
+                  >
+                    {generatingImage ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Generate Featured Image
+                      </>
+                    )}
+                  </Button>
+                  
+                  <Input
+                    placeholder="Or paste image URL..."
+                    value={featuredImageUrl}
+                    onChange={(e) => setFeaturedImageUrl(e.target.value)}
+                    className="flex-1"
+                  />
+                </div>
+                
+                <p className="text-xs text-muted-foreground">
+                  Click the button to auto-generate a professional featured image based on your title, or paste an existing URL
+                </p>
+              </div>
+              
+              {/* Additional Images Section */}
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="image-prompt">Image Description</Label>
