@@ -1,0 +1,6 @@
+# Cloudflare Pages Redirects Configuration
+# This file handles client-side routing for React Router
+
+# Redirect all routes to index.html for single-page application
+# The 200 status code serves the file without changing the URL
+/*    /index.html   200
