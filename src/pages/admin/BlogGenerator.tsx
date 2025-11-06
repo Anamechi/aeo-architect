@@ -10,9 +10,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Sparkles, FileText, Target, TrendingUp, Plus, X, Wand2, Loader2, Lightbulb, Link2, ExternalLink, Image, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
+import { Sparkles, FileText, Target, TrendingUp, Plus, X, Wand2, Loader2, Lightbulb, Link2, ExternalLink, Image, CheckCircle, AlertCircle, RefreshCw, Eye, Edit, Upload, RotateCcw } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ContentPreviewPanel } from '@/components/admin/ContentPreviewPanel';
 
 type FunnelStage = 'TOFU' | 'MOFU' | 'BOFU';
 
@@ -70,6 +72,14 @@ export default function BlogGenerator() {
   const [linkSuggestions, setLinkSuggestions] = useState<any[]>([]);
   const [linkingStrategy, setLinkingStrategy] = useState('');
   const [loadingLinks, setLoadingLinks] = useState(false);
+  
+  // Preview and editing
+  const [showPreview, setShowPreview] = useState(false);
+  const [isEditingContent, setIsEditingContent] = useState(false);
+  const [editedContent, setEditedContent] = useState('');
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [featuredImageUrl, setFeaturedImageUrl] = useState('');
+  const [uploadingCustomImage, setUploadingCustomImage] = useState(false);
   
   const [loading, setLoading] = useState(false);
 
@@ -306,6 +316,8 @@ export default function BlogGenerator() {
         setContent(generatedContent);
       } else if (action === 'full-content') {
         setContent(generatedContent);
+        setShowPreview(true); // Auto-show preview
+        
         // Auto-fill title and meta if they're empty
         if (!title && generatedContent.includes('# ')) {
           const titleMatch = generatedContent.match(/# (.+)/);
@@ -323,6 +335,7 @@ export default function BlogGenerator() {
           });
 
           if (!imageError && imageData?.imageUrl) {
+            setFeaturedImageUrl(imageData.imageUrl);
             setGeneratedImages([...generatedImages, imageData.imageUrl]);
             toast.success('Featured image generated successfully!');
           }
@@ -594,25 +607,113 @@ export default function BlogGenerator() {
     toast.success(`Cluster generation complete! ${successCount}/6 blogs created with images.`);
   };
 
+  // Calculate word count and reading time
+  const calculateReadingStats = () => {
+    const words = content.trim().split(/\s+/).length;
+    const readingTime = Math.ceil(words / 200); // Avg 200 words per minute
+    return { wordCount: words, readingTime };
+  };
+
+  // Handle content editing
+  const startEditing = () => {
+    setEditedContent(content);
+    setIsEditingContent(true);
+  };
+
+  const saveEdits = () => {
+    setContent(editedContent);
+    setIsEditingContent(false);
+    setHasUnsavedChanges(true);
+    toast.success('Content updated! Remember to save/publish.');
+  };
+
+  const cancelEditing = () => {
+    setEditedContent('');
+    setIsEditingContent(false);
+  };
+
+  // Regenerate featured image
+  const regenerateFeaturedImage = async () => {
+    if (!title && !aiTopic) {
+      toast.error('Add a title or topic first');
+      return;
+    }
+
+    setGeneratingImage(true);
+    try {
+      const imagePrompt = `Blog post featured image for: ${title || aiTopic}. ${funnelStage === 'TOFU' ? 'Educational and informative visual' : funnelStage === 'MOFU' ? 'Comparison or evaluation focused visual' : 'Decision and action oriented visual'}`;
+      
+      const { data, error } = await supabase.functions.invoke('generate-blog-image', {
+        body: { prompt: imagePrompt, style: 'professional' }
+      });
+
+      if (error) throw error;
+
+      setFeaturedImageUrl(data.imageUrl);
+      setGeneratedImages([...generatedImages, data.imageUrl]);
+      toast.success('Featured image regenerated!');
+    } catch (error: any) {
+      console.error('Image generation error:', error);
+      toast.error(error.message || 'Failed to regenerate image');
+    } finally {
+      setGeneratingImage(false);
+    }
+  };
+
+  // Handle custom image upload
+  const handleCustomImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB');
+      return;
+    }
+
+    setUploadingCustomImage(true);
+    try {
+      // For now, just use a data URL (in production, upload to storage)
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        setFeaturedImageUrl(dataUrl);
+        toast.success('Custom image uploaded!');
+      };
+      reader.readAsDataURL(file);
+    } catch (error: any) {
+      toast.error('Failed to upload image');
+    } finally {
+      setUploadingCustomImage(false);
+    }
+  };
+
   return (
-    <div className="container mx-auto py-8 px-4 max-w-6xl">
+    <div className="container mx-auto py-8 px-4 max-w-7xl">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Sparkles className="h-8 w-8 text-primary" />
-            AI-Optimized Blog Generator
+          <h1 className="text-4xl font-bold flex items-center gap-3 bg-gradient-primary bg-clip-text text-transparent">
+            <Sparkles className="h-10 w-10 text-primary" />
+            AI Blog Generator
           </h1>
-          <p className="text-muted-foreground mt-2">
-            Create SEO and AI-crawler optimized content for maximum visibility
+          <p className="text-muted-foreground mt-2 text-lg">
+            Create SEO-optimized content with automatic images and smart linking
           </p>
         </div>
         
-        <div className="flex items-center gap-2">
-          <Badge variant={seoScore >= 80 ? 'default' : seoScore >= 50 ? 'secondary' : 'destructive'}>
+        <div className="flex items-center gap-3">
+          {hasUnsavedChanges && (
+            <Badge variant="destructive" className="animate-pulse">
+              Unsaved Changes
+            </Badge>
+          )}
+          <Badge 
+            variant={seoScore >= 80 ? 'default' : seoScore >= 50 ? 'secondary' : 'destructive'}
+            className="text-base px-4 py-2"
+          >
             SEO Score: {seoScore}/100
           </Badge>
-          <Button onClick={calculateSEOScore} variant="outline" size="sm">
-            <Target className="h-4 w-4 mr-2" />
+          <Button onClick={calculateSEOScore} variant="outline" size="lg" className="shadow-md hover:shadow-lg transition-all">
+            <Target className="h-5 w-5 mr-2" />
             Check Score
           </Button>
         </div>
@@ -1373,14 +1474,31 @@ export default function BlogGenerator() {
       </Tabs>
 
       <div className="flex justify-end gap-4 mt-8">
-        <Button onClick={handleSaveDraft} variant="outline" disabled={loading || !title || !content}>
+        <Button onClick={handleSaveDraft} variant="outline" size="lg" disabled={loading || !title || !content} className="shadow-md hover:shadow-lg transition-all">
           Save Draft
         </Button>
-        <Button onClick={handlePublish} disabled={loading || !title || !content || !metaDescription}>
-          <Sparkles className="h-4 w-4 mr-2" />
+        <Button onClick={handlePublish} size="lg" disabled={loading || !title || !content || !metaDescription} className="bg-gradient-primary shadow-md hover:shadow-xl transition-all">
+          <Sparkles className="h-5 w-5 mr-2" />
           Publish
         </Button>
       </div>
     </div>
+
+    {/* Right side - Preview Panel */}
+    <div>
+      <ContentPreviewPanel
+        content={content}
+        isGenerating={aiGenerating}
+        featuredImageUrl={featuredImageUrl}
+        onEdit={(newContent) => {
+          setContent(newContent);
+          setHasUnsavedChanges(true);
+        }}
+        onRegenerateImage={regenerateFeaturedImage}
+        onUploadCustomImage={handleCustomImageUpload}
+        generatingImage={generatingImage}
+      />
+    </div>
+  </div>
   );
 }
