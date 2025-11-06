@@ -45,6 +45,8 @@ export default function BlogAudit() {
   const [loading, setLoading] = useState(false);
   const [auditing, setAuditing] = useState(false);
   const [optimizing, setOptimizing] = useState<string | null>(null);
+  const [regeneratingImages, setRegeneratingImages] = useState(false);
+  const [imageProgress, setImageProgress] = useState(0);
   const [progress, setProgress] = useState(0);
   const [filter, setFilter] = useState<'all' | 'critical' | 'needs-images' | 'excellent'>('all');
 
@@ -112,6 +114,74 @@ export default function BlogAudit() {
     } catch (error) {
       console.error('Audit failed:', error);
       toast.error('Failed to audit post');
+    }
+  };
+
+  const bulkRegenerateImages = async () => {
+    if (posts.length === 0) {
+      toast.error('No posts to process');
+      return;
+    }
+
+    const confirmed = confirm(
+      `This will regenerate images for all ${posts.length} blog posts using ANAMECHI brand style. This may take several minutes. Continue?`
+    );
+
+    if (!confirmed) return;
+
+    setRegeneratingImages(true);
+    setImageProgress(0);
+
+    try {
+      // Process in batches of 5 to avoid overwhelming the API
+      const batchSize = 5;
+      const batches = [];
+      for (let i = 0; i < posts.length; i += batchSize) {
+        batches.push(posts.slice(i, i + batchSize));
+      }
+
+      let totalProcessed = 0;
+      const allResults: any[] = [];
+
+      for (const batch of batches) {
+        const postIds = batch.map(p => p.id);
+        
+        const { data, error } = await supabase.functions.invoke('bulk-regenerate-images', {
+          body: { postIds, brandStyle: 'anamechi' }
+        });
+
+        if (error) {
+          console.error('Batch failed:', error);
+          toast.error(`Batch failed: ${error.message}`);
+        } else if (data) {
+          allResults.push(...data.results);
+          totalProcessed += batch.length;
+          setImageProgress((totalProcessed / posts.length) * 100);
+          
+          toast.success(
+            `Batch complete: ${data.successful} successful, ${data.failed} failed`
+          );
+        }
+      }
+
+      // Summary
+      const successCount = allResults.filter(r => r.success).length;
+      const failureCount = allResults.filter(r => !r.success).length;
+
+      toast.success(
+        `Bulk regeneration complete! ${successCount} images generated, ${failureCount} failed.`,
+        { duration: 5000 }
+      );
+
+      // Refresh posts
+      await fetchPosts();
+      
+    } catch (error) {
+      console.error('Bulk regeneration failed:', error);
+      toast.error('Bulk image regeneration failed');
+    } finally {
+      setRegeneratingImages(false);
+      setImageProgress(0);
     }
   };
 
@@ -204,23 +274,43 @@ export default function BlogAudit() {
             Analyze and optimize all blog posts to ANAMECHI Excellence Standards
           </p>
         </div>
-        <Button 
-          onClick={auditAllPosts} 
-          disabled={auditing || loading}
-          size="lg"
-        >
-          {auditing ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Auditing...
-            </>
-          ) : (
-            <>
-              <Sparkles className="mr-2 h-4 w-4" />
-              Audit All Posts
-            </>
-          )}
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={bulkRegenerateImages} 
+            disabled={regeneratingImages || loading || posts.length === 0}
+            variant="outline"
+            size="lg"
+          >
+            {regeneratingImages ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Regenerating...
+              </>
+            ) : (
+              <>
+                <ImageIcon className="mr-2 h-4 w-4" />
+                Regenerate All Images
+              </>
+            )}
+          </Button>
+          <Button 
+            onClick={auditAllPosts} 
+            disabled={auditing || loading}
+            size="lg"
+          >
+            {auditing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Auditing...
+              </>
+            ) : (
+              <>
+                <Sparkles className="mr-2 h-4 w-4" />
+                Audit All Posts
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {auditing && (
@@ -231,6 +321,30 @@ export default function BlogAudit() {
           </CardHeader>
           <CardContent>
             <Progress value={progress} className="w-full" />
+          </CardContent>
+        </Card>
+      )}
+
+      {regeneratingImages && (
+        <Card className="border-purple-500 bg-purple-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ImageIcon className="h-5 w-5 text-purple-600" />
+              Bulk Image Regeneration in Progress
+            </CardTitle>
+            <CardDescription>
+              Generating brand-aligned images for {posts.length} blog posts using Nano Banana...
+              <br />
+              <span className="text-purple-600 font-medium">
+                ANAMECHI Style: Sleek, empowering, purple-gold tones, editorial quality
+              </span>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Progress value={imageProgress} className="w-full" />
+            <p className="text-sm text-muted-foreground mt-2">
+              {Math.round(imageProgress)}% complete - Processing in batches to ensure quality
+            </p>
           </CardContent>
         </Card>
       )}

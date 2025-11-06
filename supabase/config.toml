@@ -3,6 +3,9 @@ project_id = "hjbylbjbxjotbijzrwma"
 [functions.audit-blog-content]
 verify_jwt = true
 
+[functions.bulk-regenerate-images]
+verify_jwt = true
+
 [functions.generate-blog-content]
 verify_jwt = true
 
