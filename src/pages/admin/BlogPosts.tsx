@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { FileText, Edit, Trash2, Search, Plus, Eye, Calendar, Target, Upload, Link2, CheckCircle } from 'lucide-react';
+import { FileText, Edit, Trash2, Search, Plus, Eye, Calendar, Target, Upload, Link2, CheckCircle, UserCheck } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type FunnelStage = 'TOFU' | 'MOFU' | 'BOFU';
@@ -160,6 +160,40 @@ export default function BlogPosts() {
     }
   };
 
+  const handleSetDefaultAuthor = async () => {
+    if (!confirm('Set Dr. Deanna Romulus as author for all posts missing an author?')) {
+      return;
+    }
+
+    try {
+      // First, get Dr. Deanna Romulus's ID
+      const { data: authorData, error: authorError } = await supabase
+        .from('authors')
+        .select('id')
+        .eq('name', 'Dr. Deanna Romulus, MBA')
+        .single();
+
+      if (authorError || !authorData) {
+        toast.error('Could not find Dr. Deanna Romulus in authors');
+        return;
+      }
+
+      // Update all posts without an author
+      const { error } = await supabase
+        .from('blog_posts')
+        .update({ author_id: authorData.id })
+        .is('author_id', null);
+
+      if (error) throw error;
+
+      toast.success('Author updated for all posts!');
+      fetchPosts();
+    } catch (error: any) {
+      toast.error('Failed to update authors');
+      console.error('Error updating authors:', error);
+    }
+  };
+
   const getStatusBadge = (status: ContentStatus) => {
     const variants: Record<ContentStatus, 'default' | 'secondary' | 'outline'> = {
       draft: 'secondary',
@@ -213,10 +247,18 @@ export default function BlogPosts() {
           </p>
         </div>
         
-        <Button onClick={() => navigate('/admin/blog/new')} size="lg">
-          <Plus className="h-5 w-5 mr-2" />
-          New Blog Post
-        </Button>
+        <div className="flex gap-2">
+          {posts.some(p => !p.author_id) && (
+            <Button onClick={handleSetDefaultAuthor} variant="outline" size="lg">
+              <UserCheck className="h-5 w-5 mr-2" />
+              Set Default Author
+            </Button>
+          )}
+          <Button onClick={() => navigate('/admin/blog/new')} size="lg">
+            <Plus className="h-5 w-5 mr-2" />
+            New Blog Post
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}

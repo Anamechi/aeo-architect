@@ -151,10 +151,20 @@ export default function BlogGenerator() {
       }
       
       setAuthors(data || []);
+      
+      // Auto-select Dr. Deanna Romulus for new posts
+      if (!editingPostId && !selectedAuthorId && data) {
+        const deannaRomulus = data.find((author: any) => 
+          author.name === 'Dr. Deanna Romulus, MBA'
+        );
+        if (deannaRomulus) {
+          setSelectedAuthorId(deannaRomulus.id);
+        }
+      }
     };
     
     fetchAuthors();
-  }, []);
+  }, [editingPostId]);
 
   // Auto-generate slug from title
   const handleTitleChange = (value: string) => {
@@ -282,6 +292,11 @@ export default function BlogGenerator() {
       const schema = generateSchema();
       const { readingTime, excerpt } = calculateReadingTimeAndExcerpt();
       
+      // Find Dr. Deanna Romulus ID as default
+      const defaultAuthorId = authors.find((author: any) => 
+        author.name === 'Dr. Deanna Romulus, MBA'
+      )?.id || null;
+      
       const postData = {
         title,
         slug,
@@ -293,7 +308,7 @@ export default function BlogGenerator() {
         citations: citations as any,
         schema_data: schema as any,
         seo_score: score,
-        author_id: selectedAuthorId || null,
+        author_id: selectedAuthorId || defaultAuthorId,
         featured_image_url: featuredImageUrl || null,
         reading_time: readingTime,
         excerpt: excerpt,
@@ -346,6 +361,11 @@ export default function BlogGenerator() {
       const schema = generateSchema();
       const { readingTime, excerpt } = calculateReadingTimeAndExcerpt();
       
+      // Find Dr. Deanna Romulus ID as default
+      const defaultAuthorId = authors.find((author: any) => 
+        author.name === 'Dr. Deanna Romulus, MBA'
+      )?.id || null;
+      
       const postData = {
         title,
         slug,
@@ -357,7 +377,7 @@ export default function BlogGenerator() {
         citations: citations as any,
         schema_data: schema as any,
         seo_score: score,
-        author_id: selectedAuthorId || null,
+        author_id: selectedAuthorId || defaultAuthorId,
         featured_image_url: featuredImageUrl || null,
         reading_time: readingTime,
         excerpt: excerpt,
