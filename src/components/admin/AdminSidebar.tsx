@@ -24,6 +24,7 @@ const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Master Prompts', href: '/admin/master-prompts', icon: Lightbulb },
   { name: 'Blog Generator', href: '/admin/blog-generator', icon: FileText },
+  { name: 'Blog Posts', href: '/admin/blog-posts', icon: FileText },
   { name: 'QA Generator', href: '/admin/qa-generator', icon: MessageSquare },
   { name: 'FAQ Manager', href: '/admin/faq-manager', icon: HelpCircle },
   { name: 'Authors', href: '/admin/authors', icon: Users },

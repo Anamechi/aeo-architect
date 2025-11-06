@@ -24,6 +24,7 @@ import Signup from "./pages/admin/Signup";
 import Dashboard from "./pages/admin/Dashboard";
 import AdminAITools from "./pages/admin/AITools";
 import BlogGenerator from "./pages/admin/BlogGenerator";
+import BlogPosts from "./pages/admin/BlogPosts";
 import Packages from "./pages/admin/Packages";
 import Quotes from "./pages/admin/Quotes";
 import PricingSettings from "./pages/admin/PricingSettings";
@@ -57,6 +58,7 @@ const App = () => (
                 <Route path="master-prompts" element={<MasterPrompts />} />
                 <Route path="ai-tools" element={<AdminAITools />} />
                 <Route path="blog-generator" element={<BlogGenerator />} />
+                <Route path="blog-posts" element={<BlogPosts />} />
                 <Route path="qa-generator" element={<QAGenerator />} />
                 <Route path="faq-manager" element={<FAQManager />} />
                 <Route path="authors" element={<Authors />} />
