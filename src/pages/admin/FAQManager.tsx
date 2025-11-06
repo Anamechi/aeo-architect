@@ -2,8 +2,14 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { FunnelStage } from '@/types/content';
 import { generateFAQSchema } from '@/utils/schema';
-import { Plus, Edit, Trash2, Save, HelpCircle, ArrowUp, ArrowDown, X } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, HelpCircle, ArrowUp, ArrowDown, X, Sparkles, Upload, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface FAQ {
   id: string;
@@ -22,6 +28,22 @@ export default function FAQManager() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  // Bulk generation state
+  const [showBulkGenerate, setShowBulkGenerate] = useState(false);
+  const [bulkTopic, setBulkTopic] = useState('');
+  const [bulkCount, setBulkCount] = useState(5);
+  const [bulkCategory, setBulkCategory] = useState('General');
+  const [bulkFunnelStage, setBulkFunnelStage] = useState<FunnelStage>('TOFU');
+  const [generatingBulk, setGeneratingBulk] = useState(false);
+  const [generatedFaqs, setGeneratedFaqs] = useState<any[]>([]);
+
+  // Bulk upload state
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
+  const [uploadText, setUploadText] = useState('');
+  const [uploadCategory, setUploadCategory] = useState('General');
+  const [uploadFunnelStage, setUploadFunnelStage] = useState<FunnelStage>('TOFU');
+  const [processingUpload, setProcessingUpload] = useState(false);
 
   useEffect(() => {
     fetchFAQs();
@@ -121,6 +143,184 @@ export default function FAQManager() {
     toast({ title: 'Success', description: 'FAQ Schema copied to clipboard!' });
   };
 
+  const handleBulkGenerate = async () => {
+    if (!bulkTopic.trim()) {
+      toast({ title: 'Error', description: 'Please enter a topic', variant: 'destructive' });
+      return;
+    }
+
+    setGeneratingBulk(true);
+    setGeneratedFaqs([]);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-bulk-faqs', {
+        body: {
+          topic: bulkTopic,
+          count: bulkCount,
+          category: bulkCategory,
+          funnelStage: bulkFunnelStage
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.error) {
+        toast({ 
+          title: 'Error', 
+          description: data.error, 
+          variant: 'destructive' 
+        });
+        return;
+      }
+
+      if (data?.faqs && Array.isArray(data.faqs)) {
+        setGeneratedFaqs(data.faqs);
+        toast({ 
+          title: 'Success!', 
+          description: `Generated ${data.faqs.length} FAQs. Review and save them below.` 
+        });
+      }
+    } catch (error: any) {
+      console.error('Bulk generation error:', error);
+      toast({ 
+        title: 'Error', 
+        description: error.message || 'Failed to generate FAQs', 
+        variant: 'destructive' 
+      });
+    } finally {
+      setGeneratingBulk(false);
+    }
+  };
+
+  const handleSaveGeneratedFaqs = async () => {
+    if (generatedFaqs.length === 0) return;
+
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('qa_articles')
+        .insert(generatedFaqs);
+
+      if (error) throw error;
+
+      toast({ 
+        title: 'Success!', 
+        description: `Saved ${generatedFaqs.length} FAQs` 
+      });
+      setGeneratedFaqs([]);
+      setShowBulkGenerate(false);
+      fetchFAQs();
+    } catch (error: any) {
+      toast({ 
+        title: 'Error', 
+        description: error.message, 
+        variant: 'destructive' 
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBulkUpload = async () => {
+    if (!uploadText.trim()) {
+      toast({ title: 'Error', description: 'Please paste your FAQ content', variant: 'destructive' });
+      return;
+    }
+
+    setProcessingUpload(true);
+
+    try {
+      // Parse the text - expecting format like:
+      // Q: Question here?
+      // A: Answer here.
+      // (blank line)
+      // Q: Next question?
+      // A: Next answer.
+
+      const lines = uploadText.split('\n');
+      const parsedFaqs: any[] = [];
+      let currentQuestion = '';
+      let currentAnswer = '';
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        
+        if (line.match(/^Q:|^Question:/i)) {
+          // Save previous FAQ if exists
+          if (currentQuestion && currentAnswer) {
+            parsedFaqs.push({
+              question: currentQuestion,
+              answer: currentAnswer,
+              slug: currentQuestion.toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)/g, ''),
+              tags: [uploadCategory],
+              funnel_stage: uploadFunnelStage,
+              status: 'draft',
+              meta_description: currentAnswer.substring(0, 160)
+            });
+          }
+          // Start new question
+          currentQuestion = line.replace(/^Q:|^Question:/i, '').trim();
+          currentAnswer = '';
+        } else if (line.match(/^A:|^Answer:/i)) {
+          currentAnswer = line.replace(/^A:|^Answer:/i, '').trim();
+        } else if (line && currentAnswer) {
+          // Continue building answer
+          currentAnswer += ' ' + line;
+        }
+      }
+
+      // Save last FAQ
+      if (currentQuestion && currentAnswer) {
+        parsedFaqs.push({
+          question: currentQuestion,
+          answer: currentAnswer,
+          slug: currentQuestion.toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)/g, ''),
+          tags: [uploadCategory],
+          funnel_stage: uploadFunnelStage,
+          status: 'draft',
+          meta_description: currentAnswer.substring(0, 160)
+        });
+      }
+
+      if (parsedFaqs.length === 0) {
+        toast({ 
+          title: 'Error', 
+          description: 'No FAQs found. Use format: Q: question? A: answer.', 
+          variant: 'destructive' 
+        });
+        return;
+      }
+
+      // Insert into database
+      const { error } = await supabase
+        .from('qa_articles')
+        .insert(parsedFaqs);
+
+      if (error) throw error;
+
+      toast({ 
+        title: 'Success!', 
+        description: `Imported ${parsedFaqs.length} FAQs` 
+      });
+      setUploadText('');
+      setShowBulkUpload(false);
+      fetchFAQs();
+    } catch (error: any) {
+      console.error('Bulk upload error:', error);
+      toast({ 
+        title: 'Error', 
+        description: error.message || 'Failed to upload FAQs', 
+        variant: 'destructive' 
+      });
+    } finally {
+      setProcessingUpload(false);
+    }
+  };
+
   const categories = Array.from(new Set(faqs.map(f => f.category)));
   const filteredFaqs = selectedCategory === 'all' 
     ? faqs 
@@ -131,6 +331,22 @@ export default function FAQManager() {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">FAQ Manager</h1>
         <div className="flex gap-2">
+          <Button
+            onClick={() => setShowBulkGenerate(true)}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <Sparkles size={20} />
+            AI Generate Bulk
+          </Button>
+          <Button
+            onClick={() => setShowBulkUpload(true)}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <Upload size={20} />
+            Bulk Upload
+          </Button>
           <button
             onClick={generateSchema}
             className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
@@ -154,6 +370,219 @@ export default function FAQManager() {
           </button>
         </div>
       </div>
+
+      {/* Bulk Generate Modal */}
+      {showBulkGenerate && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5" />
+                AI Bulk FAQ Generation
+              </CardTitle>
+              <CardDescription>
+                Generate multiple FAQs at once using AI
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Topic</label>
+                <Input
+                  value={bulkTopic}
+                  onChange={(e) => setBulkTopic(e.target.value)}
+                  placeholder="e.g., Marketing Automation, CRM Setup, etc."
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Number of FAQs</label>
+                  <Select value={String(bulkCount)} onValueChange={(v) => setBulkCount(Number(v))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[3, 5, 7, 10, 15, 20].map(n => (
+                        <SelectItem key={n} value={String(n)}>{n} FAQs</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Category</label>
+                  <Input
+                    value={bulkCategory}
+                    onChange={(e) => setBulkCategory(e.target.value)}
+                    placeholder="General"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Funnel Stage</label>
+                <Select value={bulkFunnelStage} onValueChange={(v) => setBulkFunnelStage(v as FunnelStage)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="TOFU">TOFU - Awareness</SelectItem>
+                    <SelectItem value="MOFU">MOFU - Consideration</SelectItem>
+                    <SelectItem value="BOFU">BOFU - Conversion</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {generatedFaqs.length > 0 && (
+                <div className="border rounded-lg p-4 space-y-3 max-h-60 overflow-y-auto">
+                  <p className="text-sm font-medium">{generatedFaqs.length} FAQs generated:</p>
+                  {generatedFaqs.map((faq, i) => (
+                    <div key={i} className="text-sm border-l-2 pl-2">
+                      <div className="font-medium">{faq.question}</div>
+                      <div className="text-muted-foreground line-clamp-2">{faq.answer}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                {generatedFaqs.length === 0 ? (
+                  <Button
+                    onClick={handleBulkGenerate}
+                    disabled={generatingBulk || !bulkTopic}
+                    className="flex-1"
+                  >
+                    {generatingBulk ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Generate FAQs
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleSaveGeneratedFaqs}
+                    disabled={loading}
+                    className="flex-1"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="mr-2 h-4 w-4" />
+                        Save All FAQs
+                      </>
+                    )}
+                  </Button>
+                )}
+                <Button
+                  onClick={() => {
+                    setShowBulkGenerate(false);
+                    setGeneratedFaqs([]);
+                  }}
+                  variant="outline"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Bulk Upload Modal */}
+      {showBulkUpload && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Upload className="h-5 w-5" />
+                Bulk FAQ Upload
+              </CardTitle>
+              <CardDescription>
+                Paste FAQs from a document using this format:
+                <pre className="mt-2 text-xs bg-muted p-2 rounded">
+{`Q: What is marketing automation?
+A: Marketing automation is...
+
+Q: How much does it cost?
+A: Pricing varies based on...`}
+                </pre>
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Paste FAQ Content</label>
+                <Textarea
+                  value={uploadText}
+                  onChange={(e) => setUploadText(e.target.value)}
+                  rows={12}
+                  placeholder="Q: Your question here?&#10;A: Your answer here.&#10;&#10;Q: Another question?&#10;A: Another answer."
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Category</label>
+                  <Input
+                    value={uploadCategory}
+                    onChange={(e) => setUploadCategory(e.target.value)}
+                    placeholder="General"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Funnel Stage</label>
+                  <Select value={uploadFunnelStage} onValueChange={(v) => setUploadFunnelStage(v as FunnelStage)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="TOFU">TOFU - Awareness</SelectItem>
+                      <SelectItem value="MOFU">MOFU - Consideration</SelectItem>
+                      <SelectItem value="BOFU">BOFU - Conversion</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleBulkUpload}
+                  disabled={processingUpload || !uploadText}
+                  className="flex-1"
+                >
+                  {processingUpload ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="mr-2 h-4 w-4" />
+                      Import FAQs
+                    </>
+                  )}
+                </Button>
+                <Button
+                  onClick={() => setShowBulkUpload(false)}
+                  variant="outline"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Category Filter */}
       <div className="flex gap-2 flex-wrap">

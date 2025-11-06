@@ -17,3 +17,6 @@ verify_jwt = true
 
 [functions.reoptimize-blog-content]
 verify_jwt = true
+
+[functions.generate-bulk-faqs]
+verify_jwt = true
