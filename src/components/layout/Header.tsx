@@ -65,11 +65,13 @@ export const Header = () => {
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-2" onClick={handleLogoClick}>
           <div className="flex items-center space-x-2 relative">
-            <div 
-              className={`h-8 w-8 rounded-lg bg-gradient-primary transition-all duration-200 ${
-                clickCount === 1 ? 'scale-110 shadow-md' : 
-                clickCount === 2 ? 'scale-125 shadow-lg animate-pulse' : 
-                clickCount >= 3 ? 'scale-110 shadow-xl' : ''
+            <img 
+              src="/anamechi-logo.svg"
+              alt="ANAMECHI Marketing"
+              className={`h-8 w-8 transition-all duration-200 ${
+                clickCount === 1 ? 'scale-110 drop-shadow-md' : 
+                clickCount === 2 ? 'scale-125 drop-shadow-lg animate-pulse' : 
+                clickCount >= 3 ? 'scale-110 drop-shadow-xl' : ''
               }`}
             />
             {clickCount > 0 && (
