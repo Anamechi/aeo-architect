@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { FileText, Edit, Trash2, Search, Plus, Eye, Calendar, Target } from 'lucide-react';
+import { FileText, Edit, Trash2, Search, Plus, Eye, Calendar, Target, Upload, Link2, CheckCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type FunnelStage = 'TOFU' | 'MOFU' | 'BOFU';
@@ -89,6 +89,54 @@ export default function BlogPosts() {
     }
 
     setFilteredPosts(filtered);
+  };
+
+  const handlePublish = async (id: string, title: string) => {
+    if (!confirm(`Publish "${title}"? This will make it visible on your website.`)) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('blog_posts')
+        .update({ 
+          status: 'published',
+          published_at: new Date().toISOString()
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success('Blog post published successfully!');
+      fetchPosts();
+    } catch (error: any) {
+      toast.error('Failed to publish blog post');
+      console.error('Error publishing post:', error);
+    }
+  };
+
+  const handleUnpublish = async (id: string, title: string) => {
+    if (!confirm(`Unpublish "${title}"? This will remove it from your website.`)) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('blog_posts')
+        .update({ 
+          status: 'draft',
+          published_at: null
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success('Blog post unpublished');
+      fetchPosts();
+    } catch (error: any) {
+      toast.error('Failed to unpublish blog post');
+      console.error('Error unpublishing post:', error);
+    }
   };
 
   const handleDelete = async (id: string, title: string) => {
@@ -344,30 +392,84 @@ export default function BlogPosts() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => window.open(`/blog/${post.slug}`, '_blank')}
-                      disabled={post.status !== 'published'}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => navigate(`/admin/blog/edit/${post.id}`)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(post.id, post.title)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                  <div className="flex flex-col gap-2">
+                    {/* Publish/Unpublish Button */}
+                    {post.status === 'draft' ? (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={() => handlePublish(post.id, post.title)}
+                        className="w-full"
+                      >
+                        <CheckCircle className="h-4 w-4 mr-1" />
+                        Publish
+                      </Button>
+                    ) : post.status === 'published' ? (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleUnpublish(post.id, post.title)}
+                        className="w-full"
+                      >
+                        Unpublish
+                      </Button>
+                    ) : null}
+                    
+                    <div className="flex gap-2">
+                      {/* Quick Actions */}
+                      {!post.featured_image_url && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate(`/admin/blog/edit/${post.id}`)}
+                          className="flex-1"
+                          title="Add image"
+                        >
+                          <Upload className="h-4 w-4" />
+                        </Button>
+                      )}
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/admin/blog/edit/${post.id}`)}
+                        className="flex-1"
+                        title="Manage citations"
+                      >
+                        <Link2 className="h-4 w-4" />
+                      </Button>
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(`/blog/${post.slug}`, '_blank')}
+                        disabled={post.status !== 'published'}
+                        className="flex-1"
+                        title="Preview"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/admin/blog/edit/${post.id}`)}
+                        className="flex-1"
+                        title="Edit"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(post.id, post.title)}
+                        className="text-destructive hover:text-destructive flex-1"
+                        title="Delete"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </CardContent>
