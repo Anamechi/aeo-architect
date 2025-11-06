@@ -52,6 +52,8 @@ export default function BlogAudit() {
   const [altTextProgress, setAltTextProgress] = useState(0);
   const [progress, setProgress] = useState(0);
   const [filter, setFilter] = useState<'all' | 'critical' | 'needs-images' | 'excellent'>('all');
+  const [bulkOptimizing, setBulkOptimizing] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState(0);
 
   useEffect(() => {
     fetchPosts();
@@ -267,6 +269,105 @@ export default function BlogAudit() {
     }
   };
 
+  const bulkOptimizePublished = async () => {
+    const publishedPosts = posts.filter(p => p.status === 'published');
+    
+    if (publishedPosts.length === 0) {
+      toast.error('No published posts to optimize');
+      return;
+    }
+
+    const confirmed = confirm(
+      `This will optimize ALL ${publishedPosts.length} published blog posts to meet ANAMECHI content guidelines (short paragraphs, proper headers, visual structure). This may take several minutes. Continue?`
+    );
+
+    if (!confirmed) return;
+
+    setBulkOptimizing(true);
+    setBulkProgress(0);
+
+    let successCount = 0;
+    let failureCount = 0;
+
+    for (let i = 0; i < publishedPosts.length; i++) {
+      const post = publishedPosts[i];
+      
+      try {
+        toast.info(`Optimizing ${i + 1}/${publishedPosts.length}: ${post.title}...`);
+        
+        // Step 1: Audit if not already audited
+        let auditResult = auditResults.find(r => r.postId === post.id);
+        if (!auditResult) {
+          const { data: auditData, error: auditError } = await supabase.functions.invoke('audit-blog-content', {
+            body: { postId: post.id }
+          });
+          
+          if (auditError) throw auditError;
+          auditResult = auditData;
+          setAuditResults(prev => [...prev, auditData]);
+        }
+
+        // Step 2: Optimize content
+        const { data: optimizedData, error: optimizeError } = await supabase.functions.invoke('optimize-blog-post', {
+          body: { postId: post.id, auditResults: auditResult.audit }
+        });
+
+        if (optimizeError) throw optimizeError;
+
+        // Step 3: Generate image if missing
+        let imageUrl = post.featured_image_url;
+        if (!imageUrl || auditResult.audit.imageQuality === 'poor') {
+          const { data: imageData, error: imageError } = await supabase.functions.invoke('generate-blog-image', {
+            body: { 
+              prompt: optimizedData.suggestedImagePrompt || `Professional blog header image for: ${optimizedData.title}`,
+              style: 'professional'
+            }
+          });
+
+          if (!imageError && imageData?.imageUrl) {
+            imageUrl = imageData.imageUrl;
+          }
+        }
+
+        // Step 4: Update post
+        const { error: updateError } = await supabase
+          .from('blog_posts')
+          .update({
+            title: optimizedData.title,
+            excerpt: optimizedData.excerpt,
+            content: optimizedData.content,
+            meta_description: optimizedData.metaDescription,
+            ...(imageUrl && { featured_image_url: imageUrl }),
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', post.id);
+
+        if (updateError) throw updateError;
+
+        successCount++;
+        toast.success(`✓ ${post.title}`);
+        
+      } catch (error) {
+        console.error(`Failed to optimize ${post.title}:`, error);
+        failureCount++;
+        toast.error(`✗ ${post.title}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+
+      setBulkProgress(((i + 1) / publishedPosts.length) * 100);
+    }
+
+    setBulkOptimizing(false);
+    setBulkProgress(0);
+    
+    toast.success(
+      `Bulk optimization complete! ${successCount} successful, ${failureCount} failed.`,
+      { duration: 6000 }
+    );
+
+    await fetchPosts();
+    await auditAllPosts();
+  };
+
   const handlePublish = async (postId: string, publish: boolean, postTitle: string) => {
     try {
       const { error } = await supabase
@@ -402,6 +503,25 @@ export default function BlogAudit() {
         </div>
         <div className="flex gap-2">
           <Button 
+            onClick={bulkOptimizePublished} 
+            disabled={bulkOptimizing || loading || posts.filter(p => p.status === 'published').length === 0}
+            variant="default"
+            size="lg"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          >
+            {bulkOptimizing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Optimizing {Math.round(bulkProgress)}%...
+              </>
+            ) : (
+              <>
+                <Sparkles className="mr-2 h-4 w-4" />
+                Fix All Published Blogs
+              </>
+            )}
+          </Button>
+          <Button 
             onClick={bulkGenerateAltText} 
             disabled={generatingAltText || loading || posts.length === 0}
             variant="outline"
@@ -456,6 +576,26 @@ export default function BlogAudit() {
           </Button>
         </div>
       </div>
+
+      {bulkOptimizing && (
+        <Alert className="border-purple-500 bg-purple-50">
+          <Sparkles className="h-5 w-5 text-purple-600" />
+          <AlertDescription>
+            <div className="space-y-2">
+              <p className="font-semibold">Bulk Blog Optimization in Progress</p>
+              <p className="text-sm">
+                Reformatting all published blogs to meet ANAMECHI guidelines:
+                <br />• Short paragraphs (2-4 lines)
+                <br />• Proper H2/H3 structure
+                <br />• Visual breaks and white space
+                <br />• SEO-optimized content
+              </p>
+              <Progress value={bulkProgress} className="w-full" />
+              <p className="text-sm text-muted-foreground">{Math.round(bulkProgress)}% complete</p>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {auditing && (
         <Card>
