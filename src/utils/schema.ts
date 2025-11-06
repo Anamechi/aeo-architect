@@ -60,22 +60,83 @@ export const generateOrganizationSchema = () => ({
   description: 'Digital marketing agency empowering coaches and consultants through automation and AI systems.',
   address: {
     '@type': 'PostalAddress',
-    addressLocality: 'Plano',
-    addressRegion: 'TX',
+    streetAddress: '101 Lindenwood Dr STE 225',
+    addressLocality: 'Malvern',
+    addressRegion: 'PA',
+    postalCode: '19355',
     addressCountry: 'US',
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: 40.0362,
+    longitude: -75.5138,
   },
   contactPoint: {
     '@type': 'ContactPoint',
     contactType: 'Customer Service',
-    email: 'hello@anamechimarketing.com',
+    email: 'info@anamechimarketing.com',
+    availableLanguage: 'English',
+    hoursAvailable: {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+      opens: '09:00',
+      closes: '18:00',
+    },
   },
   founder: {
     '@type': 'Person',
     name: 'Dr. Deanna Romulus',
+    jobTitle: 'Founder & CEO',
   },
   sameAs: [
     'https://www.linkedin.com/company/anamechi-marketing',
     'https://twitter.com/anamechimarketing',
+  ],
+});
+
+export const generateLocalBusinessSchema = () => ({
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: 'ANAMECHI Marketing',
+  image: 'https://anamechimarketing.com/logo.png',
+  url: 'https://anamechimarketing.com',
+  email: 'info@anamechimarketing.com',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: '101 Lindenwood Dr STE 225',
+    addressLocality: 'Malvern',
+    addressRegion: 'PA',
+    postalCode: '19355',
+    addressCountry: 'US',
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: 40.0362,
+    longitude: -75.5138,
+  },
+  openingHoursSpecification: [
+    {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+      opens: '09:00',
+      closes: '18:00',
+    },
+  ],
+  priceRange: '$$',
+  founder: {
+    '@type': 'Person',
+    name: 'Dr. Deanna Romulus',
+  },
+  areaServed: {
+    '@type': 'State',
+    name: 'Pennsylvania',
+  },
+  knowsAbout: [
+    'Marketing Automation',
+    'CRM Implementation',
+    'Brand Strategy',
+    'Digital Marketing',
+    'AI Content Systems',
   ],
 });
 

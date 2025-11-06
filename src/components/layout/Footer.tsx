@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Linkedin, Twitter, Youtube } from "lucide-react";
+import { Linkedin, Twitter, Youtube, MapPin, Mail, Clock } from "lucide-react";
 
 export const Footer = () => {
   const footerLinks = {
@@ -32,15 +32,35 @@ export const Footer = () => {
     <footer className="border-t border-border bg-background">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-5">
-          {/* Brand */}
+          {/* Brand & Contact */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center space-x-2 mb-4">
               <div className="h-8 w-8 rounded-lg bg-gradient-primary" />
               <span className="text-xl font-bold text-foreground">ANAMECHI Marketing</span>
             </Link>
-            <p className="text-sm text-muted-foreground mb-4 max-w-sm">
-              AI Engine Optimization and digital marketing strategies that get your brand cited by search engines and AI models.
+            <p className="text-sm text-muted-foreground mb-6 max-w-sm">
+              Empowering entrepreneurs to automate smarter, market confidently, and scale with systems — not stress.
             </p>
+            
+            {/* Contact Information */}
+            <div className="space-y-3 mb-6">
+              <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
+                <span>101 Lindenwood Dr STE 225, Malvern, PA 19355</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Mail className="h-4 w-4 shrink-0" />
+                <a href="mailto:info@anamechimarketing.com" className="hover:text-primary transition-colors">
+                  info@anamechimarketing.com
+                </a>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Clock className="h-4 w-4 shrink-0" />
+                <span>Mon-Sat: 9:00 AM - 6:00 PM EST</span>
+              </div>
+            </div>
+
+            {/* Social Links */}
             <div className="flex space-x-4">
               {socialLinks.map((social) => (
                 <a
@@ -110,6 +130,9 @@ export const Footer = () => {
         <div className="mt-12 border-t border-border pt-8">
           <p className="text-center text-sm text-muted-foreground">
             © {new Date().getFullYear()} ANAMECHI Marketing. All rights reserved.
+          </p>
+          <p className="text-center text-sm text-muted-foreground mt-2">
+            Made with ❤️ in Malvern, Pennsylvania
           </p>
         </div>
       </div>

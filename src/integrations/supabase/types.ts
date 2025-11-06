@@ -150,6 +150,7 @@ export type Database = {
           citations: Json | null
           content: string | null
           created_at: string | null
+          excerpt: string | null
           featured_image_url: string | null
           funnel_stage: Database["public"]["Enums"]["funnel_stage"] | null
           id: string
@@ -171,6 +172,7 @@ export type Database = {
           citations?: Json | null
           content?: string | null
           created_at?: string | null
+          excerpt?: string | null
           featured_image_url?: string | null
           funnel_stage?: Database["public"]["Enums"]["funnel_stage"] | null
           id?: string
@@ -192,6 +194,7 @@ export type Database = {
           citations?: Json | null
           content?: string | null
           created_at?: string | null
+          excerpt?: string | null
           featured_image_url?: string | null
           funnel_stage?: Database["public"]["Enums"]["funnel_stage"] | null
           id?: string

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -5,152 +6,140 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Calendar, Clock, User, CheckCircle2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import ReactMarkdown from "react-markdown";
 
 const BlogArticle = () => {
   const { slug } = useParams();
+  const [article, setArticle] = useState<any>(null);
+  const [author, setAuthor] = useState<any>(null);
+  const [relatedPosts, setRelatedPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  // Sample article data - in production, fetch from CMS/database
-  const article = {
-    slug: "aeo-guide-2025",
-    title: "The Complete Guide to AI Engine Optimization (AEO) in 2025",
-    excerpt: "Learn how to position your brand for AI citation across ChatGPT, Gemini, Perplexity, and other LLMs with our comprehensive AEO guide.",
-    content: `
-AI Engine Optimization (AEO) is the practice of optimizing your content and online presence to be discovered, understood, and cited by Large Language Models (LLMs) and AI-powered answer engines like ChatGPT, Google Gemini, Perplexity, Microsoft Copilot, and others.
+  useEffect(() => {
+    if (slug) {
+      fetchArticle();
+    }
+  }, [slug]);
 
-## Why AEO Matters in 2025
+  const fetchArticle = async () => {
+    try {
+      setLoading(true);
+      setNotFound(false);
 
-The way people search for information has fundamentally changed. Instead of clicking through search results, users increasingly ask AI models directly and receive synthesized answers. If your brand isn't optimized for AI citation, you're missing out on a massive opportunity to establish authority.
+      // Fetch article
+      const { data: articleData, error: articleError } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .eq('slug', slug)
+        .eq('status', 'published')
+        .single();
 
-## Core AEO Principles
+      if (articleError || !articleData) {
+        setNotFound(true);
+        return;
+      }
 
-### 1. Answer-First Content Structure
+      setArticle(articleData);
 
-AI models prefer content that provides direct, immediate answers. Start every piece of content with a clear 2-3 sentence answer to the primary question, then expand with supporting details, evidence, and examples.
+      // Fetch author if available
+      if (articleData.author_id) {
+        const { data: authorData } = await supabase
+          .from('authors')
+          .select('*')
+          .eq('id', articleData.author_id)
+          .single();
+        
+        if (authorData) setAuthor(authorData);
+      }
 
-### 2. Structured Data Implementation
+      // Fetch related posts (same category or funnel stage)
+      const { data: related } = await supabase
+        .from('blog_posts')
+        .select('id, title, slug, excerpt, category, funnel_stage, reading_time')
+        .eq('status', 'published')
+        .neq('id', articleData.id)
+        .or(`category.eq.${articleData.category},funnel_stage.eq.${articleData.funnel_stage}`)
+        .limit(3);
 
-Implement comprehensive JSON-LD schemas including:
-- Organization schema for brand recognition
-- Article schema with author and reviewedBy properties
-- FAQPage schema for question-answer content
-- Breadcrumb schema for site navigation
-- Citation properties linking to authoritative sources
+      if (related) setRelatedPosts(related);
 
-### 3. EEAT Authority Signals
-
-Experience, Expertise, Authoritativeness, and Trust (EEAT) are critical factors in AI citation decisions:
-- Author credentials and bios with verifiable expertise
-- Case studies with specific metrics and outcomes
-- Citations to primary sources and research
-- Regular content updates with timestamps
-- Third-party validation through reviews and mentions
-
-### 4. Citation Hygiene
-
-Maintain clean citation practices:
-- Link to authoritative primary sources
-- Use descriptive anchor text
-- Keep source lists current
-- Include publication and update dates
-- Verify all factual claims
-
-## Implementation Checklist
-
-### Technical Foundation
-- ✅ Enable AI bot crawlers in robots.txt
-- ✅ Implement server-side rendering or static generation
-- ✅ Create XML sitemaps with lastmod dates
-- ✅ Set up IndexNow for instant indexing
-- ✅ Add canonical URLs to all pages
-- ✅ Optimize Core Web Vitals performance
-
-### Content Optimization
-- ✅ Structure content with clear H1-H3 hierarchy
-- ✅ Start with direct answers before elaboration
-- ✅ Use bullet lists and numbered steps
-- ✅ Include data tables and comparison matrices
-- ✅ Add "TL;DR" summaries for key sections
-- ✅ Embed relevant examples and case studies
-
-### Schema Markup
-- ✅ Global Organization schema
-- ✅ WebSite with SearchAction
-- ✅ Breadcrumbs on all inner pages
-- ✅ Article schema with author and reviewedBy
-- ✅ FAQPage for question-based content
-- ✅ Citation arrays linking sources
-
-### Authority Building
-- ✅ Publish author credentials and bios
-- ✅ Create case studies with metrics
-- ✅ Establish expert reviewer network
-- ✅ Pursue digital PR and backlinks
-- ✅ Engage in community Q&A platforms
-- ✅ Update content quarterly
-
-## Measuring AEO Success
-
-Track these key metrics:
-1. **AI Citations**: Monitor brand mentions in ChatGPT, Gemini, Perplexity responses
-2. **Featured Snippets**: Track Google featured snippet wins
-3. **AI Overview Presence**: Monitor appearance in Google AI Overviews
-4. **Organic Traffic**: Measure overall search visibility
-5. **Backlink Quality**: Track authoritative domain links
-
-## Next Steps
-
-Start your AEO journey by auditing your current content against the principles outlined in this guide. Focus on your top 20 pages first, implementing structured data and optimizing for answer-first formatting.
-
-Remember: AEO is an ongoing practice, not a one-time project. Regular updates, fresh content, and citation hygiene are essential for maintaining AI visibility.
-    `,
-    category: "AEO Strategy",
-    publishedDate: "2025-10-30",
-    modifiedDate: "2025-10-30",
-    readTime: "12 min read",
-    author: {
-      name: "Dr. Deanna Romulus",
-      role: "Founder, Visionary Strategist",
-      bio: "Dr. Deanna Romulus is the founder of ANAMECHI Marketing and a leading expert in AI Engine Optimization (AEO)."
-    },
-    reviewedBy: "Ambrose — Chat QA Lead"
+    } catch (error) {
+      console.error('Error fetching article:', error);
+      setNotFound(true);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-12">
+        <Skeleton className="h-8 w-3/4 mb-4" />
+        <Skeleton className="h-4 w-full mb-2" />
+        <Skeleton className="h-4 w-2/3 mb-8" />
+        <Skeleton className="h-96 w-full" />
+      </div>
+    );
+  }
+
+  if (notFound || !article) {
+    return (
+      <div className="container mx-auto px-4 py-12">
+        <Alert variant="destructive">
+          <AlertDescription>
+            Article not found. <Link to="/blog" className="underline">Return to blog</Link>
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
     "headline": article.title,
-    "datePublished": article.publishedDate,
-    "dateModified": article.modifiedDate,
-    "author": {
+    "description": article.meta_description || article.excerpt,
+    "datePublished": article.published_at,
+    "dateModified": article.updated_at,
+    "author": author ? {
       "@type": "Person",
-      "name": article.author.name
-    },
-    "reviewedBy": {
+      "name": author.name,
+      "jobTitle": author.title,
+    } : {
       "@type": "Person",
-      "name": article.reviewedBy
+      "name": "ANAMECHI Marketing Team"
     },
     "publisher": {
       "@type": "Organization",
       "name": "ANAMECHI Marketing",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://home.anamechimarketing.com/assets/logo.png"
+        "url": "https://anamechimarketing.com/logo.png"
       }
     },
-    "mainEntityOfPage": `https://home.anamechimarketing.com/blog/${article.slug}/`,
-    "citation": [
-      "https://developers.google.com/search/docs/appearance/structured-data",
-      "https://moz.com/learn/seo"
-    ]
+    "mainEntityOfPage": `https://anamechimarketing.com/blog/${article.slug}/`,
+    ...(article.featured_image_url && {
+      "image": {
+        "@type": "ImageObject",
+        "url": article.featured_image_url
+      }
+    }),
+    ...(article.citations && Array.isArray(article.citations) && {
+      "citation": article.citations.map((c: any) => c.url)
+    })
   };
 
   const breadcrumbsSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://home.anamechimarketing.com/" },
-      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://home.anamechimarketing.com/blog/" },
-      { "@type": "ListItem", "position": 3, "name": article.title, "item": `https://home.anamechimarketing.com/blog/${article.slug}/` }
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://anamechimarketing.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://anamechimarketing.com/blog/" },
+      { "@type": "ListItem", "position": 3, "name": article.title, "item": `https://anamechimarketing.com/blog/${article.slug}/` }
     ]
   };
 
@@ -158,13 +147,14 @@ Remember: AEO is an ongoing practice, not a one-time project. Regular updates, f
     <>
       <SEO
         title={article.title}
-        description={article.excerpt}
+        description={article.meta_description || article.excerpt}
         canonical={`/blog/${article.slug}`}
         type="article"
+        image={article.featured_image_url}
         article={{
-          publishedTime: article.publishedDate,
-          modifiedTime: article.modifiedDate,
-          author: article.author.name
+          publishedTime: article.published_at,
+          modifiedTime: article.updated_at,
+          author: author?.name || "ANAMECHI Marketing Team"
         }}
         structuredData={[articleSchema, breadcrumbsSchema]}
       />
@@ -177,22 +167,42 @@ Remember: AEO is an ongoing practice, not a one-time project. Regular updates, f
 
         {/* Article Header */}
         <div className="mx-auto max-w-4xl mb-12">
-          <Badge className="mb-4 bg-accent/10 text-accent hover:bg-accent/20">
-            {article.category}
-          </Badge>
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            <Badge className="bg-accent/10 text-accent hover:bg-accent/20">
+              {article.category}
+            </Badge>
+            {article.funnel_stage && (
+              <Badge variant="secondary">
+                {article.funnel_stage}
+              </Badge>
+            )}
+          </div>
           <h1 className="mb-6 text-4xl font-bold text-foreground md:text-5xl">
             {article.title}
           </h1>
-          <p className="text-xl text-muted-foreground mb-8">
-            {article.excerpt}
-          </p>
+          {(article.excerpt || article.meta_description) && (
+            <p className="text-xl text-muted-foreground mb-8">
+              {article.excerpt || article.meta_description}
+            </p>
+          )}
+
+          {/* Featured Image */}
+          {article.featured_image_url && (
+            <div className="mb-8 rounded-lg overflow-hidden">
+              <img 
+                src={article.featured_image_url} 
+                alt={article.title}
+                className="w-full h-auto max-h-96 object-cover"
+              />
+            </div>
+          )}
 
           {/* Meta Info */}
           <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
             <div className="flex items-center">
               <Calendar className="mr-2 h-4 w-4" />
               <span>
-                Published: {new Date(article.publishedDate).toLocaleDateString('en-US', {
+                Published: {new Date(article.published_at).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
@@ -201,16 +211,18 @@ Remember: AEO is an ongoing practice, not a one-time project. Regular updates, f
             </div>
             <div className="flex items-center">
               <Clock className="mr-2 h-4 w-4" />
-              <span>{article.readTime}</span>
+              <span>{article.reading_time} min read</span>
             </div>
-            <div className="flex items-center">
-              <User className="mr-2 h-4 w-4" />
-              <span>{article.author.name}</span>
-            </div>
-            {article.reviewedBy && (
+            {author && (
+              <div className="flex items-center">
+                <User className="mr-2 h-4 w-4" />
+                <span>{author.name}</span>
+              </div>
+            )}
+            {article.reviewed_by && (
               <div className="flex items-center">
                 <CheckCircle2 className="mr-2 h-4 w-4 text-success" />
-                <span>Reviewed by {article.reviewedBy}</span>
+                <span>Reviewed</span>
               </div>
             )}
           </div>
@@ -220,80 +232,122 @@ Remember: AEO is an ongoing practice, not a one-time project. Regular updates, f
 
         {/* Article Content */}
         <div className="mx-auto max-w-4xl">
-          <div className="prose prose-lg max-w-none">
-            {article.content.split('\n\n').map((paragraph, index) => {
-              if (paragraph.startsWith('## ')) {
-                return (
-                  <h2 key={index} className="text-3xl font-bold text-foreground mt-12 mb-6">
-                    {paragraph.replace('## ', '')}
-                  </h2>
-                );
-              } else if (paragraph.startsWith('### ')) {
-                return (
-                  <h3 key={index} className="text-2xl font-semibold text-foreground mt-8 mb-4">
-                    {paragraph.replace('### ', '')}
-                  </h3>
-                );
-              } else if (paragraph.startsWith('- ✅')) {
-                const items = paragraph.split('\n').filter(line => line.trim());
-                return (
-                  <ul key={index} className="space-y-2 my-6">
-                    {items.map((item, i) => (
-                      <li key={i} className="flex items-start">
-                        <CheckCircle2 className="mr-2 h-5 w-5 shrink-0 text-success mt-1" />
-                        <span className="text-foreground">{item.replace('- ✅ ', '')}</span>
-                      </li>
-                    ))}
-                  </ul>
-                );
-              } else {
-                return (
-                  <p key={index} className="text-foreground leading-relaxed mb-6">
-                    {paragraph}
-                  </p>
-                );
-              }
-            })}
+          <div className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground prose-strong:text-foreground">
+            <ReactMarkdown>{article.content}</ReactMarkdown>
           </div>
+
+          {/* Citations */}
+          {article.citations && Array.isArray(article.citations) && article.citations.length > 0 && (
+            <>
+              <Separator className="my-12" />
+              <div className="border-l-4 border-primary pl-6">
+                <h3 className="text-xl font-semibold mb-4">Sources & Citations</h3>
+                <ul className="space-y-2">
+                  {article.citations.map((citation: any, index: number) => (
+                    <li key={index}>
+                      <a 
+                        href={citation.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline text-sm"
+                      >
+                        {citation.title || citation.url}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </>
+          )}
 
           <Separator className="my-12" />
 
           {/* Author Bio */}
-          <Card className="border-border">
-            <CardContent className="p-8">
-              <div className="flex items-start gap-4">
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-gradient-primary text-2xl font-bold text-primary-foreground">
-                  {article.author.name.charAt(0)}
+          {author && (
+            <Card className="border-border">
+              <CardContent className="p-8">
+                <div className="flex items-start gap-4">
+                  {author.photo_url ? (
+                    <img 
+                      src={author.photo_url} 
+                      alt={author.name}
+                      className="h-16 w-16 shrink-0 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-gradient-primary text-2xl font-bold text-primary-foreground">
+                      {author.name.charAt(0)}
+                    </div>
+                  )}
+                  <div>
+                    <h3 className="text-xl font-semibold text-foreground mb-1">
+                      {author.name}
+                    </h3>
+                    {author.title && (
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {author.title}
+                      </p>
+                    )}
+                    {author.bio && (
+                      <p className="text-foreground">
+                        {author.bio}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-foreground mb-1">
-                    {article.author.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    {article.author.role}
-                  </p>
-                  <p className="text-foreground">
-                    {article.author.bio}
-                  </p>
-                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Related Posts */}
+          {relatedPosts.length > 0 && (
+            <>
+              <h3 className="text-2xl font-bold text-foreground mt-12 mb-6">Related Articles</h3>
+              <div className="grid gap-6 md:grid-cols-3 mb-12">
+                {relatedPosts.map((post) => (
+                  <Card key={post.id} className="border-border hover:shadow-lg transition-shadow">
+                    <CardContent className="p-6">
+                      <Badge variant="outline" className="mb-2">
+                        {post.category}
+                      </Badge>
+                      <Link to={`/blog/${post.slug}`}>
+                        <h4 className="font-semibold text-foreground hover:text-primary transition-colors mb-2 line-clamp-2">
+                          {post.title}
+                        </h4>
+                      </Link>
+                      {post.excerpt && (
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                          {post.excerpt}
+                        </p>
+                      )}
+                      <div className="flex items-center text-xs text-muted-foreground">
+                        <Clock className="mr-1 h-3 w-3" />
+                        {post.reading_time} min read
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-            </CardContent>
-          </Card>
+            </>
+          )}
 
           {/* CTA */}
-          <Card className="mt-12 border-border bg-gradient-primary">
+          <Card className="border-border bg-gradient-primary">
             <CardContent className="p-8 text-center">
               <h3 className="text-2xl font-bold text-primary-foreground mb-4">
-                Ready to Implement AEO?
+                {article.funnel_stage === 'BOFU' 
+                  ? 'Ready to Get Started?' 
+                  : 'Want to Learn More?'}
               </h3>
               <p className="text-primary-foreground/90 mb-6">
-                Let's optimize your content for AI citation and search engine visibility.
+                {article.funnel_stage === 'BOFU'
+                  ? "Let's discuss how we can implement these strategies for your business."
+                  : "Discover how AEO and smart marketing automation can transform your business."}
               </p>
               <Link 
                 to="/contact"
                 className="inline-flex items-center justify-center rounded-md bg-accent px-6 py-3 text-sm font-medium text-accent-foreground hover:bg-accent-hover transition-colors"
               >
-                Schedule a Consultation
+                {article.funnel_stage === 'BOFU' ? 'Schedule a Call' : 'Learn More'}
               </Link>
             </CardContent>
           </Card>
