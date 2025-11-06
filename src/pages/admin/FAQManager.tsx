@@ -26,6 +26,7 @@ export default function FAQManager() {
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [editingFaq, setEditingFaq] = useState<Partial<FAQ> | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -322,14 +323,26 @@ export default function FAQManager() {
   };
 
   const categories = Array.from(new Set(faqs.map(f => f.category)));
-  const filteredFaqs = selectedCategory === 'all' 
-    ? faqs 
-    : faqs.filter(f => f.category === selectedCategory);
+  const filteredFaqs = faqs
+    .filter(f => selectedCategory === 'all' || f.category === selectedCategory)
+    .filter(f => statusFilter === 'all' || (statusFilter === 'published' ? f.published : !f.published));
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">FAQ Manager</h1>
+        <div>
+          <h1 className="text-3xl font-bold">FAQ Manager</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Create and publish FAQs to your website • 
+            <a 
+              href="/faq" 
+              target="_blank" 
+              className="text-primary hover:underline ml-1"
+            >
+              View Live FAQ Page →
+            </a>
+          </p>
+        </div>
         <div className="flex gap-2">
           <Button
             onClick={() => setShowBulkGenerate(true)}
@@ -369,6 +382,34 @@ export default function FAQManager() {
             New FAQ
           </button>
         </div>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold">{faqs.length}</div>
+            <div className="text-sm text-muted-foreground">Total FAQs</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-green-600">{faqs.filter(f => f.published).length}</div>
+            <div className="text-sm text-muted-foreground">Published</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-orange-600">{faqs.filter(f => !f.published).length}</div>
+            <div className="text-sm text-muted-foreground">Drafts</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold">{categories.length}</div>
+            <div className="text-sm text-muted-foreground">Categories</div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Bulk Generate Modal */}
@@ -741,14 +782,50 @@ A: Pricing varies based on...`}
                   </div>
                   <div className="flex gap-2 ml-4">
                     <button
+                      onClick={async () => {
+                        try {
+                          const { error } = await supabase
+                            .from('qa_articles')
+                            .update({ status: faq.published ? 'draft' : 'published' })
+                            .eq('id', faq.id);
+                          
+                          if (error) throw error;
+                          toast({ 
+                            title: 'Success', 
+                            description: faq.published 
+                              ? 'FAQ unpublished (removed from website)' 
+                              : 'FAQ published! Now live on your website at /faq',
+                            duration: 5000
+                          });
+                          fetchFAQs();
+                        } catch (e: any) {
+                          toast({ 
+                            title: 'Error', 
+                            description: e.message, 
+                            variant: 'destructive' 
+                          });
+                        }
+                      }}
+                      className={`p-2 rounded ${
+                        faq.published 
+                          ? 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900 dark:text-green-300' 
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300'
+                      }`}
+                      title={faq.published ? 'Unpublish FAQ' : 'Publish FAQ'}
+                    >
+                      {faq.published ? '✓ Published' : 'Publish'}
+                    </button>
+                    <button
                       onClick={() => setEditingFaq(faq)}
                       className="p-2 hover:bg-accent rounded"
+                      title="Edit FAQ"
                     >
                       <Edit size={16} />
                     </button>
                     <button
                       onClick={() => deleteFaq(faq.id)}
                       className="p-2 hover:bg-destructive/10 text-destructive rounded"
+                      title="Delete FAQ"
                     >
                       <Trash2 size={16} />
                     </button>
