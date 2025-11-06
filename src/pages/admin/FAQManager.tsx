@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { FunnelStage } from '@/types/content';
 import { generateFAQSchema } from '@/utils/schema';
-import { Plus, Edit, Trash2, Save, HelpCircle, ArrowUp, ArrowDown, X, Sparkles, Upload, Loader2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, HelpCircle, ArrowUp, ArrowDown, X, Sparkles, Upload, Loader2, CheckSquare, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface FAQ {
   id: string;
@@ -29,6 +30,8 @@ export default function FAQManager() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const [selectedFaqs, setSelectedFaqs] = useState<Set<string>>(new Set());
+  const [bulkActionMode, setBulkActionMode] = useState(false);
 
   // Bulk generation state
   const [showBulkGenerate, setShowBulkGenerate] = useState(false);
@@ -322,6 +325,79 @@ export default function FAQManager() {
     }
   };
 
+  const handleBulkPublish = async () => {
+    if (selectedFaqs.size === 0) {
+      toast({
+        title: "No Selection",
+        description: "Please select FAQs to publish",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const { error } = await supabase
+      .from('qa_articles')
+      .update({ status: 'published', published_at: new Date().toISOString() })
+      .in('id', Array.from(selectedFaqs));
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to publish selected FAQs",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: `${selectedFaqs.size} FAQ(s) published to live site`,
+    });
+    setSelectedFaqs(new Set());
+    setBulkActionMode(false);
+    fetchFAQs();
+  };
+
+  const handleBulkUnpublish = async () => {
+    if (selectedFaqs.size === 0) return;
+
+    const { error } = await supabase
+      .from('qa_articles')
+      .update({ status: 'draft', published_at: null })
+      .in('id', Array.from(selectedFaqs));
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to unpublish selected FAQs",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: `${selectedFaqs.size} FAQ(s) unpublished from live site`,
+    });
+    setSelectedFaqs(new Set());
+    setBulkActionMode(false);
+    fetchFAQs();
+  };
+
+  const toggleSelectFaq = (id: string) => {
+    const newSelected = new Set(selectedFaqs);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedFaqs(newSelected);
+  };
+
+  const selectAllFiltered = () => {
+    setSelectedFaqs(new Set(filteredFaqs.map(f => f.id)));
+  };
+
   const categories = Array.from(new Set(faqs.map(f => f.category)));
   const filteredFaqs = faqs
     .filter(f => selectedCategory === 'all' || f.category === selectedCategory)
@@ -344,6 +420,16 @@ export default function FAQManager() {
           </p>
         </div>
         <div className="flex gap-2">
+          <Button
+            variant={bulkActionMode ? "default" : "outline"}
+            onClick={() => {
+              setBulkActionMode(!bulkActionMode);
+              setSelectedFaqs(new Set());
+            }}
+          >
+            <CheckSquare className="mr-2 h-4 w-4" />
+            {bulkActionMode ? 'Exit' : 'Bulk Actions'}
+          </Button>
           <Button
             onClick={() => setShowBulkGenerate(true)}
             variant="outline"
@@ -625,8 +711,46 @@ A: Pricing varies based on...`}
         </div>
       )}
 
-      {/* Category Filter */}
-      <div className="flex gap-2 flex-wrap">
+      {/* Bulk Action Bar */}
+      {bulkActionMode && (
+        <Card className="border-primary">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-medium">
+                  {selectedFaqs.size} selected
+                </span>
+                <Button variant="outline" size="sm" onClick={selectAllFiltered}>
+                  Select All ({filteredFaqs.length})
+                </Button>
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  size="sm" 
+                  onClick={handleBulkPublish}
+                  disabled={selectedFaqs.size === 0}
+                >
+                  <Eye className="mr-2 h-4 w-4" />
+                  Publish Selected
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={handleBulkUnpublish}
+                  disabled={selectedFaqs.size === 0}
+                >
+                  <EyeOff className="mr-2 h-4 w-4" />
+                  Unpublish Selected
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Category and Status Filters */}
+      <div className="flex gap-4 items-center flex-wrap">
+        <div className="flex gap-2 flex-wrap">
         <button
           onClick={() => setSelectedCategory('all')}
           className={`px-3 py-1 rounded-lg text-sm ${
@@ -646,6 +770,35 @@ A: Pricing varies based on...`}
             {cat} ({faqs.filter(f => f.category === cat).length})
           </button>
         ))}
+        </div>
+        
+        {/* Status Filter */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => setStatusFilter('all')}
+            className={`px-3 py-1 rounded-lg text-sm ${
+              statusFilter === 'all' ? 'bg-primary text-primary-foreground' : 'bg-secondary'
+            }`}
+          >
+            All Status
+          </button>
+          <button
+            onClick={() => setStatusFilter('published')}
+            className={`px-3 py-1 rounded-lg text-sm ${
+              statusFilter === 'published' ? 'bg-green-600 text-white' : 'bg-secondary'
+            }`}
+          >
+            Published Only
+          </button>
+          <button
+            onClick={() => setStatusFilter('draft')}
+            className={`px-3 py-1 rounded-lg text-sm ${
+              statusFilter === 'draft' ? 'bg-orange-600 text-white' : 'bg-secondary'
+            }`}
+          >
+            Drafts Only
+          </button>
+        </div>
       </div>
 
       {/* Editing Modal */}
@@ -760,8 +913,18 @@ A: Pricing varies based on...`}
       {/* FAQs List */}
       <div className="space-y-3">
         {filteredFaqs.map((faq) => (
-          <div key={faq.id} className="bg-card p-4 rounded-lg border hover:shadow-md transition-shadow">
+          <div key={faq.id} className={`bg-card p-4 rounded-lg border hover:shadow-md transition-shadow ${
+            selectedFaqs.has(faq.id) ? 'border-primary ring-2 ring-primary/20' : ''
+          }`}>
             <div className="flex items-start gap-4">
+              {bulkActionMode && (
+                <div className="pt-1">
+                  <Checkbox
+                    checked={selectedFaqs.has(faq.id)}
+                    onCheckedChange={() => toggleSelectFaq(faq.id)}
+                  />
+                </div>
+              )}
               <div className="flex-1">
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1">

@@ -30,6 +30,7 @@ const navigation = [
   { name: 'Blog Audit', href: '/admin/blog/audit', icon: Sparkles },
   { name: 'QA Generator', href: '/admin/qa-generator', icon: MessageSquare },
   { name: 'FAQ Manager', href: '/admin/faq-manager', icon: HelpCircle },
+  { name: 'FAQ Analytics', href: '/admin/faq-analytics', icon: TrendingUp },
   { name: 'Authors', href: '/admin/authors', icon: Users },
   { name: 'Citations', href: '/admin/citations', icon: LinkIcon },
   { name: 'Citation Health', href: '/admin/citation-health', icon: CheckCircle },

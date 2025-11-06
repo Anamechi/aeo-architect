@@ -40,6 +40,7 @@ import ContentUpdates from "./pages/admin/ContentUpdates";
 import MasterPrompts from "./pages/admin/MasterPrompts";
 import CitationHealth from "./pages/admin/CitationHealth";
 import FAQManager from "./pages/admin/FAQManager";
+import FAQAnalytics from "./pages/admin/FAQAnalytics";
 import ReferralTracking from "./pages/admin/ReferralTracking";
 
 const queryClient = new QueryClient();
@@ -66,6 +67,7 @@ const App = () => (
                 <Route path="blog/audit" element={<BlogAudit />} />
                 <Route path="qa-generator" element={<QAGenerator />} />
                 <Route path="faq-manager" element={<FAQManager />} />
+                <Route path="faq-analytics" element={<FAQAnalytics />} />
                 <Route path="authors" element={<Authors />} />
                 <Route path="citations" element={<Citations />} />
                 <Route path="citation-health" element={<CitationHealth />} />

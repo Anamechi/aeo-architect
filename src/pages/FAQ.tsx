@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { SEO } from "@/components/SEO";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -11,7 +11,9 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
 interface FAQ {
   id: string;
@@ -25,6 +27,8 @@ const FAQ = () => {
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedFaq, setSelectedFaq] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPublishedFAQs();
@@ -71,6 +75,62 @@ const FAQ = () => {
     }
   };
 
+  // Track FAQ view analytics
+  const trackFAQView = async (faqId: string) => {
+    try {
+      // View tracking will be implemented later
+      console.log('FAQ viewed:', faqId);
+    } catch (err) {
+      console.error('Error tracking FAQ view:', err);
+    }
+  };
+
+  // Filter and search FAQs
+  const filteredFaqs = useMemo(() => {
+    if (!searchQuery.trim()) return faqs;
+    
+    const query = searchQuery.toLowerCase();
+    return faqs.filter(faq => 
+      faq.question.toLowerCase().includes(query) ||
+      faq.answer.toLowerCase().includes(query) ||
+      faq.tags.some(tag => tag.toLowerCase().includes(query))
+    );
+  }, [faqs, searchQuery]);
+
+  // Get autocomplete suggestions
+  const suggestions = useMemo(() => {
+    if (!searchQuery.trim() || searchQuery.length < 2) return [];
+    
+    const query = searchQuery.toLowerCase();
+    const matches = faqs
+      .filter(faq => faq.question.toLowerCase().includes(query))
+      .slice(0, 5);
+    
+    return matches;
+  }, [faqs, searchQuery]);
+
+  // Get related FAQs based on tags
+  const getRelatedFaqs = (currentFaq: FAQ) => {
+    return faqs
+      .filter(faq => 
+        faq.id !== currentFaq.id &&
+        faq.tags.some(tag => currentFaq.tags.includes(tag))
+      )
+      .slice(0, 3);
+  };
+
+  // Highlight matching text
+  const highlightText = (text: string, query: string) => {
+    if (!query.trim()) return text;
+    
+    const parts = text.split(new RegExp(`(${query})`, 'gi'));
+    return parts.map((part, index) => 
+      part.toLowerCase() === query.toLowerCase() 
+        ? <mark key={index} className="bg-yellow-200 dark:bg-yellow-900">{part}</mark>
+        : part
+    );
+  };
+
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -115,6 +175,57 @@ const FAQ = () => {
           </p>
         </div>
 
+        {/* Search Bar */}
+        <div className="mx-auto max-w-4xl mb-8 relative">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+            <Input
+              type="text"
+              placeholder="Search FAQs... (e.g., 'marketing automation', 'CRM')"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-4 py-6 text-lg"
+            />
+          </div>
+          
+          {/* Autocomplete Suggestions */}
+          {suggestions.length > 0 && (
+            <Card className="absolute z-10 w-full mt-2 border-border shadow-lg">
+              <CardContent className="p-2">
+                {suggestions.map((faq) => (
+                  <button
+                    key={faq.id}
+                    onClick={() => {
+                      setSearchQuery(faq.question);
+                      setSelectedFaq(faq.id);
+                    }}
+                    className="w-full text-left px-4 py-3 hover:bg-accent rounded-md transition-colors"
+                  >
+                    <p className="font-medium text-sm">{faq.question}</p>
+                  </button>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Search Results Info */}
+        {searchQuery && (
+          <div className="mx-auto max-w-4xl mb-4">
+            <p className="text-sm text-muted-foreground">
+              Found {filteredFaqs.length} result{filteredFaqs.length !== 1 ? 's' : ''} for "{searchQuery}"
+              {filteredFaqs.length > 0 && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="ml-2 text-primary hover:underline"
+                >
+                  Clear search
+                </button>
+              )}
+            </p>
+          </div>
+        )}
+
         {/* Loading State */}
         {loading && (
           <Card className="mx-auto max-w-4xl border-border">
@@ -138,26 +249,82 @@ const FAQ = () => {
         )}
 
         {/* FAQ Accordion */}
-        {!loading && !error && faqs.length > 0 && (
+        {!loading && !error && filteredFaqs.length > 0 && (
           <Card className="mx-auto max-w-4xl border-border">
             <CardContent className="p-8">
-              <Accordion type="single" collapsible className="w-full">
-                {faqs.map((faq, index) => (
-                  <AccordionItem key={faq.id} value={`item-${index}`}>
-                    <AccordionTrigger className="text-left text-lg font-semibold text-foreground hover:text-primary">
-                      {faq.question}
-                    </AccordionTrigger>
-                    <AccordionContent className="text-base text-muted-foreground leading-relaxed">
-                      {faq.answer}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
+              <Accordion 
+                type="single" 
+                collapsible 
+                className="w-full"
+                value={selectedFaq || undefined}
+                onValueChange={(value) => {
+                  setSelectedFaq(value);
+                  if (value) trackFAQView(value);
+                }}
+              >
+                {filteredFaqs.map((faq, index) => {
+                  const relatedFaqs = getRelatedFaqs(faq);
+                  return (
+                    <AccordionItem key={faq.id} value={faq.id}>
+                      <AccordionTrigger className="text-left text-lg font-semibold text-foreground hover:text-primary">
+                        {highlightText(faq.question, searchQuery)}
+                      </AccordionTrigger>
+                      <AccordionContent className="text-base text-muted-foreground leading-relaxed space-y-4">
+                        <div>{highlightText(faq.answer, searchQuery)}</div>
+                        
+                        {/* Tags */}
+                        {faq.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-2 pt-2">
+                            {faq.tags.map((tag, i) => (
+                              <Badge key={i} variant="secondary" className="text-xs">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Related FAQs */}
+                        {relatedFaqs.length > 0 && (
+                          <div className="mt-6 pt-4 border-t border-border">
+                            <h4 className="text-sm font-semibold text-foreground mb-3">
+                              Related Questions:
+                            </h4>
+                            <div className="space-y-2">
+                              {relatedFaqs.map((relatedFaq) => (
+                                <button
+                                  key={relatedFaq.id}
+                                  onClick={() => {
+                                    setSelectedFaq(relatedFaq.id);
+                                    trackFAQView(relatedFaq.id);
+                                  }}
+                                  className="block text-left text-sm text-primary hover:underline"
+                                >
+                                  → {relatedFaq.question}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </AccordionContent>
+                    </AccordionItem>
+                  );
+                })}
               </Accordion>
             </CardContent>
           </Card>
         )}
 
         {/* Empty State */}
+        {!loading && !error && filteredFaqs.length === 0 && faqs.length > 0 && (
+          <Card className="mx-auto max-w-4xl border-border">
+            <CardContent className="p-12 text-center">
+              <p className="text-muted-foreground">
+                No FAQs match your search. Try different keywords.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
         {!loading && !error && faqs.length === 0 && (
           <Card className="mx-auto max-w-4xl border-border">
             <CardContent className="p-12 text-center">
