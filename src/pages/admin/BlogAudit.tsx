@@ -99,23 +99,34 @@ export default function BlogAudit() {
     toast.success(`Audit complete! Analyzed ${results.length} posts.`);
   };
 
-  const auditSinglePost = async (postId: string) => {
+  const auditSinglePost = async (postId: string, postTitle: string) => {
     try {
+      toast.info(`Auditing: ${postTitle}...`);
+      
       const { data, error } = await supabase.functions.invoke('audit-blog-content', {
         body: { postId }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Audit error:', error);
+        throw error;
+      }
+
+      if (!data) {
+        throw new Error('No data returned from audit');
+      }
+      
+      console.log('Audit result:', data);
       
       setAuditResults(prev => {
         const filtered = prev.filter(r => r.postId !== postId);
         return [...filtered, data];
       });
       
-      toast.success('Post audited successfully');
+      toast.success(`Audited: ${postTitle} (Score: ${data.audit.overallScore})`);
     } catch (error) {
       console.error('Audit failed:', error);
-      toast.error('Failed to audit post');
+      toast.error(`Failed to audit: ${postTitle}`);
     }
   };
 
@@ -255,7 +266,7 @@ export default function BlogAudit() {
     }
   };
 
-  const optimizePost = async (postId: string) => {
+  const optimizePost = async (postId: string, postTitle: string) => {
     setOptimizing(postId);
     const auditResult = auditResults.find(r => r.postId === postId);
     
@@ -266,16 +277,30 @@ export default function BlogAudit() {
     }
 
     try {
+      toast.info(`Optimizing: ${postTitle}...`);
+      console.log('Starting optimization for:', postId, 'with audit:', auditResult.audit);
+      
       // Step 1: Optimize content
       const { data: optimizedData, error: optimizeError } = await supabase.functions.invoke('optimize-blog-post', {
         body: { postId, auditResults: auditResult.audit }
       });
 
-      if (optimizeError) throw optimizeError;
+      if (optimizeError) {
+        console.error('Optimize error:', optimizeError);
+        throw optimizeError;
+      }
+
+      if (!optimizedData) {
+        throw new Error('No data returned from optimization');
+      }
+
+      console.log('Optimization result:', optimizedData);
 
       // Step 2: Generate image if needed
       let imageUrl = null;
       if (!auditResult.audit.hasImage || auditResult.audit.imageQuality !== 'excellent') {
+        toast.info('Generating new hero image...');
+        
         const { data: imageData, error: imageError } = await supabase.functions.invoke('generate-blog-image', {
           body: { 
             prompt: optimizedData.suggestedImagePrompt || `Professional blog header image for: ${optimizedData.title}`,
@@ -283,12 +308,18 @@ export default function BlogAudit() {
           }
         });
 
-        if (!imageError && imageData?.imageUrl) {
+        if (imageError) {
+          console.error('Image generation error:', imageError);
+          toast.error('Image generation failed, continuing without new image');
+        } else if (imageData?.imageUrl) {
           imageUrl = imageData.imageUrl;
+          console.log('Generated image URL:', imageUrl);
         }
       }
 
       // Step 3: Update post
+      console.log('Updating post with optimized data...');
+      
       const { error: updateError } = await supabase
         .from('blog_posts')
         .update({
@@ -302,14 +333,19 @@ export default function BlogAudit() {
         })
         .eq('id', postId);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('Update error:', updateError);
+        throw updateError;
+      }
 
-      toast.success('Post optimized and updated successfully!');
-      await auditSinglePost(postId);
-      fetchPosts();
+      toast.success(`✨ ${postTitle} optimized successfully!`, { duration: 5000 });
+      
+      // Re-audit to show new score
+      await auditSinglePost(postId, postTitle);
+      await fetchPosts();
     } catch (error) {
       console.error('Optimization failed:', error);
-      toast.error('Failed to optimize post');
+      toast.error(`Failed to optimize: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setOptimizing(null);
     }
@@ -496,23 +532,33 @@ export default function BlogAudit() {
                         )}
                       </div>
                     </div>
-                    <Button
-                      onClick={() => optimizePost(result.postId)}
-                      disabled={optimizing === result.postId}
-                      variant={result.audit.needsRewrite ? "default" : "outline"}
-                    >
-                      {optimizing === result.postId ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Optimizing...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="mr-2 h-4 w-4" />
-                          {result.audit.needsRewrite ? 'Rewrite & Optimize' : 'Optimize'}
-                        </>
-                      )}
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => auditSinglePost(result.postId, result.title)}
+                      >
+                        <Sparkles className="mr-2 h-3 w-3" />
+                        Re-audit
+                      </Button>
+                      <Button
+                        onClick={() => optimizePost(result.postId, result.title)}
+                        disabled={optimizing === result.postId}
+                        variant={result.audit.needsRewrite ? "default" : "outline"}
+                      >
+                        {optimizing === result.postId ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Optimizing...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="mr-2 h-4 w-4" />
+                            {result.audit.needsRewrite ? 'Rewrite & Optimize' : 'Optimize'}
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -576,6 +622,45 @@ export default function BlogAudit() {
             ))}
           </div>
         </>
+      )}
+
+      {!loading && !auditing && auditResults.length === 0 && posts.length > 0 && (
+        <Card className="border-blue-200 bg-blue-50">
+          <CardHeader>
+            <CardTitle>Ready to Audit</CardTitle>
+            <CardDescription>
+              You have {posts.length} blog posts ready for analysis. Click "Audit All Posts" to analyze all at once,
+              or audit individual posts below.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3">
+              {posts.slice(0, 5).map((post) => (
+                <div key={post.id} className="flex items-center justify-between p-3 border rounded-lg bg-white">
+                  <div>
+                    <h4 className="font-medium">{post.title}</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {post.category} • {post.status}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => auditSinglePost(post.id, post.title)}
+                  >
+                    <Sparkles className="mr-2 h-3 w-3" />
+                    Audit
+                  </Button>
+                </div>
+              ))}
+              {posts.length > 5 && (
+                <p className="text-sm text-muted-foreground text-center pt-2">
+                  + {posts.length - 5} more posts. Click "Audit All Posts" to analyze everything.
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {!loading && posts.length === 0 && (
