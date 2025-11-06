@@ -54,6 +54,11 @@ export default function AdminSidebar() {
   return (
     <div className="flex h-full flex-col bg-card border-r border-border">
       <div className="flex h-16 items-center border-b border-border px-6">
+        <img 
+          src="/anamechi-logo.svg"
+          alt="ANAMECHI Logo"
+          className="h-6 w-6 mr-2"
+        />
         <h2 className="text-xl font-bold text-foreground">ANAMECHI Admin</h2>
       </div>
       

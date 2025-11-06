@@ -83,7 +83,11 @@ export const Footer = () => {
           {/* Brand & Contact */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center space-x-2 mb-4">
-              <div className="h-8 w-8 rounded-lg bg-gradient-primary" />
+              <img 
+                src="/anamechi-logo.svg"
+                alt="ANAMECHI Marketing Logo"
+                className="h-8 w-8"
+              />
               <span className="text-xl font-bold text-foreground">{businessName}</span>
             </Link>
             <p className="text-sm text-muted-foreground mb-6 max-w-sm">

@@ -12,7 +12,14 @@ export default function AdminLayout() {
       
       <main className="flex-1 flex flex-col overflow-hidden">
         <header className="h-16 border-b border-border flex items-center justify-between px-6">
-          <div className="text-sm text-muted-foreground">Admin Dashboard</div>
+          <div className="flex items-center gap-3">
+            <img 
+              src="/anamechi-logo.svg"
+              alt="ANAMECHI Logo"
+              className="h-6 w-6"
+            />
+            <span className="text-sm font-medium text-foreground">Admin Dashboard</span>
+          </div>
           <Link to="/" target="_blank">
             <Button variant="outline" size="sm">
               <ExternalLink className="h-4 w-4 mr-2" />
