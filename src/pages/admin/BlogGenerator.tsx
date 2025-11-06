@@ -87,6 +87,56 @@ export default function BlogGenerator() {
   const [uploadingCustomImage, setUploadingCustomImage] = useState(false);
   
   const [loading, setLoading] = useState(false);
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+
+  // Check for edit mode on mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const editId = urlParams.get('edit');
+    
+    if (editId) {
+      setEditingPostId(editId);
+      loadPostForEditing(editId);
+    }
+  }, []);
+
+  // Load existing post data for editing
+  const loadPostForEditing = async (postId: string) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .eq('id', postId)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        // Populate all form fields with existing data
+        setTitle(data.title || '');
+        setSlug(data.slug || '');
+        setMetaDescription(data.meta_description || '');
+        setContent(data.content || '');
+        setCategory(data.category || '');
+        setFunnelStage(data.funnel_stage || 'TOFU');
+        setTags(Array.isArray(data.tags) ? data.tags : []);
+        setCitations(Array.isArray(data.citations) ? data.citations as Array<{ url: string; title: string }> : []);
+        setSelectedAuthorId(data.author_id || '');
+        setFeaturedImageUrl(data.featured_image_url || '');
+        setSeoScore(data.seo_score || 0);
+        setShowPreview(true); // Auto-show preview when editing
+        
+        toast.success('Post loaded for editing');
+      }
+    } catch (error: any) {
+      console.error('Error loading post:', error);
+      toast.error('Failed to load post for editing');
+      navigate('/admin/blog-posts');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Fetch authors on mount
   useEffect(() => {
@@ -211,28 +261,45 @@ export default function BlogGenerator() {
       const score = calculateSEOScore();
       const schema = generateSchema();
       
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .insert({
-          title,
-          slug,
-          meta_description: metaDescription,
-          content,
-          category,
-          funnel_stage: funnelStage,
-          tags,
-          citations: citations as any,
-          schema_data: schema as any,
-          seo_score: score,
-          author_id: selectedAuthorId || null,
-          status: 'draft'
-        } as any)
-        .select()
-        .single();
+      const postData = {
+        title,
+        slug,
+        meta_description: metaDescription,
+        content,
+        category,
+        funnel_stage: funnelStage,
+        tags,
+        citations: citations as any,
+        schema_data: schema as any,
+        seo_score: score,
+        author_id: selectedAuthorId || null,
+        featured_image_url: featuredImageUrl || null,
+        status: 'draft'
+      } as any;
+
+      let result;
+      if (editingPostId) {
+        // Update existing post
+        result = await supabase
+          .from('blog_posts')
+          .update(postData)
+          .eq('id', editingPostId)
+          .select()
+          .single();
+      } else {
+        // Insert new post
+        result = await supabase
+          .from('blog_posts')
+          .insert(postData)
+          .select()
+          .single();
+      }
+      
+      const { data, error } = result;
       
       if (error) throw error;
       
-      toast.success('Draft saved successfully!');
+      toast.success(editingPostId ? 'Draft updated successfully!' : 'Draft saved successfully!');
       navigate('/admin/blog-posts');
     } catch (error: any) {
       toast.error(error.message || 'Failed to save draft');
@@ -255,29 +322,46 @@ export default function BlogGenerator() {
       
       const schema = generateSchema();
       
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .insert({
-          title,
-          slug,
-          meta_description: metaDescription,
-          content,
-          category,
-          funnel_stage: funnelStage,
-          tags,
-          citations: citations as any,
-          schema_data: schema as any,
-          seo_score: score,
-          author_id: selectedAuthorId || null,
-          status: 'published',
-          published_at: new Date().toISOString()
-        } as any)
-        .select()
-        .single();
+      const postData = {
+        title,
+        slug,
+        meta_description: metaDescription,
+        content,
+        category,
+        funnel_stage: funnelStage,
+        tags,
+        citations: citations as any,
+        schema_data: schema as any,
+        seo_score: score,
+        author_id: selectedAuthorId || null,
+        featured_image_url: featuredImageUrl || null,
+        status: 'published',
+        published_at: new Date().toISOString()
+      } as any;
+
+      let result;
+      if (editingPostId) {
+        // Update existing post
+        result = await supabase
+          .from('blog_posts')
+          .update(postData)
+          .eq('id', editingPostId)
+          .select()
+          .single();
+      } else {
+        // Insert new post
+        result = await supabase
+          .from('blog_posts')
+          .insert(postData)
+          .select()
+          .single();
+      }
+      
+      const { data, error } = result;
       
       if (error) throw error;
       
-      toast.success('Post published successfully!');
+      toast.success(editingPostId ? 'Post updated and published!' : 'Post published successfully!');
       navigate('/admin/blog-posts');
     } catch (error: any) {
       toast.error(error.message || 'Failed to publish post');
@@ -771,17 +855,36 @@ export default function BlogGenerator() {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
+      {loading && editingPostId ? (
+        <div className="flex flex-col items-center justify-center py-20">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+          <p className="text-lg text-muted-foreground">Loading post for editing...</p>
+        </div>
+      ) : (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left side - Blog Form */}
         <div className="space-y-6">
           <div className="flex items-center justify-between mb-8">
             <div>
+              {editingPostId && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => navigate('/admin/blog-posts')}
+                  className="mb-2"
+                >
+                  ← Back to Posts
+                </Button>
+              )}
               <h1 className="text-4xl font-bold flex items-center gap-3 bg-gradient-primary bg-clip-text text-transparent">
-                <Sparkles className="h-10 w-10 text-primary" />
-                AI Blog Generator
+                {editingPostId ? <Edit className="h-10 w-10 text-primary" /> : <Sparkles className="h-10 w-10 text-primary" />}
+                {editingPostId ? 'Edit Blog Post' : 'AI Blog Generator'}
               </h1>
               <p className="text-muted-foreground mt-2 text-lg">
-                Create SEO-optimized content with automatic images and smart linking
+                {editingPostId 
+                  ? 'Update and optimize your existing blog post'
+                  : 'Create SEO-optimized content with automatic images and smart linking'
+                }
               </p>
             </div>
             
@@ -1724,11 +1827,11 @@ export default function BlogGenerator() {
 
       <div className="flex justify-end gap-4 mt-8">
         <Button onClick={handleSaveDraft} variant="outline" size="lg" disabled={loading || !title || !content} className="shadow-md hover:shadow-lg transition-all">
-          Save Draft
+          {editingPostId ? 'Update Draft' : 'Save Draft'}
         </Button>
         <Button onClick={handlePublish} size="lg" disabled={loading || !title || !content || !metaDescription} className="bg-gradient-primary shadow-md hover:shadow-xl transition-all">
           <Sparkles className="h-5 w-5 mr-2" />
-          Publish
+          {editingPostId ? 'Update & Publish' : 'Publish'}
         </Button>
       </div>
     </div>
@@ -1749,6 +1852,7 @@ export default function BlogGenerator() {
       />
     </div>
   </div>
-</div>
+      )}
+    </div>
   );
 }
