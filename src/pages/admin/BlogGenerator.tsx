@@ -689,37 +689,40 @@ export default function BlogGenerator() {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-4xl font-bold flex items-center gap-3 bg-gradient-primary bg-clip-text text-transparent">
-            <Sparkles className="h-10 w-10 text-primary" />
-            AI Blog Generator
-          </h1>
-          <p className="text-muted-foreground mt-2 text-lg">
-            Create SEO-optimized content with automatic images and smart linking
-          </p>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          {hasUnsavedChanges && (
-            <Badge variant="destructive" className="animate-pulse">
-              Unsaved Changes
-            </Badge>
-          )}
-          <Badge 
-            variant={seoScore >= 80 ? 'default' : seoScore >= 50 ? 'secondary' : 'destructive'}
-            className="text-base px-4 py-2"
-          >
-            SEO Score: {seoScore}/100
-          </Badge>
-          <Button onClick={calculateSEOScore} variant="outline" size="lg" className="shadow-md hover:shadow-lg transition-all">
-            <Target className="h-5 w-5 mr-2" />
-            Check Score
-          </Button>
-        </div>
-      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Left side - Blog Form */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-4xl font-bold flex items-center gap-3 bg-gradient-primary bg-clip-text text-transparent">
+                <Sparkles className="h-10 w-10 text-primary" />
+                AI Blog Generator
+              </h1>
+              <p className="text-muted-foreground mt-2 text-lg">
+                Create SEO-optimized content with automatic images and smart linking
+              </p>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              {hasUnsavedChanges && (
+                <Badge variant="destructive" className="animate-pulse">
+                  Unsaved Changes
+                </Badge>
+              )}
+              <Badge 
+                variant={seoScore >= 80 ? 'default' : seoScore >= 50 ? 'secondary' : 'destructive'}
+                className="text-base px-4 py-2"
+              >
+                SEO Score: {seoScore}/100
+              </Badge>
+              <Button onClick={calculateSEOScore} variant="outline" size="lg" className="shadow-md hover:shadow-lg transition-all">
+                <Target className="h-5 w-5 mr-2" />
+                Check Score
+              </Button>
+            </div>
+          </div>
 
-      <Tabs defaultValue="ai-generate" className="space-y-6">
+          <Tabs defaultValue="ai-generate" className="space-y-6">
         <TabsList className="grid w-full grid-cols-7 text-xs">
           <TabsTrigger value="ai-generate">
             <Wand2 className="h-4 w-4 mr-1" />
@@ -1500,5 +1503,6 @@ export default function BlogGenerator() {
       />
     </div>
   </div>
+</div>
   );
 }
