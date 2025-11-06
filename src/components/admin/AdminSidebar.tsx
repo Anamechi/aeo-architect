@@ -13,7 +13,9 @@ import {
   LogOut,
   Package,
   FileText as Quote,
-  Lightbulb
+  Lightbulb,
+  HelpCircle,
+  CheckCircle
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -23,8 +25,10 @@ const navigation = [
   { name: 'Master Prompts', href: '/admin/master-prompts', icon: Lightbulb },
   { name: 'Blog Generator', href: '/admin/blog-generator', icon: FileText },
   { name: 'QA Generator', href: '/admin/qa-generator', icon: MessageSquare },
+  { name: 'FAQ Manager', href: '/admin/faq-manager', icon: HelpCircle },
   { name: 'Authors', href: '/admin/authors', icon: Users },
-  { name: 'Citations Health', href: '/admin/citations', icon: LinkIcon },
+  { name: 'Citations', href: '/admin/citations', icon: LinkIcon },
+  { name: 'Citation Health', href: '/admin/citation-health', icon: CheckCircle },
   { name: 'AI Tools', href: '/admin/ai-tools', icon: Wrench },
   { name: 'Service Packages', href: '/admin/packages', icon: Package },
   { name: 'Custom Quotes', href: '/admin/quotes', icon: Quote },

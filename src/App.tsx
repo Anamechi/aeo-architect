@@ -35,6 +35,8 @@ import Images from "./pages/admin/Images";
 import Diagrams from "./pages/admin/Diagrams";
 import ContentUpdates from "./pages/admin/ContentUpdates";
 import MasterPrompts from "./pages/admin/MasterPrompts";
+import CitationHealth from "./pages/admin/CitationHealth";
+import FAQManager from "./pages/admin/FAQManager";
 
 const queryClient = new QueryClient();
 
@@ -56,8 +58,10 @@ const App = () => (
                 <Route path="ai-tools" element={<AdminAITools />} />
                 <Route path="blog-generator" element={<BlogGenerator />} />
                 <Route path="qa-generator" element={<QAGenerator />} />
+                <Route path="faq-manager" element={<FAQManager />} />
                 <Route path="authors" element={<Authors />} />
                 <Route path="citations" element={<Citations />} />
+                <Route path="citation-health" element={<CitationHealth />} />
                 <Route path="packages" element={<Packages />} />
                 <Route path="quotes" element={<Quotes />} />
                 <Route path="images" element={<Images />} />

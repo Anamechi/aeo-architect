@@ -27,7 +27,7 @@ export interface Citation {
   url: string;
   title: string | null;
   last_checked: string | null;
-  status: 'valid' | 'broken' | 'redirected' | 'pending';
+  status: 'valid' | 'broken' | 'outdated';
   authority_score?: number | null;
 }
 
