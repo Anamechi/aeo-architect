@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +22,7 @@ type FunnelStage = 'TOFU' | 'MOFU' | 'BOFU';
 export default function BlogGenerator() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   
   // Basic post info
   const [title, setTitle] = useState('');
@@ -91,14 +93,11 @@ export default function BlogGenerator() {
 
   // Check for edit mode on mount
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const editId = urlParams.get('edit');
-    
-    if (editId) {
-      setEditingPostId(editId);
-      loadPostForEditing(editId);
+    if (id) {
+      setEditingPostId(id);
+      loadPostForEditing(id);
     }
-  }, []);
+  }, [id]);
 
   // Load existing post data for editing
   const loadPostForEditing = async (postId: string) => {
@@ -129,11 +128,11 @@ export default function BlogGenerator() {
         
         toast.success('Post loaded for editing');
       }
-    } catch (error: any) {
-      console.error('Error loading post:', error);
-      toast.error('Failed to load post for editing');
-      navigate('/admin/blog-posts');
-    } finally {
+      } catch (error: any) {
+        console.error('Error loading post:', error);
+        toast.error('Failed to load post for editing');
+        navigate('/admin/blog');
+      } finally {
       setLoading(false);
     }
   };
@@ -300,7 +299,7 @@ export default function BlogGenerator() {
       if (error) throw error;
       
       toast.success(editingPostId ? 'Draft updated successfully!' : 'Draft saved successfully!');
-      navigate('/admin/blog-posts');
+      navigate('/admin/blog');
     } catch (error: any) {
       toast.error(error.message || 'Failed to save draft');
     } finally {
@@ -362,7 +361,7 @@ export default function BlogGenerator() {
       if (error) throw error;
       
       toast.success(editingPostId ? 'Post updated and published!' : 'Post published successfully!');
-      navigate('/admin/blog-posts');
+      navigate('/admin/blog');
     } catch (error: any) {
       toast.error(error.message || 'Failed to publish post');
     } finally {
@@ -855,6 +854,14 @@ export default function BlogGenerator() {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
+      {/* Breadcrumbs */}
+      <Breadcrumbs 
+        items={[
+          { name: 'Blog Posts', href: '/admin/blog' },
+          { name: editingPostId ? 'Edit Post' : 'New Post', href: editingPostId ? `/admin/blog/edit/${editingPostId}` : '/admin/blog/new' }
+        ]}
+      />
+      
       {loading && editingPostId ? (
         <div className="flex flex-col items-center justify-center py-20">
           <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
@@ -870,7 +877,7 @@ export default function BlogGenerator() {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={() => navigate('/admin/blog-posts')}
+                  onClick={() => navigate('/admin/blog')}
                   className="mb-2"
                 >
                   ← Back to Posts

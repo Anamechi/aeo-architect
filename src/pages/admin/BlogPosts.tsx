@@ -17,6 +17,8 @@ interface BlogPost {
   id: string;
   title: string;
   slug: string;
+  excerpt: string | null;
+  reading_time: number | null;
   status: ContentStatus;
   funnel_stage: FunnelStage | null;
   category: string | null;
@@ -163,7 +165,7 @@ export default function BlogPosts() {
           </p>
         </div>
         
-        <Button onClick={() => navigate('/admin/blog-generator')} size="lg">
+        <Button onClick={() => navigate('/admin/blog/new')} size="lg">
           <Plus className="h-5 w-5 mr-2" />
           New Blog Post
         </Button>
@@ -284,11 +286,24 @@ export default function BlogPosts() {
                       <h3 className="text-xl font-semibold text-foreground mb-2">
                         {post.title}
                       </h3>
+                      
+                      {/* Excerpt */}
+                      {post.excerpt && (
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+                          {post.excerpt}
+                        </p>
+                      )}
+                      
                       <div className="flex flex-wrap gap-2">
                         {getStatusBadge(post.status)}
                         {getFunnelBadge(post.funnel_stage)}
                         {post.category && (
                           <Badge variant="outline">{post.category}</Badge>
+                        )}
+                        {post.reading_time && (
+                          <Badge variant="secondary" className="gap-1">
+                            {post.reading_time} min read
+                          </Badge>
                         )}
                         {post.seo_score && (
                           <Badge 
@@ -341,7 +356,7 @@ export default function BlogPosts() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => navigate(`/admin/blog-generator?edit=${post.id}`)}
+                      onClick={() => navigate(`/admin/blog/edit/${post.id}`)}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>

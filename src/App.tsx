@@ -58,8 +58,9 @@ const App = () => (
                 <Route index element={<Dashboard />} />
                 <Route path="master-prompts" element={<MasterPrompts />} />
                 <Route path="ai-tools" element={<AdminAITools />} />
-                <Route path="blog-generator" element={<BlogGenerator />} />
-                <Route path="blog-posts" element={<BlogPosts />} />
+                <Route path="blog" element={<BlogPosts />} />
+                <Route path="blog/new" element={<BlogGenerator />} />
+                <Route path="blog/edit/:id" element={<BlogGenerator />} />
                 <Route path="qa-generator" element={<QAGenerator />} />
                 <Route path="faq-manager" element={<FAQManager />} />
                 <Route path="authors" element={<Authors />} />
