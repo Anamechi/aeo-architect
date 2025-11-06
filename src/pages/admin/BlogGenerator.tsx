@@ -73,6 +73,11 @@ export default function BlogGenerator() {
   const [linkingStrategy, setLinkingStrategy] = useState('');
   const [loadingLinks, setLoadingLinks] = useState(false);
   
+  // Internal Link Suggestions
+  const [internalLinkSuggestions, setInternalLinkSuggestions] = useState<any[]>([]);
+  const [loadingInternalLinks, setLoadingInternalLinks] = useState(false);
+  const [insertedLinks, setInsertedLinks] = useState<Set<string>>(new Set());
+  
   // Preview and editing
   const [showPreview, setShowPreview] = useState(false);
   const [isEditingContent, setIsEditingContent] = useState(false);
@@ -687,6 +692,83 @@ export default function BlogGenerator() {
     }
   };
 
+  // Suggest internal links
+  const suggestInternalLinks = async () => {
+    if (!content || content.length < 200) {
+      toast.error('Add more content first (at least 200 characters) to get link suggestions');
+      return;
+    }
+
+    setLoadingInternalLinks(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('suggest-internal-links', {
+        body: {
+          content,
+          title,
+          funnelStage,
+          currentSlug: slug
+        }
+      });
+
+      if (error) {
+        if (error.message?.includes('429')) {
+          toast.error('Rate limit exceeded. Please try again later.');
+        } else if (error.message?.includes('402')) {
+          toast.error('AI credits depleted. Please add funds.');
+        } else {
+          throw error;
+        }
+        return;
+      }
+
+      setInternalLinkSuggestions(data.suggestions || []);
+      
+      if (data.suggestions?.length > 0) {
+        toast.success(`Found ${data.suggestions.length} strategic internal link opportunities!`);
+      } else {
+        toast.info(data.message || 'No suitable internal links found. Try publishing more content first.');
+      }
+    } catch (error: any) {
+      console.error('Internal link suggestion error:', error);
+      toast.error(error.message || 'Failed to generate link suggestions');
+    } finally {
+      setLoadingInternalLinks(false);
+    }
+  };
+
+  // Insert suggested link into content
+  const insertInternalLink = (suggestion: any) => {
+    const linkMarkdown = `[${suggestion.anchorText}](/blog/${suggestion.targetSlug})`;
+    
+    // Try to find the context snippet in the content to insert near it
+    const contextIndex = content.indexOf(suggestion.contextSnippet);
+    
+    let newContent;
+    if (contextIndex !== -1) {
+      // Insert the link right after the context snippet
+      const insertPosition = contextIndex + suggestion.contextSnippet.length;
+      newContent = content.slice(0, insertPosition) + ' ' + linkMarkdown + content.slice(insertPosition);
+    } else {
+      // If context not found, append at the end of the content
+      newContent = content + '\n\n' + linkMarkdown;
+    }
+    
+    setContent(newContent);
+    setHasUnsavedChanges(true);
+    
+    // Mark as inserted
+    setInsertedLinks(prev => new Set([...prev, suggestion.targetSlug]));
+    
+    toast.success(`Link to "${suggestion.targetTitle}" inserted!`);
+  };
+
+  // Copy link markdown to clipboard
+  const copyInternalLinkMarkdown = (suggestion: any) => {
+    const linkMarkdown = `[${suggestion.anchorText}](/blog/${suggestion.targetSlug})`;
+    navigator.clipboard.writeText(linkMarkdown);
+    toast.success('Link markdown copied to clipboard!');
+  };
+
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -723,17 +805,18 @@ export default function BlogGenerator() {
           </div>
 
           <Tabs defaultValue="ai-generate" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-7 text-xs">
+        <TabsList className="grid w-full grid-cols-8 text-xs">
           <TabsTrigger value="ai-generate">
             <Wand2 className="h-4 w-4 mr-1" />
             AI Generate
           </TabsTrigger>
           <TabsTrigger value="content">Content</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
-          <TabsTrigger value="funnel-links">
+          <TabsTrigger value="internal-links">
             <Link2 className="h-4 w-4 mr-1" />
-            Links
+            Internal Links
           </TabsTrigger>
+          <TabsTrigger value="funnel-links">Funnel</TabsTrigger>
           <TabsTrigger value="media">
             <Image className="h-4 w-4 mr-1" />
             Media
@@ -1078,6 +1161,169 @@ export default function BlogGenerator() {
                   ))}
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="internal-links" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Link2 className="h-5 w-5 text-primary" />
+                Smart Internal Linking
+              </CardTitle>
+              <CardDescription>
+                AI analyzes your content and suggests strategic places to link to other blog posts
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Alert>
+                <Lightbulb className="h-4 w-4" />
+                <AlertDescription>
+                  <strong className="block mb-1">How it works:</strong>
+                  AI analyzes your content and finds natural opportunities to link to relevant articles. 
+                  Each suggestion includes anchor text, placement context, and SEO reasoning.
+                </AlertDescription>
+              </Alert>
+
+              <div className="flex flex-col gap-3">
+                <Button
+                  onClick={suggestInternalLinks}
+                  disabled={loadingInternalLinks || !content || content.length < 200}
+                  className="w-full shadow-md hover:shadow-lg transition-all"
+                  size="lg"
+                >
+                  {loadingInternalLinks ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-4 w-4 mr-2" />
+                  )}
+                  {loadingInternalLinks ? 'Analyzing Content...' : 'Generate Link Suggestions'}
+                </Button>
+                <p className="text-xs text-muted-foreground text-center">
+                  Write at least 200 characters of content first for best results
+                </p>
+              </div>
+
+              {internalLinkSuggestions.length > 0 && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between border-t pt-4">
+                    <h3 className="text-sm font-semibold">
+                      {internalLinkSuggestions.length} Link Suggestions
+                    </h3>
+                    <Badge variant="secondary" className="text-xs">
+                      {insertedLinks.size} Inserted
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-3">
+                    {internalLinkSuggestions.map((suggestion: any, index: number) => {
+                      const isInserted = insertedLinks.has(suggestion.targetSlug);
+                      
+                      return (
+                        <Card key={index} className={`border-2 transition-all ${isInserted ? 'border-green-200 bg-green-50/50' : 'border-border hover:border-primary/30'}`}>
+                          <CardContent className="p-4">
+                            <div className="space-y-3">
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Badge variant="outline" className="text-xs">
+                                      {suggestion.placement || 'General'}
+                                    </Badge>
+                                    {isInserted && (
+                                      <Badge className="text-xs bg-green-600">
+                                        <CheckCircle className="h-3 w-3 mr-1" />
+                                        Inserted
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  
+                                  <h4 className="font-semibold text-sm mb-1">
+                                    Link to: {suggestion.targetTitle}
+                                  </h4>
+                                  
+                                  <div className="bg-muted p-2 rounded text-xs font-mono mb-2">
+                                    [{suggestion.anchorText}](/blog/{suggestion.targetSlug})
+                                  </div>
+
+                                  {suggestion.contextSnippet && (
+                                    <div className="text-xs text-muted-foreground mb-2 p-2 bg-background rounded border">
+                                      <strong>Context:</strong> ...{suggestion.contextSnippet}...
+                                    </div>
+                                  )}
+                                  
+                                  <p className="text-xs text-muted-foreground mb-2">
+                                    <strong>Why link here:</strong> {suggestion.reasoning}
+                                  </p>
+
+                                  {suggestion.funnelStrategy && (
+                                    <p className="text-xs text-blue-600 dark:text-blue-400">
+                                      <strong>Funnel Strategy:</strong> {suggestion.funnelStrategy}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2 pt-2 border-t">
+                                <Button
+                                  size="sm"
+                                  onClick={() => insertInternalLink(suggestion)}
+                                  disabled={isInserted}
+                                  className="flex-1 shadow-sm hover:shadow-md transition-all"
+                                >
+                                  {isInserted ? (
+                                    <>
+                                      <CheckCircle className="h-4 w-4 mr-2" />
+                                      Inserted
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Plus className="h-4 w-4 mr-2" />
+                                      Insert Link
+                                    </>
+                                  )}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => copyInternalLinkMarkdown(suggestion)}
+                                  className="flex-1"
+                                >
+                                  Copy Markdown
+                                </Button>
+                                <a
+                                  href={`/blog/${suggestion.targetSlug}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-primary hover:underline flex items-center gap-1 px-3"
+                                >
+                                  Preview <ExternalLink className="h-3 w-3" />
+                                </a>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+
+                  <Alert>
+                    <Lightbulb className="h-4 w-4" />
+                    <AlertDescription className="text-xs">
+                      <strong>Pro Tip:</strong> Click "Insert Link" to automatically place the link in context, 
+                      or copy the markdown and manually place it where you think it fits best. Aim for 3-7 internal links per article.
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              )}
+
+              {internalLinkSuggestions.length === 0 && !loadingInternalLinks && (
+                <Alert>
+                  <AlertDescription className="text-sm">
+                    No suggestions yet. Write your content and click "Generate Link Suggestions" to get AI-powered internal linking recommendations.
+                  </AlertDescription>
+                </Alert>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
