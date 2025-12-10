@@ -262,42 +262,69 @@ export default function PointsChecker() {
 
     try {
       // Fix internal links by suggesting and adding them
-      if (!page.has_internal_links && page.post_id && page.page_type === 'blog') {
-        // Fetch the blog post content to send to the edge function
-        const { data: post } = await supabase
-          .from('blog_posts')
-          .select('content, title, funnel_stage, slug')
-          .eq('id', page.post_id)
-          .single();
+      if (!page.has_internal_links) {
+        if (page.post_id && page.page_type === 'blog') {
+          // Fetch the blog post content to send to the edge function
+          const { data: post } = await supabase
+            .from('blog_posts')
+            .select('content, title, funnel_stage, slug')
+            .eq('id', page.post_id)
+            .single();
 
-        if (post?.content) {
-          const { data, error } = await supabase.functions.invoke('suggest-internal-links', {
-            body: { 
-              content: post.content,
-              title: post.title,
-              funnelStage: post.funnel_stage,
-              currentSlug: post.slug
+          if (post?.content) {
+            const { data, error } = await supabase.functions.invoke('suggest-internal-links', {
+              body: { 
+                content: post.content,
+                title: post.title,
+                funnelStage: post.funnel_stage,
+                currentSlug: post.slug
+              }
+            });
+
+            if (!error && data?.suggestions) {
+              // Add suggested links to database
+              for (const suggestion of data.suggestions.slice(0, 3)) {
+                const { error: linkError } = await supabase
+                  .from('internal_links')
+                  .insert({
+                    source_post_id: page.post_id,
+                    source_page: page.page_url,
+                    target_url: `/blog/${suggestion.targetSlug}`,
+                    anchor_text: suggestion.anchorText,
+                    funnel_direction: suggestion.funnelStrategy?.includes('→') ? 'down' : 'across',
+                    link_type: 'internal'
+                  });
+                
+                if (!linkError) linksAdded++;
+              }
+            } else if (error) {
+              console.error('Error suggesting links:', error);
             }
-          });
+          }
+        } else if (page.page_type === 'static') {
+          // For static pages, add links to relevant published blog posts
+          const { data: blogPosts } = await supabase
+            .from('blog_posts')
+            .select('id, title, slug, funnel_stage')
+            .eq('status', 'published')
+            .order('published_at', { ascending: false })
+            .limit(3);
 
-          if (!error && data?.suggestions) {
-            // Add suggested links to database
-            for (const suggestion of data.suggestions.slice(0, 3)) {
+          if (blogPosts && blogPosts.length > 0) {
+            for (const post of blogPosts) {
               const { error: linkError } = await supabase
                 .from('internal_links')
                 .insert({
-                  source_post_id: page.post_id,
                   source_page: page.page_url,
-                  target_url: `/blog/${suggestion.targetSlug}`,
-                  anchor_text: suggestion.anchorText,
-                  funnel_direction: suggestion.funnelStrategy?.includes('→') ? 'down' : 'across',
+                  target_url: `/blog/${post.slug}`,
+                  target_post_id: post.id,
+                  anchor_text: post.title,
+                  funnel_direction: 'down',
                   link_type: 'internal'
                 });
               
               if (!linkError) linksAdded++;
             }
-          } else if (error) {
-            console.error('Error suggesting links:', error);
           }
         }
       }
