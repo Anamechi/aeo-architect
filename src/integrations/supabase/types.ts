@@ -544,6 +544,63 @@ export type Database = {
         }
         Relationships: []
       }
+      internal_links: {
+        Row: {
+          anchor_text: string | null
+          created_at: string | null
+          funnel_direction: string | null
+          id: string
+          is_valid: boolean | null
+          last_verified: string | null
+          link_type: string | null
+          source_page: string | null
+          source_post_id: string | null
+          target_post_id: string | null
+          target_url: string
+        }
+        Insert: {
+          anchor_text?: string | null
+          created_at?: string | null
+          funnel_direction?: string | null
+          id?: string
+          is_valid?: boolean | null
+          last_verified?: string | null
+          link_type?: string | null
+          source_page?: string | null
+          source_post_id?: string | null
+          target_post_id?: string | null
+          target_url: string
+        }
+        Update: {
+          anchor_text?: string | null
+          created_at?: string | null
+          funnel_direction?: string | null
+          id?: string
+          is_valid?: boolean | null
+          last_verified?: string | null
+          link_type?: string | null
+          source_page?: string | null
+          source_post_id?: string | null
+          target_post_id?: string | null
+          target_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "internal_links_source_post_id_fkey"
+            columns: ["source_post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "internal_links_target_post_id_fkey"
+            columns: ["target_post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       master_prompts: {
         Row: {
           category: string
@@ -576,6 +633,104 @@ export type Database = {
           variables?: string[] | null
         }
         Relationships: []
+      }
+      page_health_scores: {
+        Row: {
+          cluster_category: string | null
+          created_at: string | null
+          funnel_stage: string | null
+          has_article_schema: boolean | null
+          has_author_schema: boolean | null
+          has_breadcrumb_schema: boolean | null
+          has_canonical: boolean | null
+          has_eeat_block: boolean | null
+          has_faq_schema: boolean | null
+          has_internal_links: boolean | null
+          has_meta_description: boolean | null
+          has_og_tags: boolean | null
+          has_organization_schema: boolean | null
+          has_speakable_schema: boolean | null
+          has_title: boolean | null
+          id: string
+          internal_link_count: number | null
+          last_scanned: string | null
+          linking_score: number | null
+          overall_score: number | null
+          page_type: string | null
+          page_url: string
+          post_id: string | null
+          schema_score: number | null
+          seo_score: number | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          cluster_category?: string | null
+          created_at?: string | null
+          funnel_stage?: string | null
+          has_article_schema?: boolean | null
+          has_author_schema?: boolean | null
+          has_breadcrumb_schema?: boolean | null
+          has_canonical?: boolean | null
+          has_eeat_block?: boolean | null
+          has_faq_schema?: boolean | null
+          has_internal_links?: boolean | null
+          has_meta_description?: boolean | null
+          has_og_tags?: boolean | null
+          has_organization_schema?: boolean | null
+          has_speakable_schema?: boolean | null
+          has_title?: boolean | null
+          id?: string
+          internal_link_count?: number | null
+          last_scanned?: string | null
+          linking_score?: number | null
+          overall_score?: number | null
+          page_type?: string | null
+          page_url: string
+          post_id?: string | null
+          schema_score?: number | null
+          seo_score?: number | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          cluster_category?: string | null
+          created_at?: string | null
+          funnel_stage?: string | null
+          has_article_schema?: boolean | null
+          has_author_schema?: boolean | null
+          has_breadcrumb_schema?: boolean | null
+          has_canonical?: boolean | null
+          has_eeat_block?: boolean | null
+          has_faq_schema?: boolean | null
+          has_internal_links?: boolean | null
+          has_meta_description?: boolean | null
+          has_og_tags?: boolean | null
+          has_organization_schema?: boolean | null
+          has_speakable_schema?: boolean | null
+          has_title?: boolean | null
+          id?: string
+          internal_link_count?: number | null
+          last_scanned?: string | null
+          linking_score?: number | null
+          overall_score?: number | null
+          page_type?: string | null
+          page_url?: string
+          post_id?: string | null
+          schema_score?: number | null
+          seo_score?: number | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "page_health_scores_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pricing_settings: {
         Row: {

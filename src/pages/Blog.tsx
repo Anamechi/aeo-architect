@@ -8,6 +8,7 @@ import { Calendar, Clock, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { generateOrganizationSchema, generateSpeakableSchema } from "@/utils/schemas";
 
 const Blog = () => {
   const [posts, setPosts] = useState<any[]>([]);
@@ -61,10 +62,13 @@ const Blog = () => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://anamechimarketing.com/" },
-      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://anamechimarketing.com/blog/" }
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://home.anamechimarketing.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://home.anamechimarketing.com/blog/" }
     ]
   };
+
+  const organizationSchema = generateOrganizationSchema();
+  const speakableSchema = generateSpeakableSchema("https://home.anamechimarketing.com/blog/", ['h1', '.featured-post']);
 
   return (
     <>
@@ -72,7 +76,7 @@ const Blog = () => {
         title="AEO & Digital Marketing Blog - Expert Insights & Strategies"
         description="Learn AI Engine Optimization, SEO, content strategy, and marketing automation from industry experts. Get cited by AI models and search engines."
         canonical="/blog"
-        structuredData={[breadcrumbsSchema]}
+        structuredData={[breadcrumbsSchema, organizationSchema, speakableSchema]}
       />
 
       <div className="container mx-auto px-4 py-12">

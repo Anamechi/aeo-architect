@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { generateOrganizationSchema, generateSpeakableSchema } from "@/utils/schemas";
 
 interface FAQ {
   id: string;
@@ -153,13 +154,16 @@ const FAQ = () => {
     ]
   };
 
+  const organizationSchema = generateOrganizationSchema();
+  const speakableSchema = generateSpeakableSchema("https://home.anamechimarketing.com/faq/", ['h1', '.faq-answer']);
+
   return (
     <>
       <SEO
         title="Frequently Asked Questions - AEO & Digital Marketing"
         description="Common questions about AI Engine Optimization (AEO), SEO, content strategy, GoHighLevel implementation, and our marketing services answered by experts."
         canonical="/faq"
-        structuredData={[faqSchema, breadcrumbsSchema]}
+        structuredData={[faqSchema, breadcrumbsSchema, organizationSchema, speakableSchema]}
       />
 
       <div className="container mx-auto px-4 py-12">

@@ -3,6 +3,11 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Award, BookOpen, Target, Users } from "lucide-react";
+import { 
+  generateOrganizationSchema, 
+  generateSpeakableSchema, 
+  generatePersonSchema 
+} from "@/utils/schemas";
 
 const About = () => {
   const breadcrumbsSchema = {
@@ -13,6 +18,10 @@ const About = () => {
       { "@type": "ListItem", "position": 2, "name": "About", "item": "https://home.anamechimarketing.com/about/" }
     ]
   };
+
+  const organizationSchema = generateOrganizationSchema();
+  const speakableSchema = generateSpeakableSchema("https://home.anamechimarketing.com/about/", ['h1', '.founder-bio', '.methodology']);
+  const personSchema = generatePersonSchema();
 
   const expertise = [
     {
@@ -43,7 +52,7 @@ const About = () => {
         title="About ANAMECHI Marketing - AI Engine Optimization Experts"
         description="Meet Dr. Deanna Romulus and the ANAMECHI team. We specialize in AI Engine Optimization (AEO), helping service businesses become trusted authorities that AI models and search engines cite."
         canonical="/about"
-        structuredData={[breadcrumbsSchema]}
+        structuredData={[breadcrumbsSchema, organizationSchema, speakableSchema, personSchema]}
       />
 
       <div className="container mx-auto px-4 py-12">
