@@ -43,6 +43,7 @@ import ImageAltTextGenerator from "./pages/admin/ImageAltTextGenerator";
 import FAQManager from "./pages/admin/FAQManager";
 import FAQAnalytics from "./pages/admin/FAQAnalytics";
 import ReferralTracking from "./pages/admin/ReferralTracking";
+import PointsChecker from "./pages/admin/PointsChecker";
 
 const queryClient = new QueryClient();
 
@@ -82,6 +83,7 @@ const App = () => (
                 <Route path="pricing-settings" element={<PricingSettings />} />
                 <Route path="business-settings" element={<BusinessSettings />} />
                 <Route path="referral-tracking" element={<ReferralTracking />} />
+                <Route path="points-checker" element={<PointsChecker />} />
               </Route>
 
               {/* Public routes */}

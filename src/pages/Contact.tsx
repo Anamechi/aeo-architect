@@ -10,6 +10,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Phone, MapPin, Linkedin, Twitter, Youtube, Clock } from "lucide-react";
+import { 
+  generateOrganizationSchema, 
+  generateSpeakableSchema, 
+  generateLocalBusinessSchema 
+} from "@/utils/schemas";
 
 const Contact = () => {
   const [settings, setSettings] = useState<any>(null);
@@ -112,27 +117,11 @@ const Contact = () => {
     ]
   };
 
-  const localBusinessSchema = settings ? {
-    "@context": "https://schema.org",
-    "@type": "ProfessionalService",
-    "name": businessName,
-    "url": "https://home.anamechimarketing.com",
-    "telephone": phoneTollFree,
-    "email": email,
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": settings.address_street,
-      "addressLocality": settings.address_city,
-      "addressRegion": settings.address_state,
-      "postalCode": settings.address_zip,
-      "addressCountry": "US"
-    },
-    "sameAs": [
-      settings.linkedin_url,
-      settings.twitter_url,
-      settings.youtube_url
-    ].filter(Boolean)
-  } : null;
+  const organizationSchema = generateOrganizationSchema();
+  const speakableSchema = generateSpeakableSchema("https://home.anamechimarketing.com/contact/", ['h1', '.contact-info']);
+  const localBusinessSchema = generateLocalBusinessSchema();
+
+  const structuredData = [breadcrumbsSchema, organizationSchema, speakableSchema, localBusinessSchema];
 
   return (
     <>
@@ -140,7 +129,7 @@ const Contact = () => {
         title={`Contact ${businessName} - Get Your Marketing Strategy`}
         description={`Ready to transform your marketing? Contact ${businessName} for marketing automation, CRM setup, and digital strategy services.`}
         canonical="/contact"
-        structuredData={localBusinessSchema ? [breadcrumbsSchema, localBusinessSchema] : [breadcrumbsSchema]}
+        structuredData={structuredData}
       />
 
       <div className="container mx-auto px-4 py-12">

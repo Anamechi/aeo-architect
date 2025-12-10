@@ -19,13 +19,15 @@ import {
   CheckCircle,
   TrendingUp,
   Sparkles,
-  ImagePlus
+  ImagePlus,
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+  { name: 'Points Checker', href: '/admin/points-checker', icon: ShieldCheck },
   { name: 'Master Prompts', href: '/admin/master-prompts', icon: Lightbulb },
   { name: 'Blog Posts', href: '/admin/blog', icon: FileText },
   { name: 'Blog Audit', href: '/admin/blog/audit', icon: Sparkles },

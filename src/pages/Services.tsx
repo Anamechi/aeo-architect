@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   ArrowRight
 } from "lucide-react";
+import { generateOrganizationSchema, generateSpeakableSchema } from "@/utils/schemas";
 
 const Services = () => {
   const breadcrumbsSchema = {
@@ -24,6 +25,9 @@ const Services = () => {
       { "@type": "ListItem", "position": 2, "name": "Services", "item": "https://home.anamechimarketing.com/services/" }
     ]
   };
+
+  const organizationSchema = generateOrganizationSchema();
+  const speakableSchema = generateSpeakableSchema("https://home.anamechimarketing.com/services/", ['h1', '.service-description']);
 
   const { data: packages, isLoading: packagesLoading } = useQuery({
     queryKey: ['service-packages-public'],
@@ -92,7 +96,7 @@ const Services = () => {
         title="AI-Powered Marketing Services | ANAMECHI Marketing"
         description="Transform your business with AI Engine Optimization, SEO, marketing automation, and brand visibility services. Customized strategies for ambitious entrepreneurs."
         type="website"
-        structuredData={[breadcrumbsSchema]}
+        structuredData={[breadcrumbsSchema, organizationSchema, speakableSchema]}
       />
 
       <div className="min-h-screen bg-gradient-to-b from-background to-background/80">
