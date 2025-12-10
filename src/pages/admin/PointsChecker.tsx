@@ -15,13 +15,16 @@ import {
   Link2,
   Shield,
   Code,
-  Loader2
+  Loader2,
+  Wrench,
+  Sparkles
 } from 'lucide-react';
 
 interface PageHealth {
   id: string;
   page_url: string;
   page_type: string;
+  post_id: string | null;
   has_organization_schema: boolean;
   has_breadcrumb_schema: boolean;
   has_article_schema: boolean;
@@ -36,6 +39,7 @@ interface PageHealth {
   has_internal_links: boolean;
   internal_link_count: number;
   funnel_stage: string | null;
+  cluster_category: string | null;
   schema_score: number;
   seo_score: number;
   linking_score: number;
@@ -52,6 +56,12 @@ interface SummaryStats {
   avgScore: number;
 }
 
+interface FixResult {
+  pageUrl: string;
+  linksAdded: number;
+  issues: string[];
+}
+
 const staticPages = [
   { url: '/', name: 'Home' },
   { url: '/about', name: 'About' },
@@ -65,6 +75,8 @@ export default function PointsChecker() {
   const [pageHealths, setPageHealths] = useState<PageHealth[]>([]);
   const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(false);
+  const [fixing, setFixing] = useState(false);
+  const [fixingPage, setFixingPage] = useState<string | null>(null);
   const [summary, setSummary] = useState<SummaryStats>({ green: 0, yellow: 0, red: 0, total: 0, avgScore: 0 });
   const [filter, setFilter] = useState<'all' | 'green' | 'yellow' | 'red'>('all');
 
@@ -234,6 +246,116 @@ export default function PointsChecker() {
     }
   };
 
+  const getIssues = (page: PageHealth): string[] => {
+    const issues: string[] = [];
+    if (!page.has_internal_links) issues.push('No internal links');
+    if (!page.has_eeat_block && page.page_type === 'blog') issues.push('Missing EEAT block');
+    if (!page.has_breadcrumb_schema && page.page_url !== '/') issues.push('Missing breadcrumb schema');
+    if (!page.has_article_schema && page.page_type === 'blog') issues.push('Missing article schema');
+    if (!page.has_faq_schema && page.page_type === 'faq') issues.push('Missing FAQ schema');
+    return issues;
+  };
+
+  const fixPage = async (page: PageHealth) => {
+    setFixingPage(page.id);
+    const issues = getIssues(page);
+    let linksAdded = 0;
+
+    try {
+      // Fix internal links by suggesting and adding them
+      if (!page.has_internal_links && page.post_id) {
+        const { data, error } = await supabase.functions.invoke('suggest-internal-links', {
+          body: { postId: page.post_id }
+        });
+
+        if (!error && data?.suggestions) {
+          // Add suggested links to database
+          for (const suggestion of data.suggestions.slice(0, 3)) {
+            const { error: linkError } = await supabase
+              .from('internal_links')
+              .insert({
+                source_post_id: page.post_id,
+                source_page: page.page_url,
+                target_url: suggestion.targetUrl,
+                target_post_id: suggestion.targetPostId || null,
+                anchor_text: suggestion.anchorText,
+                funnel_direction: suggestion.funnelDirection || 'across',
+                link_type: 'internal'
+              });
+            
+            if (!linkError) linksAdded++;
+          }
+        }
+      }
+
+      // Re-scan the page to update scores
+      if (page.page_type === 'blog' && page.post_id) {
+        const { data: post } = await supabase
+          .from('blog_posts')
+          .select('slug, title, funnel_stage, category')
+          .eq('id', page.post_id)
+          .single();
+        
+        if (post) {
+          await scanPage(`/blog/${post.slug}`, post.title, 'blog', page.post_id, post.funnel_stage, post.category);
+        }
+      } else if (page.page_type === 'faq' && page.post_id) {
+        const { data: faq } = await supabase
+          .from('qa_articles')
+          .select('slug, question, funnel_stage')
+          .eq('id', page.post_id)
+          .single();
+        
+        if (faq) {
+          await scanPage(`/faq/${faq.slug}`, faq.question, 'faq', page.post_id, faq.funnel_stage);
+        }
+      } else {
+        const staticPage = staticPages.find(p => p.url === page.page_url);
+        if (staticPage) {
+          await scanPage(staticPage.url, staticPage.name, 'static');
+        }
+      }
+
+      await fetchPageHealths();
+      
+      if (linksAdded > 0) {
+        toast.success(`Fixed ${page.page_url}: Added ${linksAdded} internal links`);
+      } else {
+        toast.info(`Rescanned ${page.page_url}`);
+      }
+    } catch (error) {
+      console.error('Fix error:', error);
+      toast.error(`Failed to fix ${page.page_url}`);
+    } finally {
+      setFixingPage(null);
+    }
+  };
+
+  const fixAllIssues = async () => {
+    const pagesWithIssues = pageHealths.filter(p => p.status !== 'green');
+    if (pagesWithIssues.length === 0) {
+      toast.info('All pages are already optimized!');
+      return;
+    }
+
+    setFixing(true);
+    toast.info(`Fixing ${pagesWithIssues.length} pages with issues...`);
+
+    let fixed = 0;
+    for (const page of pagesWithIssues) {
+      try {
+        await fixPage(page);
+        fixed++;
+      } catch (error) {
+        console.error(`Error fixing ${page.page_url}:`, error);
+      }
+    }
+
+    setFixing(false);
+    toast.success(`Fixed ${fixed} of ${pagesWithIssues.length} pages`);
+    await fetchPageHealths();
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'green':
@@ -269,19 +391,41 @@ export default function PointsChecker() {
             Validate schema, metadata, internal linking, and EEAT across all pages
           </p>
         </div>
-        <Button onClick={runFullScan} disabled={scanning}>
-          {scanning ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Scanning...
-            </>
-          ) : (
-            <>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Run Full Scan
-            </>
+        <div className="flex gap-2">
+          {(summary.red > 0 || summary.yellow > 0) && (
+            <Button 
+              onClick={fixAllIssues} 
+              disabled={fixing || scanning}
+              variant="default"
+              className="bg-primary"
+            >
+              {fixing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Fixing...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Fix All Issues ({summary.red + summary.yellow})
+                </>
+              )}
+            </Button>
           )}
-        </Button>
+          <Button onClick={runFullScan} disabled={scanning || fixing} variant="outline">
+            {scanning ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Scanning...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Run Full Scan
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Summary Cards */}
@@ -422,6 +566,36 @@ export default function PointsChecker() {
                     Int. Links
                   </div>
                 </div>
+
+                {/* Issues & Fix Button */}
+                {page.status !== 'green' && (
+                  <div className="mt-4 pt-4 border-t flex items-center justify-between">
+                    <div className="flex flex-wrap gap-2">
+                      {getIssues(page).map((issue, idx) => (
+                        <Badge key={idx} variant="outline" className="text-muted-foreground">
+                          {issue}
+                        </Badge>
+                      ))}
+                    </div>
+                    <Button 
+                      size="sm" 
+                      onClick={() => fixPage(page)}
+                      disabled={fixingPage === page.id || fixing}
+                    >
+                      {fixingPage === page.id ? (
+                        <>
+                          <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                          Fixing...
+                        </>
+                      ) : (
+                        <>
+                          <Wrench className="mr-2 h-3 w-3" />
+                          Fix Issues
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
 
                 {page.funnel_stage && (
                   <div className="mt-3 pt-3 border-t">
