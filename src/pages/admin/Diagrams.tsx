@@ -1,13 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Network, ArrowDown } from 'lucide-react';
+import { Network, ArrowDown, Loader2 } from 'lucide-react';
+import mermaid from 'mermaid';
 
 export default function Diagrams() {
+  const [renderedSvg, setRenderedSvg] = useState<string>('');
+  const [isRendering, setIsRendering] = useState(false);
+  const [renderError, setRenderError] = useState<string | null>(null);
+  const renderCount = useRef(0);
   const [diagramCode, setDiagramCode] = useState(`graph TD
     A[Awareness - TOFU] --> B[Interest]
     B --> C[Consideration - MOFU]
@@ -59,6 +64,44 @@ export default function Diagrams() {
   const loadTemplate = (template: keyof typeof templates) => {
     setDiagramCode(templates[template]);
   };
+
+  // Initialize mermaid and render diagram
+  useEffect(() => {
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose',
+    });
+  }, []);
+
+  // Render diagram when code changes
+  useEffect(() => {
+    const renderDiagram = async () => {
+      if (!diagramCode.trim()) {
+        setRenderedSvg('');
+        return;
+      }
+
+      setIsRendering(true);
+      setRenderError(null);
+
+      try {
+        renderCount.current += 1;
+        const id = `mermaid-${renderCount.current}`;
+        const { svg } = await mermaid.render(id, diagramCode);
+        setRenderedSvg(svg);
+      } catch (error) {
+        console.error('Mermaid render error:', error);
+        setRenderError(error instanceof Error ? error.message : 'Failed to render diagram');
+        setRenderedSvg('');
+      } finally {
+        setIsRendering(false);
+      }
+    };
+
+    const debounce = setTimeout(renderDiagram, 300);
+    return () => clearTimeout(debounce);
+  }, [diagramCode]);
 
   return (
     <div className="space-y-6">
@@ -124,14 +167,26 @@ export default function Diagrams() {
             <CardDescription>Live diagram preview</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="border rounded-lg p-6 bg-background min-h-[400px] flex items-center justify-center">
-              <pre className="text-xs text-muted-foreground">
-                {diagramCode}
-              </pre>
+            <div className="border rounded-lg p-6 bg-background min-h-[400px] flex items-center justify-center overflow-auto">
+              {isRendering ? (
+                <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                  <span className="text-sm">Rendering...</span>
+                </div>
+              ) : renderError ? (
+                <div className="text-destructive text-sm text-center">
+                  <p className="font-medium">Render Error</p>
+                  <p className="text-xs mt-1">{renderError}</p>
+                </div>
+              ) : renderedSvg ? (
+                <div 
+                  className="w-full flex justify-center"
+                  dangerouslySetInnerHTML={{ __html: renderedSvg }} 
+                />
+              ) : (
+                <p className="text-muted-foreground text-sm">Enter Mermaid code to see preview</p>
+              )}
             </div>
-            <p className="text-xs text-muted-foreground mt-4">
-              Note: Mermaid rendering requires additional setup. This is a code preview.
-            </p>
           </CardContent>
         </Card>
       </div>
