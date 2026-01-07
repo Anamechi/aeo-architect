@@ -3,60 +3,51 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Award, BookOpen, Target, Users } from "lucide-react";
-import { 
-  generateOrganizationSchema, 
-  generateSpeakableSchema, 
-  generatePersonSchema 
-} from "@/utils/schemas";
-
+import { generateOrganizationSchema, generateSpeakableSchema, generatePersonSchema } from "@/utils/schemas";
 const About = () => {
   const breadcrumbsSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://home.anamechimarketing.com/" },
-      { "@type": "ListItem", "position": 2, "name": "About", "item": "https://home.anamechimarketing.com/about/" }
-    ]
+    "itemListElement": [{
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://home.anamechimarketing.com/"
+    }, {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "About",
+      "item": "https://home.anamechimarketing.com/about/"
+    }]
   };
-
   const organizationSchema = generateOrganizationSchema();
   const speakableSchema = generateSpeakableSchema("https://home.anamechimarketing.com/about/", ['h1', '.founder-bio', '.methodology']);
   const personSchema = generatePersonSchema();
-
-  const expertise = [
-    {
-      icon: Target,
-      title: "AEO Pioneer",
-      description: "Leading the industry in AI Engine Optimization strategies that get brands cited by LLMs and answer engines."
-    },
-    {
-      icon: BookOpen,
-      title: "Content Authority",
-      description: "Creating EEAT-focused content with structured data, citations, and regular freshness updates."
-    },
-    {
-      icon: Users,
-      title: "Service Business Focus",
-      description: "Specialized in consultants, coaches, and service providers who need to establish thought leadership."
-    },
-    {
-      icon: Award,
-      title: "Proven Results",
-      description: "150+ successful implementations with measurable improvements in AI citations and organic visibility."
-    }
-  ];
-
-  return (
-    <>
-      <SEO
-        title="About ANAMECHI Marketing - AI Engine Optimization Experts"
-        description="Meet Dr. Deanna Romulus and the ANAMECHI team. We specialize in AI Engine Optimization (AEO), helping service businesses become trusted authorities that AI models and search engines cite."
-        canonical="/about"
-        structuredData={[breadcrumbsSchema, organizationSchema, speakableSchema, personSchema]}
-      />
+  const expertise = [{
+    icon: Target,
+    title: "AEO Pioneer",
+    description: "Leading the industry in AI Engine Optimization strategies that get brands cited by LLMs and answer engines."
+  }, {
+    icon: BookOpen,
+    title: "Content Authority",
+    description: "Creating EEAT-focused content with structured data, citations, and regular freshness updates."
+  }, {
+    icon: Users,
+    title: "Service Business Focus",
+    description: "Specialized in consultants, coaches, and service providers who need to establish thought leadership."
+  }, {
+    icon: Award,
+    title: "Proven Results",
+    description: "150+ successful implementations with measurable improvements in AI citations and organic visibility."
+  }];
+  return <>
+      <SEO title="About ANAMECHI Marketing - AI Engine Optimization Experts" description="Meet Dr. Deanna Romulus and the ANAMECHI team. We specialize in AI Engine Optimization (AEO), helping service businesses become trusted authorities that AI models and search engines cite." canonical="/about" structuredData={[breadcrumbsSchema, organizationSchema, speakableSchema, personSchema]} />
 
       <div className="container mx-auto px-4 py-12">
-        <Breadcrumbs items={[{ name: "About", href: "/about" }]} />
+        <Breadcrumbs items={[{
+        name: "About",
+        href: "/about"
+      }]} />
 
         {/* Hero */}
         <div className="mb-16 text-center">
@@ -96,9 +87,9 @@ const About = () => {
                 <div className="rounded-lg bg-gradient-primary p-6 text-primary-foreground">
                   <h3 className="mb-2 text-xl font-semibold">Credentials & Experience</h3>
                   <ul className="space-y-2 text-sm">
-                    <li>• PhD in Strategic Communication</li>
-                    <li>• 15+ years in digital marketing</li>
-                    <li>• Certified GoHighLevel Expert</li>
+                    <li>• EdD in Educational Leadership</li>
+                    <li>• 15+ years in marketing</li>
+                    <li>• GoHighLevel Expert</li>
                     <li>• Published author on AEO strategies</li>
                     <li>• Featured speaker at marketing conferences</li>
                   </ul>
@@ -122,8 +113,7 @@ const About = () => {
             Our Core Expertise
           </h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {expertise.map((item) => (
-              <Card key={item.title} className="border-border">
+            {expertise.map(item => <Card key={item.title} className="border-border">
                 <CardHeader>
                   <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
                     <item.icon className="h-6 w-6 text-primary" />
@@ -133,8 +123,7 @@ const About = () => {
                 <CardContent>
                   <p className="text-muted-foreground">{item.description}</p>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
 
@@ -167,8 +156,6 @@ const About = () => {
           </CardContent>
         </Card>
       </div>
-    </>
-  );
+    </>;
 };
-
 export default About;
