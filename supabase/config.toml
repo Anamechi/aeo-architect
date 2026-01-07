@@ -35,3 +35,12 @@ verify_jwt = true
 
 [functions.submit-contact-to-ghl]
 verify_jwt = false
+
+[functions.sitemap]
+verify_jwt = false
+
+[functions.indexnow]
+verify_jwt = false
+
+[functions.prerender]
+verify_jwt = false
