@@ -2,8 +2,11 @@
 User-agent: *
 Allow: /
 
-# Explicit AI/answer engine bots
+# Explicit AI/Answer Engine Bots
 User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
 Allow: /
 
 User-agent: CCBot
@@ -12,16 +15,55 @@ Allow: /
 User-agent: ClaudeBot
 Allow: /
 
+User-agent: Claude-Web
+Allow: /
+
 User-agent: PerplexityBot
 Allow: /
 
 User-agent: Google-Extended
 Allow: /
 
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
 # Sitemaps
 Sitemap: https://home.anamechimarketing.com/sitemap.xml
-Sitemap: https://home.anamechimarketing.com/sitemap-blogs.xml
+Sitemap: https://home.anamechimarketing.com/sitemap-pages.xml
+Sitemap: https://home.anamechimarketing.com/sitemap-blog.xml
+Sitemap: https://home.anamechimarketing.com/sitemap-qa.xml
 
-# LLMs documentation index (optional but helpful for AEO)
-Allow: /llms.txt
-Allow: /llms-full.txt
+# LLMs documentation index
+Host: https://home.anamechimarketing.com
+
+# IndexNow Key Location
+# https://home.anamechimarketing.com/anamechi-indexnow-key-2024.txt
+
+# Disallow admin areas
+User-agent: *
+Disallow: /admin
+Disallow: /admin/
