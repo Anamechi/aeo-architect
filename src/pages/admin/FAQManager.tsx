@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { FunnelStage } from '@/types/content';
-import { generateFAQSchema } from '@/utils/schema';
+import { generateFAQSchema } from '@/utils/schemas';
 import { Plus, Edit, Trash2, Save, HelpCircle, ArrowUp, ArrowDown, X, Sparkles, Upload, Loader2, CheckSquare, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
