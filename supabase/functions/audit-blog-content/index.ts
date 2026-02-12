@@ -42,19 +42,28 @@ serve(async (req) => {
 2. Structure: Engaging intro, logical flow, FAQ/takeaways, strong CTA
 3. Brand Voice: Intelligent, visionary, empowering, culturally resonant
 4. SEO/AEO: Meta description, semantic keywords, internal/external links, EEAT
-5. Technical: Grammar, 900-1500 words, readability ≤9, alt text for images
+5. Technical: Grammar, 1500-2000 words, readability ≤9, alt text for images
+6. Spell-Check: Flag any spelling errors found in the content
+7. Professional Tone: Flag any informal, unprofessional, or overly casual language
+8. Group ID: Check if the article belongs to a content cluster
+9. Citations: Check for at least 3 authoritative citations
+10. Hreflang: Check if hreflang is set for translated content
 
 Return a JSON object with:
 {
   "overallScore": 0-100,
-  "issues": [{"category": "Visual/Structure/Voice/SEO/Technical", "severity": "critical/major/minor", "description": "..."}],
+  "issues": [{"category": "Visual/Structure/Voice/SEO/Technical/Spelling/Tone", "severity": "critical/major/minor", "description": "..."}],
   "hasImage": boolean,
   "imageQuality": "missing/poor/good/excellent",
   "wordCount": number,
   "readabilityGrade": number,
-  "missingElements": ["meta_description", "internal_links", etc],
+  "missingElements": ["meta_description", "internal_links", "citations", "group_id", "hreflang", etc],
   "needsRewrite": boolean,
-  "suggestedImprovements": ["..."]
+  "suggestedImprovements": ["..."],
+  "spellingErrors": ["..."],
+  "toneIssues": ["..."],
+  "spellChecked": boolean,
+  "toneValidated": boolean
 }`;
 
     const userPrompt = `
@@ -65,6 +74,10 @@ Meta Description: ${post.meta_description || 'N/A'}
 Featured Image: ${post.featured_image_url ? 'Yes' : 'No'}
 Funnel Stage: ${post.funnel_stage || 'N/A'}
 Category: ${post.category || 'N/A'}
+Group ID: ${post.group_id || 'MISSING'}
+Language: ${post.language || 'en'}
+Hreflang: ${post.hreflang || 'N/A'}
+Image Alt Text: ${post.image_alt_text || 'MISSING'}
 `;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -105,7 +118,11 @@ Category: ${post.category || 'N/A'}
                 readabilityGrade: { type: "number" },
                 missingElements: { type: "array", items: { type: "string" } },
                 needsRewrite: { type: "boolean" },
-                suggestedImprovements: { type: "array", items: { type: "string" } }
+                suggestedImprovements: { type: "array", items: { type: "string" } },
+                spellingErrors: { type: "array", items: { type: "string" } },
+                toneIssues: { type: "array", items: { type: "string" } },
+                spellChecked: { type: "boolean" },
+                toneValidated: { type: "boolean" },
               },
               required: ["overallScore", "issues", "hasImage", "needsRewrite"],
               additionalProperties: false

@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,6 +19,19 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
+    // Fetch Master Prompt from site_settings
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+    const { data: settings } = await supabaseClient
+      .from('site_settings')
+      .select('*')
+      .limit(1)
+      .single();
+
+    const masterContext = settings ? `\n\nMASTER PROMPT CONTEXT:\nBrand Voice: ${settings.brand_voice || ''}\nMission: ${settings.mission_statement || ''}\nEEAT: ${settings.eeat_authority_block || ''}\nSpeakable Rules: ${settings.speakable_rules || ''}\nFAQ Rules: ${settings.faq_rules || ''}\nAnti-hallucination: ${settings.anti_hallucination_rules || ''}` : '';
+
     let systemPrompt = "";
     let userPrompt = "";
 
@@ -28,7 +42,7 @@ serve(async (req) => {
 - Use question-based H2 and H3 headings
 - Include sections for: Quick Answer, Detailed Explanation, How-To Steps, Common Mistakes, Expert Tips
 - Optimize for both traditional search engines and AI crawlers (ChatGPT, Perplexity, etc.)
-- Consider the funnel stage for appropriate content depth`;
+- Consider the funnel stage for appropriate content depth${masterContext}`;
 
       userPrompt = `Create a detailed blog post outline for:
 Topic: ${topic}
@@ -49,7 +63,10 @@ Format the outline with:
 - Add lists, tables, and actionable tips
 - Cite authoritative sources when making claims
 - Include a clear CTA based on funnel stage
-- Use markdown formatting`;
+- Use markdown formatting
+- Word count: 1500-2000 words
+- Include a speakable summary (40-60 words)
+- Include an EEAT authority block${masterContext}`;
 
       userPrompt = `Write a complete blog post for:
 Topic: ${topic}
@@ -69,7 +86,8 @@ Requirements:
 - Content structure (headings, paragraphs)
 - AI crawler optimization (answer-first, clear structure)
 - E-E-A-T signals (citations, expertise)
-- Keyword usage and density`;
+- Keyword usage and density
+- Spell-check and professional tone${masterContext}`;
 
       userPrompt = `Analyze and suggest improvements for this blog content:
 ${topic}

@@ -44,3 +44,15 @@ verify_jwt = false
 
 [functions.prerender]
 verify_jwt = false
+
+[functions.generate-cluster]
+verify_jwt = true
+
+[functions.translate-content]
+verify_jwt = true
+
+[functions.generate-article-qas]
+verify_jwt = true
+
+[functions.discover-citations]
+verify_jwt = true

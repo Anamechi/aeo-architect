@@ -20,34 +20,70 @@ import {
   TrendingUp,
   Sparkles,
   ImagePlus,
-  ShieldCheck
+  ShieldCheck,
+  Layers,
+  HeartPulse,
+  Globe
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 
-const navigation = [
-  { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-  { name: 'Points Checker', href: '/admin/points-checker', icon: ShieldCheck },
-  { name: 'Master Prompts', href: '/admin/master-prompts', icon: Lightbulb },
-  { name: 'Blog Posts', href: '/admin/blog', icon: FileText },
-  { name: 'Blog Audit', href: '/admin/blog/audit', icon: Sparkles },
-  { name: 'QA Generator', href: '/admin/qa-generator', icon: MessageSquare },
-  { name: 'FAQ Manager', href: '/admin/faq-manager', icon: HelpCircle },
-  { name: 'FAQ Analytics', href: '/admin/faq-analytics', icon: TrendingUp },
-  { name: 'Authors', href: '/admin/authors', icon: Users },
-  { name: 'Citations', href: '/admin/citations', icon: LinkIcon },
-  { name: 'Citation Health', href: '/admin/citation-health', icon: CheckCircle },
-  { name: 'Image Alt Text', href: '/admin/image-alt-text', icon: ImagePlus },
-  { name: 'AI Tools', href: '/admin/ai-tools', icon: Wrench },
-  { name: 'Referral Tracking', href: '/admin/referral-tracking', icon: TrendingUp },
-  { name: 'Service Packages', href: '/admin/packages', icon: Package },
-  { name: 'Custom Quotes', href: '/admin/quotes', icon: Quote },
-  { name: 'Image Generator', href: '/admin/images', icon: Image },
-  { name: 'Diagram Generator', href: '/admin/diagrams', icon: Network },
-  { name: 'Content Updates', href: '/admin/content-updates', icon: Calendar },
-  { name: 'SEO Settings', href: '/admin/seo-settings', icon: Settings },
-  { name: 'Pricing Settings', href: '/admin/pricing-settings', icon: Settings },
-  { name: 'Business Settings', href: '/admin/business-settings', icon: Building },
+const sections = [
+  {
+    label: 'Overview',
+    items: [
+      { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+      { name: 'Points Checker', href: '/admin/points-checker', icon: ShieldCheck },
+    ],
+  },
+  {
+    label: 'Content',
+    items: [
+      { name: 'Clusters', href: '/admin/clusters', icon: Layers },
+      { name: 'Blog Posts', href: '/admin/blog', icon: FileText },
+      { name: 'Blog Audit', href: '/admin/blog/audit', icon: Sparkles },
+      { name: 'QA Generator', href: '/admin/qa-generator', icon: MessageSquare },
+      { name: 'FAQ Manager', href: '/admin/faq-manager', icon: HelpCircle },
+      { name: 'FAQ Analytics', href: '/admin/faq-analytics', icon: TrendingUp },
+      { name: 'Authors', href: '/admin/authors', icon: Users },
+    ],
+  },
+  {
+    label: 'SEO & Quality',
+    items: [
+      { name: 'Citations', href: '/admin/citations', icon: LinkIcon },
+      { name: 'Citation Health', href: '/admin/citation-health', icon: CheckCircle },
+      { name: 'Image Alt Text', href: '/admin/image-alt-text', icon: ImagePlus },
+      { name: 'Content Updates', href: '/admin/content-updates', icon: Calendar },
+    ],
+  },
+  {
+    label: 'Media',
+    items: [
+      { name: 'Image Generator', href: '/admin/images', icon: Image },
+      { name: 'Image Health', href: '/admin/image-health', icon: HeartPulse },
+      { name: 'Diagram Generator', href: '/admin/diagrams', icon: Network },
+    ],
+  },
+  {
+    label: 'AI & Tools',
+    items: [
+      { name: 'AI Tools', href: '/admin/ai-tools', icon: Wrench },
+      { name: 'Master Prompts', href: '/admin/master-prompts', icon: Lightbulb },
+      { name: 'Referral Tracking', href: '/admin/referral-tracking', icon: TrendingUp },
+    ],
+  },
+  {
+    label: 'Settings',
+    items: [
+      { name: 'Site Settings', href: '/admin/site-settings', icon: Globe },
+      { name: 'Service Packages', href: '/admin/packages', icon: Package },
+      { name: 'Custom Quotes', href: '/admin/quotes', icon: Quote },
+      { name: 'Pricing Settings', href: '/admin/pricing-settings', icon: Settings },
+      { name: 'Business Settings', href: '/admin/business-settings', icon: Building },
+      { name: 'SEO Settings', href: '/admin/seo-settings', icon: Settings },
+    ],
+  },
 ];
 
 export default function AdminSidebar() {
@@ -64,23 +100,30 @@ export default function AdminSidebar() {
         <h2 className="text-xl font-bold text-foreground">ANAMECHI Admin</h2>
       </div>
       
-      <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
-        {navigation.map((item) => (
-          <NavLink
-            key={item.name}
-            to={item.href}
-            end={item.href === '/admin'}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-              }`
-            }
-          >
-            <item.icon className="h-5 w-5" />
-            {item.name}
-          </NavLink>
+      <nav className="flex-1 space-y-4 p-4 overflow-y-auto">
+        {sections.map(section => (
+          <div key={section.label}>
+            <p className="px-3 mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{section.label}</p>
+            <div className="space-y-0.5">
+              {section.items.map(item => (
+                <NavLink
+                  key={item.name}
+                  to={item.href}
+                  end={item.href === '/admin'}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                      isActive
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    }`
+                  }
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.name}
+                </NavLink>
+              ))}
+            </div>
+          </div>
         ))}
       </nav>
 
