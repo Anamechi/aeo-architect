@@ -44,6 +44,10 @@ import FAQManager from "./pages/admin/FAQManager";
 import FAQAnalytics from "./pages/admin/FAQAnalytics";
 import ReferralTracking from "./pages/admin/ReferralTracking";
 import PointsChecker from "./pages/admin/PointsChecker";
+import SiteSettings from "./pages/admin/SiteSettings";
+import Clusters from "./pages/admin/Clusters";
+import ClusterDetail from "./pages/admin/ClusterDetail";
+import ImageHealth from "./pages/admin/ImageHealth";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +88,10 @@ const App = () => (
                 <Route path="business-settings" element={<BusinessSettings />} />
                 <Route path="referral-tracking" element={<ReferralTracking />} />
                 <Route path="points-checker" element={<PointsChecker />} />
+                <Route path="site-settings" element={<SiteSettings />} />
+                <Route path="clusters" element={<Clusters />} />
+                <Route path="clusters/:id" element={<ClusterDetail />} />
+                <Route path="image-health" element={<ImageHealth />} />
               </Route>
 
               {/* Public routes */}

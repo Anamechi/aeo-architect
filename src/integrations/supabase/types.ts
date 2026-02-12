@@ -153,7 +153,12 @@ export type Database = {
           excerpt: string | null
           featured_image_url: string | null
           funnel_stage: Database["public"]["Enums"]["funnel_stage"] | null
+          group_id: string | null
+          hreflang: string | null
           id: string
+          image_alt_text: string | null
+          image_caption: string | null
+          language: string | null
           meta_description: string | null
           published_at: string | null
           reading_time: number | null
@@ -161,9 +166,12 @@ export type Database = {
           schema_data: Json | null
           seo_score: number | null
           slug: string
+          spell_checked: boolean | null
           status: Database["public"]["Enums"]["content_status"] | null
           tags: string[] | null
           title: string
+          tone_validated: boolean | null
+          translated_from: string | null
           updated_at: string | null
         }
         Insert: {
@@ -175,7 +183,12 @@ export type Database = {
           excerpt?: string | null
           featured_image_url?: string | null
           funnel_stage?: Database["public"]["Enums"]["funnel_stage"] | null
+          group_id?: string | null
+          hreflang?: string | null
           id?: string
+          image_alt_text?: string | null
+          image_caption?: string | null
+          language?: string | null
           meta_description?: string | null
           published_at?: string | null
           reading_time?: number | null
@@ -183,9 +196,12 @@ export type Database = {
           schema_data?: Json | null
           seo_score?: number | null
           slug: string
+          spell_checked?: boolean | null
           status?: Database["public"]["Enums"]["content_status"] | null
           tags?: string[] | null
           title: string
+          tone_validated?: boolean | null
+          translated_from?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -197,7 +213,12 @@ export type Database = {
           excerpt?: string | null
           featured_image_url?: string | null
           funnel_stage?: Database["public"]["Enums"]["funnel_stage"] | null
+          group_id?: string | null
+          hreflang?: string | null
           id?: string
+          image_alt_text?: string | null
+          image_caption?: string | null
+          language?: string | null
           meta_description?: string | null
           published_at?: string | null
           reading_time?: number | null
@@ -205,9 +226,12 @@ export type Database = {
           schema_data?: Json | null
           seo_score?: number | null
           slug?: string
+          spell_checked?: boolean | null
           status?: Database["public"]["Enums"]["content_status"] | null
           tags?: string[] | null
           title?: string
+          tone_validated?: boolean | null
+          translated_from?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -219,10 +243,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "blog_posts_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "content_clusters"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "blog_posts_reviewed_by_fkey"
             columns: ["reviewed_by"]
             isOneToOne: false
             referencedRelation: "authors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_posts_translated_from_fkey"
+            columns: ["translated_from"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
             referencedColumns: ["id"]
           },
         ]
@@ -368,6 +406,45 @@ export type Database = {
           service?: string | null
           submitted_at?: string
           user_agent?: string | null
+        }
+        Relationships: []
+      }
+      content_clusters: {
+        Row: {
+          article_count: number
+          created_at: string
+          created_by: string | null
+          id: string
+          language: string
+          primary_keyword: string
+          progress: Json | null
+          status: string
+          target_audience: string | null
+          topic: string
+        }
+        Insert: {
+          article_count?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          language?: string
+          primary_keyword: string
+          progress?: Json | null
+          status?: string
+          target_audience?: string | null
+          topic: string
+        }
+        Update: {
+          article_count?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          language?: string
+          primary_keyword?: string
+          progress?: Json | null
+          status?: string
+          target_audience?: string | null
+          topic?: string
         }
         Relationships: []
       }
@@ -776,14 +853,19 @@ export type Database = {
           created_at: string | null
           faq_schema: Json | null
           funnel_stage: Database["public"]["Enums"]["funnel_stage"] | null
+          group_id: string | null
+          hreflang: string | null
           id: string
+          language: string | null
           meta_description: string | null
           published_at: string | null
           question: string
           reviewed_by: string | null
           slug: string
+          source_blog_id: string | null
           status: Database["public"]["Enums"]["content_status"] | null
           tags: string[] | null
+          translated_from: string | null
           updated_at: string | null
         }
         Insert: {
@@ -793,14 +875,19 @@ export type Database = {
           created_at?: string | null
           faq_schema?: Json | null
           funnel_stage?: Database["public"]["Enums"]["funnel_stage"] | null
+          group_id?: string | null
+          hreflang?: string | null
           id?: string
+          language?: string | null
           meta_description?: string | null
           published_at?: string | null
           question: string
           reviewed_by?: string | null
           slug: string
+          source_blog_id?: string | null
           status?: Database["public"]["Enums"]["content_status"] | null
           tags?: string[] | null
+          translated_from?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -810,14 +897,19 @@ export type Database = {
           created_at?: string | null
           faq_schema?: Json | null
           funnel_stage?: Database["public"]["Enums"]["funnel_stage"] | null
+          group_id?: string | null
+          hreflang?: string | null
           id?: string
+          language?: string | null
           meta_description?: string | null
           published_at?: string | null
           question?: string
           reviewed_by?: string | null
           slug?: string
+          source_blog_id?: string | null
           status?: Database["public"]["Enums"]["content_status"] | null
           tags?: string[] | null
+          translated_from?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -829,10 +921,31 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "qa_articles_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "content_clusters"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "qa_articles_reviewed_by_fkey"
             columns: ["reviewed_by"]
             isOneToOne: false
             referencedRelation: "authors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "qa_articles_source_blog_id_fkey"
+            columns: ["source_blog_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "qa_articles_translated_from_fkey"
+            columns: ["translated_from"]
+            isOneToOne: false
+            referencedRelation: "qa_articles"
             referencedColumns: ["id"]
           },
         ]
@@ -894,6 +1007,60 @@ export type Database = {
           sort_order?: number | null
           status?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          anti_hallucination_rules: string | null
+          brand_voice: string | null
+          canonical_domain: string | null
+          eeat_authority_block: string | null
+          enforce_hreflang: boolean | null
+          faq_rules: string | null
+          id: string
+          master_prompt: string | null
+          mission_statement: string | null
+          speakable_rules: string | null
+          spelling_enforcement: boolean | null
+          supported_languages: Json | null
+          target_audience_rules: string | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          anti_hallucination_rules?: string | null
+          brand_voice?: string | null
+          canonical_domain?: string | null
+          eeat_authority_block?: string | null
+          enforce_hreflang?: boolean | null
+          faq_rules?: string | null
+          id?: string
+          master_prompt?: string | null
+          mission_statement?: string | null
+          speakable_rules?: string | null
+          spelling_enforcement?: boolean | null
+          supported_languages?: Json | null
+          target_audience_rules?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          anti_hallucination_rules?: string | null
+          brand_voice?: string | null
+          canonical_domain?: string | null
+          eeat_authority_block?: string | null
+          enforce_hreflang?: boolean | null
+          faq_rules?: string | null
+          id?: string
+          master_prompt?: string | null
+          mission_statement?: string | null
+          speakable_rules?: string | null
+          spelling_enforcement?: boolean | null
+          supported_languages?: Json | null
+          target_audience_rules?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
         }
         Relationships: []
       }
