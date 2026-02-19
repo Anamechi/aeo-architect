@@ -1,3 +1,4 @@
+// Pre-render edge function for AI crawler discoverability
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.78.0";
 
 const corsHeaders = {
