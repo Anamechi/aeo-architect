@@ -118,10 +118,10 @@ const BlogArticle = () => {
       "name": "ANAMECHI Marketing",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://anamechimarketing.com/logo.png"
+        "url": "https://home.anamechimarketing.com/anamechi-logo.svg"
       }
     },
-    "mainEntityOfPage": `https://anamechimarketing.com/blog/${article.slug}/`,
+    "mainEntityOfPage": `https://home.anamechimarketing.com/blog/${article.slug}/`,
     ...(article.featured_image_url && {
       "image": {
         "@type": "ImageObject",
@@ -137,9 +137,9 @@ const BlogArticle = () => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://anamechimarketing.com/" },
-      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://anamechimarketing.com/blog/" },
-      { "@type": "ListItem", "position": 3, "name": article.title, "item": `https://anamechimarketing.com/blog/${article.slug}/` }
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://home.anamechimarketing.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://home.anamechimarketing.com/blog/" },
+      { "@type": "ListItem", "position": 3, "name": article.title, "item": `https://home.anamechimarketing.com/blog/${article.slug}/` }
     ]
   };
 

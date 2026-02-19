@@ -95,6 +95,7 @@ const Services = () => {
       <SEO 
         title="AI-Powered Marketing Services | ANAMECHI Marketing"
         description="Transform your business with AI Engine Optimization, SEO, marketing automation, and brand visibility services. Customized strategies for ambitious entrepreneurs."
+        canonical="/services"
         type="website"
         structuredData={[breadcrumbsSchema, organizationSchema, speakableSchema]}
       />
