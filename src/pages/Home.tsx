@@ -14,6 +14,7 @@ import {
   Target,
   Zap
 } from "lucide-react";
+import { generateSpeakableSchema, generateLocalBusinessSchema } from "@/utils/schemas";
 
 const Home = () => {
   const organizationSchema = {
@@ -91,7 +92,7 @@ const Home = () => {
         title="AI Engine Optimization & Digital Marketing for Service Businesses"
         description="Position your brand as an AI-citable authority. Get recommended by ChatGPT, Gemini, and search engines with AEO-optimized content and strategic marketing automation."
         canonical="/"
-        structuredData={[organizationSchema, websiteSchema]}
+        structuredData={[organizationSchema, websiteSchema, generateLocalBusinessSchema(), generateSpeakableSchema("https://home.anamechimarketing.com/", ['h1', '.speakable-summary'])]}
       />
 
       {/* Hero Section */}
