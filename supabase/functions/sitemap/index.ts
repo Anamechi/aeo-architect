@@ -1,16 +1,13 @@
-// Dynamic sitemap generation for SEO and AI discoverability
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.78.0";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Content-Type": "application/xml; charset=utf-8",
-  "Cache-Control": "public, max-age=3600, s-maxage=3600",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 const SITE_URL = "https://home.anamechimarketing.com";
 
-// Static pages with their priorities and change frequencies
 const staticPages = [
   { path: "/", priority: "1.0", changefreq: "weekly" },
   { path: "/about", priority: "0.8", changefreq: "monthly" },
@@ -23,8 +20,7 @@ const staticPages = [
   { path: "/terms", priority: "0.3", changefreq: "yearly" },
 ];
 
-Deno.serve(async (req: Request) => {
-  // Handle CORS preflight
+serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -38,6 +34,11 @@ Deno.serve(async (req: Request) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     let xmlContent: string;
+    const xmlHeaders = {
+      ...corsHeaders,
+      "Content-Type": "application/xml; charset=utf-8",
+      "Cache-Control": "public, max-age=3600, s-maxage=3600",
+    };
 
     switch (type) {
       case "index":
@@ -58,46 +59,28 @@ Deno.serve(async (req: Request) => {
 
     console.log(`Generated ${type} sitemap successfully`);
 
-    return new Response(xmlContent, {
-      status: 200,
-      headers: corsHeaders,
-    });
+    return new Response(xmlContent, { status: 200, headers: xmlHeaders });
   } catch (error) {
     console.error("Sitemap generation error:", error);
     return new Response(
-      `<?xml version="1.0" encoding="UTF-8"?>
-<error>Failed to generate sitemap</error>`,
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/xml" },
-      }
+      `<?xml version="1.0" encoding="UTF-8"?><error>Failed to generate sitemap</error>`,
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/xml" } }
     );
   }
 });
 
 function generateSitemapIndex(): string {
   const today = new Date().toISOString().split("T")[0];
-  
   return `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <sitemap>
-    <loc>${SITE_URL}/sitemap-pages.xml</loc>
-    <lastmod>${today}</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>${SITE_URL}/sitemap-blog.xml</loc>
-    <lastmod>${today}</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>${SITE_URL}/sitemap-qa.xml</loc>
-    <lastmod>${today}</lastmod>
-  </sitemap>
+  <sitemap><loc>${SITE_URL}/sitemap-pages.xml</loc><lastmod>${today}</lastmod></sitemap>
+  <sitemap><loc>${SITE_URL}/sitemap-blog.xml</loc><lastmod>${today}</lastmod></sitemap>
+  <sitemap><loc>${SITE_URL}/sitemap-qa.xml</loc><lastmod>${today}</lastmod></sitemap>
 </sitemapindex>`;
 }
 
 function generatePagesSitemap(): string {
   const today = new Date().toISOString().split("T")[0];
-  
   const urls = staticPages.map(
     (page) => `  <url>
     <loc>${SITE_URL}${page.path}</loc>
@@ -106,7 +89,6 @@ function generatePagesSitemap(): string {
     <priority>${page.priority}</priority>
   </url>`
   );
-
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.join("\n")}
