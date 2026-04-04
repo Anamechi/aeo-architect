@@ -84,7 +84,10 @@ export const Header = () => {
                 ))}
               </div>
             )}
-            <span className="text-xl font-bold text-foreground">ANAMECHI</span>
+            <div className="flex flex-col">
+              <span className="text-xl font-bold text-foreground leading-tight">ANAMECHI</span>
+              <span className="text-[10px] text-muted-foreground leading-tight hidden sm:block">Dr. Deanna Romulus, EdD, MBA | Founder</span>
+            </div>
           </div>
         </Link>
 

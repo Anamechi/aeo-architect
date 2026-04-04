@@ -196,8 +196,8 @@ export const Footer = () => {
           <p className="text-center text-sm text-muted-foreground">
             © {new Date().getFullYear()} {businessName}. All rights reserved.
           </p>
-          <p className="text-center text-sm text-muted-foreground mt-2">
-            Made with ❤️ in Malvern, Pennsylvania
+          <p className="text-center text-xs text-muted-foreground mt-2">
+            DDS Framework™ by Dr. Deanna Romulus, EdD | Made with ❤️ in Malvern, Pennsylvania
           </p>
         </div>
       </div>
