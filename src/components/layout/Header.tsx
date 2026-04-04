@@ -16,7 +16,7 @@ export const Header = () => {
   const [clickCount, setClickCount] = useState(0);
   const location = useLocation();
   const clickCountRef = useRef(0);
-  const clickTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const navigation = [
     { name: "Services", href: "/services" },
