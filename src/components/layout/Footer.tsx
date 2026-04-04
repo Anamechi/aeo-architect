@@ -53,13 +53,13 @@ export const Footer = () => {
     company: [
       { name: "About", href: "/about" },
       { name: "Services", href: "/services" },
-      { name: "Case Studies", href: "/case-studies" },
+      { name: "Blog", href: "/blog" },
       { name: "Contact", href: "/contact" },
     ],
     resources: [
-      { name: "Blog", href: "/blog" },
       { name: "FAQ", href: "/faq" },
       { name: "AI Tools", href: "/ai-tools" },
+      { name: "Case Studies", href: "/case-studies" },
       { name: "Content Updates", href: "/updates" },
     ],
     legal: [
@@ -196,8 +196,8 @@ export const Footer = () => {
           <p className="text-center text-sm text-muted-foreground">
             © {new Date().getFullYear()} {businessName}. All rights reserved.
           </p>
-          <p className="text-center text-sm text-muted-foreground mt-2">
-            Made with ❤️ in Malvern, Pennsylvania
+          <p className="text-center text-xs text-muted-foreground mt-2">
+            DDS Framework™ by Dr. Deanna Romulus, EdD | Made with ❤️ in Malvern, Pennsylvania
           </p>
         </div>
       </div>

@@ -53,6 +53,7 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        tertiary: "hsl(224 20% 55%)",
       },
       backgroundImage: {
         'gradient-primary': 'var(--gradient-primary)',
