@@ -53,13 +53,13 @@ export const Footer = () => {
     company: [
       { name: "About", href: "/about" },
       { name: "Services", href: "/services" },
-      { name: "Case Studies", href: "/case-studies" },
+      { name: "Blog", href: "/blog" },
       { name: "Contact", href: "/contact" },
     ],
     resources: [
-      { name: "Blog", href: "/blog" },
       { name: "FAQ", href: "/faq" },
       { name: "AI Tools", href: "/ai-tools" },
+      { name: "Case Studies", href: "/case-studies" },
       { name: "Content Updates", href: "/updates" },
     ],
     legal: [
