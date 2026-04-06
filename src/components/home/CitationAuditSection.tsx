@@ -27,20 +27,16 @@ export const CitationAuditSection = () => {
 
     setIsSubmitting(true);
     try {
-      // <!-- PLACEHOLDER: GHL webhook URL for Citation Audit form -->
-      const webhookUrl = ""; // Replace with GHL webhook endpoint
-      if (webhookUrl) {
-        await fetch(webhookUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...formData,
-            source: "citation-audit-homepage",
-            page: "home.anamechimarketing.com",
-            offer: "free-citation-audit",
-          }),
-        });
-      }
+      const { data, error } = await supabase.functions.invoke('submit-contact-to-ghl', {
+        body: {
+          name: formData.name,
+          email: formData.email,
+          service: formData.service,
+          message: `[Citation Audit Request] Primary service: ${formData.service}`,
+        },
+      });
+
+      if (error) throw error;
       setIsSubmitted(true);
     } catch {
       // Silently handle — show success anyway as GHL will retry
