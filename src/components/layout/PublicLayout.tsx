@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { Header } from './Header';
 import { Footer } from './Footer';
+import { SoundToggle } from '@/components/SoundToggle';
 
 export default function PublicLayout() {
   return (
@@ -10,6 +11,7 @@ export default function PublicLayout() {
         <Outlet />
       </main>
       <Footer />
+      <SoundToggle />
     </div>
   );
 }
