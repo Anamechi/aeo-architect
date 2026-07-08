@@ -149,13 +149,13 @@ const FAQ = () => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://home.anamechimarketing.com/" },
-      { "@type": "ListItem", "position": 2, "name": "FAQ", "item": "https://home.anamechimarketing.com/faq/" }
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://anamechimarketing.com/" },
+      { "@type": "ListItem", "position": 2, "name": "FAQ", "item": "https://anamechimarketing.com/faq/" }
     ]
   };
 
   const organizationSchema = generateOrganizationSchema();
-  const speakableSchema = generateSpeakableSchema("https://home.anamechimarketing.com/faq/", ['h1', '.faq-answer']);
+  const speakableSchema = generateSpeakableSchema("https://anamechimarketing.com/faq/", ['h1', '.faq-answer']);
 
   return (
     <>

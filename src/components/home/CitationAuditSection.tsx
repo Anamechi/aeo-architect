@@ -33,13 +33,14 @@ export const CitationAuditSection = () => {
           email: formData.email,
           service: formData.service,
           message: `[Citation Audit Request] Primary service: ${formData.service}`,
+          formId: 'citation-audit',
         },
       });
 
       if (error) throw error;
       setIsSubmitted(true);
     } catch {
-      // Silently handle — show success anyway as GHL will retry
+      // Silently handle, show success anyway as GHL will retry
       setIsSubmitted(true);
     } finally {
       setIsSubmitting(false);
@@ -65,7 +66,7 @@ export const CitationAuditSection = () => {
           <p className="text-muted-foreground mb-8">
             Most service business owners have no idea whether they appear in ChatGPT,
             Gemini, or Perplexity responses for their core service queries. The Free
-            AI Citation Audit tells you exactly where you stand — in 48 hours.
+            AI Citation Audit tells you exactly where you stand, in 48 hours.
           </p>
 
           <div className="grid gap-4 sm:grid-cols-3 mb-10">

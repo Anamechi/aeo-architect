@@ -6,26 +6,44 @@
     <title>ANAMECHI Marketing | AI Engine Optimization &amp; Digital Marketing</title>
     <meta name="description" content="Get your brand cited by AI models. AEO, SEO, content strategy, and marketing automation for service businesses.">
     <meta name="author" content="Dr. Deanna Romulus" />
-    <link rel="canonical" href="https://home.anamechimarketing.com/" />
+    <link rel="canonical" href="https://anamechimarketing.com/" />
     
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="ANAMECHI Marketing" />
-    <meta property="og:url" content="https://home.anamechimarketing.com/" />
+    <meta property="og:url" content="https://anamechimarketing.com/" />
     <meta property="og:title" content="ANAMECHI Marketing | AI Engine Optimization &amp; Digital Marketing">
     <meta property="og:description" content="Get your brand cited by AI models. AEO, SEO, content strategy, and marketing automation for service businesses.">
-    <meta property="og:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/mTF1xbAWPGX1ZnzoJZwwIDYnblt1/social-images/social-1761892565002-anamechi fav.jpg">
+    <meta property="og:image" content="https://anamechimarketing.com/media/og.jpg">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@anamechi" />
     <meta name="twitter:title" content="ANAMECHI Marketing | AI Engine Optimization &amp; Digital Marketing">
     <meta name="twitter:description" content="Get your brand cited by AI models. AEO, SEO, content strategy, and marketing automation for service businesses.">
-    <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/mTF1xbAWPGX1ZnzoJZwwIDYnblt1/social-images/social-1761892565002-anamechi fav.jpg">
+    <meta name="twitter:image" content="https://anamechimarketing.com/media/og.jpg">
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="https://storage.googleapis.com/gpt-engineer-file-uploads/mTF1xbAWPGX1ZnzoJZwwIDYnblt1/uploads/1761892546424-anamechi fav.jpg">
-    
+    <!-- Favicon: brand lightbulb mark, served from our own domain -->
+    <link rel="icon" type="image/png" href="/media/logo.png">
+
+    <!-- Brand typeface: Barlow, hierarchy through weight (700 display / 400 body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&display=swap" rel="stylesheet" />
+
+    <!-- Meta Pixel (carried over from anamechimarketing.com root; ID 501075682827673) -->
+    <script>
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+      document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', '501075682827673');
+      fbq('track', 'PageView');
+    </script>
+    <!-- Fast first paint for the cinematic hero -->
+    <link rel="preload" as="image" href="/media/hero-poster.jpg" />
+
     <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://hjbylbjbxjotbijzrwma.supabase.co" />
     
@@ -35,8 +53,8 @@
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "ANAMECHI Marketing",
-      "url": "https://home.anamechimarketing.com",
-      "logo": "https://home.anamechimarketing.com/anamechi-logo.svg",
+      "url": "https://anamechimarketing.com",
+      "logo": "https://anamechimarketing.com/anamechi-logo.svg",
       "description": "Digital marketing agency empowering coaches and consultants through AI Engine Optimization, marketing automation, and AI systems.",
       "address": {
         "@type": "PostalAddress",
@@ -61,8 +79,18 @@
       "founder": {
         "@type": "Person",
         "name": "Dr. Deanna Romulus",
-        "jobTitle": "Founder & CEO"
+        "honorificSuffix": "EdD, MBA",
+        "jobTitle": "Founder & CEO",
+        "hasCredential": {
+          "@type": "EducationalOccupationalCredential",
+          "name": "Certified Artificial Intelligence Consultant",
+          "recognizedBy": {
+            "@type": "Organization",
+            "name": "International Association of Artificial Intelligence Consultants"
+          }
+        }
       },
+      "slogan": "We install the system. Then we run it.",
       "sameAs": [
         "https://www.linkedin.com/in/deannaromulus",
         "https://x.com/anamechi",
@@ -82,12 +110,12 @@
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      "url": "https://home.anamechimarketing.com",
+      "url": "https://anamechimarketing.com",
       "name": "ANAMECHI Marketing",
       "description": "AI Engine Optimization and Digital Marketing for Service Businesses",
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://home.anamechimarketing.com/search?q={query}",
+        "target": "https://anamechimarketing.com/search?q={query}",
         "query-input": "required name=query"
       }
     }
@@ -97,8 +125,8 @@
       "@context": "https://schema.org",
       "@type": "ProfessionalService",
       "name": "ANAMECHI Marketing",
-      "image": "https://home.anamechimarketing.com/anamechi-logo.svg",
-      "url": "https://home.anamechimarketing.com",
+      "image": "https://anamechimarketing.com/anamechi-logo.svg",
+      "url": "https://anamechimarketing.com",
       "telephone": "+1-866-752-7370",
       "email": "info@anamechimarketing.com",
       "address": {
@@ -124,34 +152,70 @@
       "areaServed": {
         "@type": "State",
         "name": "Pennsylvania"
-      }
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "The four systems we design, build, and run",
+        "itemListElement": [
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Lead generation system", "description": "Fills the pipeline. Processes include content engines for social, email, and long-form publishing, plus lead capture and nurture sequences that warm every inquiry." } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Sales system", "description": "Converts without chasing. Processes include CRM pipelines that track every contact and automated follow-up so nothing slips through." } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Delivery system", "description": "Welcomes and serves every client. Processes include AI-powered client onboarding and intake with no manual handoffs." } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Retention system", "description": "Keeps clients and compounds revenue. Processes include reporting dashboards and revenue visibility so decisions come from numbers." } }
+        ]
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5.0",
+        "reviewCount": "2",
+        "bestRating": "5"
+      },
+      "review": [
+        {
+          "@type": "Review",
+          "author": { "@type": "Person", "name": "Lucy" },
+          "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+          "reviewBody": "Working with Dr. Romulus at ANAMECHI Marketing has been a game-changer as I transition from social work to running my own business. Despite my lack of technical background, she guided me through complex processes like setting up automation, integrating platforms, and resolving account and billing issues with patience and clarity. If you're looking to streamline your processes and grow your business, ANAMECHI Marketing is the partner you need."
+        },
+        {
+          "@type": "Review",
+          "author": { "@type": "Person", "name": "Wesly Romulus" },
+          "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+          "reviewBody": "They took the time to understand my vision and goals, then delivered a strategy that exceeded my expectations. Their communication was clear, timely, and supportive throughout the entire process. Their expertise in branding, social media, and marketing strategies helped me see immediate results."
+        }
+      ]
     }
     </script>
   </head>
   <body>
+    <noscript><img height="1" width="1" style="display:none" alt=""
+      src="https://www.facebook.com/tr?id=501075682827673&ev=PageView&noscript=1" /></noscript>
     <!-- Static content for AI crawlers - will be replaced by React app -->
     <noscript>
       <main class="main-content">
-        <h1>ANAMECHI Marketing - AI Engine Optimization & Digital Marketing</h1>
-        <p class="hero-summary">Get your brand cited by AI models. We help service businesses become trusted authorities that ChatGPT, Gemini, Perplexity, and Google recommend.</p>
-        
+        <h1>ANAMECHI Marketing - Done-For-You AI + Marketing Systems</h1>
+        <p class="hero-summary">We install the system. Then we run it. ANAMECHI Marketing designs, builds, and operates the four systems every company needs: lead generation, sales, delivery, and retention, connected by one AI and automation stack. Every page we build is seen by humans and read by bots, so our clients get recommended by ChatGPT, Gemini, Perplexity, and Google.</p>
+
         <section>
-          <h2>Our Services</h2>
+          <h2>The four systems we install and run</h2>
+          <article>
+            <h3>Lead generation</h3>
+            <p>The system that fills the pipeline. Content engines for social, email, and long-form publishing, plus lead capture and nurture sequences that warm every inquiry.</p>
+          </article>
+          <article>
+            <h3>Sales</h3>
+            <p>The system that converts without chasing. CRM pipelines that track every contact and automated follow-up so nothing slips through.</p>
+          </article>
+          <article>
+            <h3>Delivery</h3>
+            <p>The system that welcomes and serves every client. AI-powered client onboarding and intake with no manual handoffs.</p>
+          </article>
+          <article>
+            <h3>Retention</h3>
+            <p>The system that keeps clients and compounds revenue. Reporting dashboards and revenue visibility so decisions come from numbers.</p>
+          </article>
           <article>
             <h3>AI Engine Optimization (AEO)</h3>
-            <p>Get your brand cited by ChatGPT, Gemini, Perplexity, and other AI models with structured content that LLMs love.</p>
-          </article>
-          <article>
-            <h3>SEO & Content Strategy</h3>
-            <p>Rank in search engines and AI overviews with EEAT-focused content, schema markup, and technical optimization.</p>
-          </article>
-          <article>
-            <h3>Marketing Automation</h3>
-            <p>Scale your operations with GoHighLevel CRMs, workflow automation, and attribution systems that drive results.</p>
-          </article>
-          <article>
-            <h3>Brand Visibility</h3>
-            <p>Build authority through strategic content, digital PR, and community engagement that establishes you as the expert.</p>
+            <p>The discoverability layer underneath it all. Structured content, schema, and citations that get our clients recommended by ChatGPT, Gemini, Perplexity, and Google.</p>
           </article>
         </section>
         

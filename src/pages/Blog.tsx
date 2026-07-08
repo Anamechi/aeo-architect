@@ -62,13 +62,13 @@ const Blog = () => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://home.anamechimarketing.com/" },
-      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://home.anamechimarketing.com/blog/" }
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://anamechimarketing.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://anamechimarketing.com/blog/" }
     ]
   };
 
   const organizationSchema = generateOrganizationSchema();
-  const speakableSchema = generateSpeakableSchema("https://home.anamechimarketing.com/blog/", ['h1', '.featured-post']);
+  const speakableSchema = generateSpeakableSchema("https://anamechimarketing.com/blog/", ['h1', '.featured-post']);
 
   return (
     <>

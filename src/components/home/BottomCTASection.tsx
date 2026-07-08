@@ -10,17 +10,16 @@ export const BottomCTASection = () => {
         <Card className="border-border bg-card">
           <CardContent className="p-12 text-center">
             <h2 className="text-3xl font-bold text-foreground mb-4 md:text-4xl">
-              Already Know You Want AEO? Let's Build Your Strategy.
+              Ready to stop being the bottleneck?
             </h2>
             <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              For business owners who are ready to move from invisible to
-              AI-citable — schedule a Strategy Session and we'll build your
-              custom AEO roadmap in 60 minutes.
+              We open a small number of retainer seats each quarter. Tell us about
+              your business and we will tell you honestly whether the system fits.
             </p>
             {/* PLACEHOLDER: Calendar booking URL for Strategy Session */}
-            <Button asChild size="lg" className="bg-primary hover:bg-primary-hover text-primary-foreground font-semibold">
+            <Button asChild size="lg" className="rounded-full bg-primary px-10 py-6 text-base hover:bg-primary-hover text-primary-foreground font-bold">
               <Link to="/contact">
-                Schedule a Strategy Session
+                Apply for a fit call
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -29,7 +28,7 @@ export const BottomCTASection = () => {
               <a href="#citation-audit" className="text-primary hover:underline">
                 Start with the Free Citation Audit above
               </a>{" "}
-              — no commitment required.
+              with no commitment required.
             </p>
           </CardContent>
         </Card>

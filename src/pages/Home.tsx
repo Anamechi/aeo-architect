@@ -1,12 +1,14 @@
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { generateSpeakableSchema, generateLocalBusinessSchema } from "@/utils/schemas";
-import { HeroSection } from "@/components/home/HeroSection";
-import { SocialProofSection } from "@/components/home/SocialProofSection";
-import { ServicesSection } from "@/components/home/ServicesSection";
+import { CinematicHero } from "@/components/home/CinematicHero";
+import { KineticManifesto } from "@/components/home/KineticManifesto";
+import { FourSystemsSection } from "@/components/home/FourSystemsSection";
 import { HowAEOWorksSection } from "@/components/home/HowAEOWorksSection";
-import { WhyANAMECHISection } from "@/components/home/WhyANAMECHISection";
+import { HowWeWorkSection } from "@/components/home/HowWeWorkSection";
 import { CitationAuditSection } from "@/components/home/CitationAuditSection";
+import { PeopleSection } from "@/components/home/PeopleSection";
+import { TeamTestimonialsSection } from "@/components/home/TeamTestimonialsSection";
 import { BottomCTASection } from "@/components/home/BottomCTASection";
 
 const Home = () => {
@@ -14,9 +16,13 @@ const Home = () => {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "ANAMECHI Marketing",
-    "url": "https://home.anamechimarketing.com",
-    "logo": "https://home.anamechimarketing.com/anamechi-logo.svg",
+    "url": "https://anamechimarketing.com",
+    "logo": "https://anamechimarketing.com/media/logo.png",
+    "slogan": "We install the system. Then we run it.",
     "sameAs": [
+      "https://www.linkedin.com/company/anamechi-marketing",
+      "https://www.instagram.com/anamechimarketing",
+      "https://www.facebook.com/ANAMECHIMarketing",
       "https://www.linkedin.com/in/deannaromulus",
       "https://x.com/anamechi",
       "https://www.youtube.com/@ANAMECHI"
@@ -24,18 +30,27 @@ const Home = () => {
     "founder": {
       "@type": "Person",
       "name": "Dr. Deanna Romulus",
-      "jobTitle": "Founder, Visionary Strategist",
-      "sameAs": ["https://www.linkedin.com/in/deannaromulus"]
+      "honorificSuffix": "EdD, MBA",
+      "jobTitle": "Founder, ANAMECHI Marketing",
+      "sameAs": ["https://www.linkedin.com/in/deannaromulus"],
+      "hasCredential": {
+        "@type": "EducationalOccupationalCredential",
+        "name": "Certified Artificial Intelligence Consultant",
+        "recognizedBy": {
+          "@type": "Organization",
+          "name": "International Association of Artificial Intelligence Consultants"
+        }
+      }
     }
   };
 
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "url": "https://home.anamechimarketing.com",
+    "url": "https://anamechimarketing.com",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://home.anamechimarketing.com/search?q={query}",
+      "target": "https://anamechimarketing.com/search?q={query}",
       "query-input": "required name=query"
     }
   };
@@ -43,18 +58,20 @@ const Home = () => {
   return (
     <>
       <SEO
-        title="AI Engine Optimization & Digital Marketing for Service Businesses"
-        description="Position your brand as an AI-citable authority. Get recommended by ChatGPT, Gemini, and search engines with AEO-optimized content and strategic marketing automation."
+        title="Done-For-You AI + Marketing Systems for Service Businesses"
+        description="We install the system. Then we run it. ANAMECHI Marketing designs, builds, and operates the four systems every company needs: lead generation, sales, delivery, and retention, connected by one AI and automation stack."
         canonical="/"
-        structuredData={[organizationSchema, websiteSchema, generateLocalBusinessSchema(), generateSpeakableSchema("https://home.anamechimarketing.com/", ['h1', '.speakable-summary'])]}
+        structuredData={[organizationSchema, websiteSchema, generateLocalBusinessSchema(), generateSpeakableSchema("https://anamechimarketing.com/", ['h1', '.speakable-summary'])]}
       />
 
-      <HeroSection />
-      <SocialProofSection />
-      <ServicesSection />
+      <CinematicHero />
+      <KineticManifesto />
+      <FourSystemsSection />
       <HowAEOWorksSection />
-      <WhyANAMECHISection />
+      <HowWeWorkSection />
       <CitationAuditSection />
+      <PeopleSection />
+      <TeamTestimonialsSection />
       <BottomCTASection />
 
       {/* Discreet Admin Access */}

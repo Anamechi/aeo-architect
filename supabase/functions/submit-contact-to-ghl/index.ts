@@ -14,73 +14,37 @@ serve(async (req) => {
   }
 
   try {
-    const { name, email, phone, service, message } = await req.json();
-    
-    console.log('Submitting contact to GHL:', { name, email, phone, service });
+    const { name, email, phone, service, message, formId } = await req.json();
 
-    // Initialize Supabase client
+    // Per-form source tagging so every lead is traceable to its form
+    const KNOWN_FORMS: Record<string, string> = {
+      'ai-tools-gate': 'Website: AI Tools Gate',
+      'citation-audit': 'Website: Citation Audit',
+      'contact-page': 'Website: Contact Page',
+    };
+    const formKey = typeof formId === 'string' && KNOWN_FORMS[formId] ? formId : 'website-form';
+    const leadSource = KNOWN_FORMS[formKey] ?? 'Website Contact Form';
+
+    if (!name || !email) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'name and email are required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Capturing contact:', { name, email, phone, service });
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Get GHL credentials from environment
-    const ghlLocationId = Deno.env.get('GHL_LOCATION_ID');
-    const ghlAccessToken = Deno.env.get('GHL_ACCESS_TOKEN');
-
-    if (!ghlLocationId || !ghlAccessToken) {
-      throw new Error('GHL credentials not configured');
-    }
-    
-    // Extract request metadata
     const userAgent = req.headers.get('user-agent') || '';
     const ipAddress = req.headers.get('x-forwarded-for')?.split(',')[0] || req.headers.get('x-real-ip') || '';
 
-    // Prepare contact data for GHL
-    const contactData = {
-      firstName: name.split(' ')[0] || '',
-      lastName: name.split(' ').slice(1).join(' ') || '',
-      email: email,
-      phone: phone || '',
-      source: 'Website Contact Form',
-      tags: ['website-lead', 'contact-form'],
-      customFields: [
-        {
-          key: 'service_interest',
-          value: service || 'General Inquiry'
-        },
-        {
-          key: 'message',
-          value: message || ''
-        }
-      ]
-    };
-
-    // Submit to GoHighLevel Contacts API
-    const ghlResponse = await fetch(
-      `https://services.leadconnectorhq.com/contacts/`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${ghlAccessToken}`,
-          'Version': '2021-07-28',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(contactData),
-      }
-    );
-
-    if (!ghlResponse.ok) {
-      const errorText = await ghlResponse.text();
-      console.error('GHL API Error:', errorText);
-      throw new Error(`GHL API error: ${ghlResponse.status} - ${errorText}`);
-    }
-
-    const ghlResult = await ghlResponse.json();
-    console.log('Successfully created contact in GHL:', ghlResult.contact?.id);
-
-    // Save submission to database for tracking
-    const { error: dbError } = await supabaseClient
+    // Capture the lead in our own database FIRST so it can never be lost,
+    // even if the CRM handoff fails.
+    const { data: saved, error: dbError } = await supabaseClient
       .from('contact_submissions')
       .insert({
         name,
@@ -88,40 +52,86 @@ serve(async (req) => {
         phone: phone || null,
         service: service || null,
         message: message || null,
-        ghl_contact_id: ghlResult.contact?.id || null,
         ip_address: ipAddress || null,
         user_agent: userAgent || null,
-      });
+      })
+      .select('id')
+      .single();
 
     if (dbError) {
       console.error('Error saving submission to database:', dbError);
-      // Don't fail the request if DB save fails, GHL submission succeeded
+    }
+
+    // Hand off to GoHighLevel (best effort; lead is already captured above)
+    let ghlContactId: string | null = null;
+    let ghlDelivered = false;
+    const ghlLocationId = Deno.env.get('GHL_LOCATION_ID');
+    const ghlAccessToken = Deno.env.get('GHL_ACCESS_TOKEN');
+
+    if (ghlLocationId && ghlAccessToken) {
+      try {
+        const contactData = {
+          locationId: ghlLocationId,
+          firstName: name.split(' ')[0] || '',
+          lastName: name.split(' ').slice(1).join(' ') || '',
+          email: email,
+          phone: phone || '',
+          source: leadSource,
+          tags: ['website-lead', `form-${formKey}`],
+          customFields: [
+            { key: 'service_interest', value: service || 'General Inquiry' },
+            { key: 'message', value: message || '' }
+          ]
+        };
+
+        const ghlResponse = await fetch('https://services.leadconnectorhq.com/contacts/upsert', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${ghlAccessToken}`,
+            'Version': '2021-07-28',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(contactData),
+        });
+
+        if (ghlResponse.ok) {
+          const ghlResult = await ghlResponse.json();
+          ghlContactId = ghlResult.contact?.id || null;
+          ghlDelivered = true;
+          console.log('Successfully created contact in GHL:', ghlContactId);
+          if (saved?.id && ghlContactId) {
+            await supabaseClient
+              .from('contact_submissions')
+              .update({ ghl_contact_id: ghlContactId })
+              .eq('id', saved.id);
+          }
+        } else {
+          const errorText = await ghlResponse.text();
+          console.error('GHL API Error (lead still captured in DB):', ghlResponse.status, errorText);
+        }
+      } catch (ghlError) {
+        console.error('GHL handoff failed (lead still captured in DB):', ghlError);
+      }
+    } else {
+      console.error('GHL credentials not configured (lead still captured in DB)');
     }
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        contactId: ghlResult.contact?.id,
+      JSON.stringify({
+        success: true,
+        contactId: ghlContactId,
+        ghlDelivered,
         message: 'Contact submitted successfully'
       }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     );
 
   } catch (error) {
     console.error('Error in submit-contact-to-ghl function:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: errorMessage 
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+      JSON.stringify({ success: false, error: errorMessage }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });

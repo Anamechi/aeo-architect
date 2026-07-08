@@ -7,7 +7,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SITE_URL = "https://home.anamechimarketing.com";
+const SITE_URL = "https://anamechimarketing.com";
 
 // Organization schema for all pages
 const organizationSchema = {

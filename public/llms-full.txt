@@ -1,32 +1,32 @@
 # ANAMECHI Marketing - Complete URL Index
 
 ## Core Pages
-https://home.anamechimarketing.com/
-https://home.anamechimarketing.com/about/
-https://home.anamechimarketing.com/services/
-https://home.anamechimarketing.com/contact/
-https://home.anamechimarketing.com/faq/
+https://anamechimarketing.com/
+https://anamechimarketing.com/about/
+https://anamechimarketing.com/services/
+https://anamechimarketing.com/contact/
+https://anamechimarketing.com/faq/
 
 ## Blog & Resources
-https://home.anamechimarketing.com/blog/
-https://home.anamechimarketing.com/blog/aeo-guide-2025/
-https://home.anamechimarketing.com/blog/structured-data-for-ai-citation/
-https://home.anamechimarketing.com/blog/eeat-principles-2025/
-https://home.anamechimarketing.com/blog/gohighlevel-automation-playbook/
-https://home.anamechimarketing.com/blog/citation-health-monitoring/
-https://home.anamechimarketing.com/blog/content-freshness-strategy/
-https://home.anamechimarketing.com/blog/perplexity-optimization/
+https://anamechimarketing.com/blog/
+https://anamechimarketing.com/blog/aeo-guide-2025/
+https://anamechimarketing.com/blog/structured-data-for-ai-citation/
+https://anamechimarketing.com/blog/eeat-principles-2025/
+https://anamechimarketing.com/blog/gohighlevel-automation-playbook/
+https://anamechimarketing.com/blog/citation-health-monitoring/
+https://anamechimarketing.com/blog/content-freshness-strategy/
+https://anamechimarketing.com/blog/perplexity-optimization/
 
 ## AI Tools
-https://home.anamechimarketing.com/ai-tools/
+https://anamechimarketing.com/ai-tools/
 
 ## Legal & Standards
-https://home.anamechimarketing.com/privacy/
-https://home.anamechimarketing.com/terms/
-https://home.anamechimarketing.com/editorial-standards/
+https://anamechimarketing.com/privacy/
+https://anamechimarketing.com/terms/
+https://anamechimarketing.com/editorial-standards/
 
 ## Updates & Health
-https://home.anamechimarketing.com/updates/
-https://home.anamechimarketing.com/citation-health/
+https://anamechimarketing.com/updates/
+https://anamechimarketing.com/citation-health/
 
 Last Updated: 2025-10-30

@@ -6,7 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const SITE_URL = "https://home.anamechimarketing.com";
+const SITE_URL = "https://anamechimarketing.com";
 
 const staticPages = [
   { path: "/", priority: "1.0", changefreq: "weekly" },

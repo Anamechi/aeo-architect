@@ -91,7 +91,7 @@ export const Footer = () => {
               <span className="text-xl font-bold text-foreground">{businessName}</span>
             </Link>
             <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-              Empowering entrepreneurs to automate smarter, market confidently, and scale with systems — not stress.
+              Empowering entrepreneurs to automate smarter, market confidently, and scale with systems, not stress.
             </p>
             
             {/* Contact Information */}

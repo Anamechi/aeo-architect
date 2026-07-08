@@ -60,13 +60,13 @@ export const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[hsl(var(--indigo))]/95 backdrop-blur supports-[backdrop-filter]:bg-[hsl(var(--indigo))]/80">
       <nav className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-2" onClick={handleLogoClick}>
           <div className="flex items-center space-x-2 relative">
             <img 
-              src="/anamechi-logo.svg"
+              src="/media/logo.png"
               alt="ANAMECHI Marketing"
               className={`h-8 w-8 transition-all duration-200 ${
                 clickCount === 1 ? 'scale-110 drop-shadow-md' : 
@@ -85,8 +85,8 @@ export const Header = () => {
               </div>
             )}
             <div className="flex flex-col">
-              <span className="text-xl font-bold text-foreground leading-tight">ANAMECHI</span>
-              <span className="text-[10px] text-muted-foreground leading-tight hidden sm:block">Dr. Deanna Romulus, EdD, MBA | Founder</span>
+              <span className="text-xl font-bold tracking-[.12em] text-white leading-tight">ANAMECHI</span>
+              <span className="text-[10px] text-[hsl(var(--pale))]/80 leading-tight hidden sm:block">Dr. Deanna Romulus, EdD, MBA | Founder</span>
             </div>
           </div>
         </Link>
@@ -97,15 +97,15 @@ export const Header = () => {
             <Link
               key={item.name}
               to={item.href}
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive(item.href) ? "text-primary" : "text-muted-foreground"
+              className={`text-sm font-medium transition-colors hover:text-[hsl(var(--teal))] ${
+                isActive(item.href) ? "text-[hsl(var(--teal))]" : "text-[hsl(var(--pale))]/85"
               }`}
             >
               {item.name}
             </Link>
           ))}
-          <Button asChild size="sm" className="bg-gradient-primary">
-            <Link to="/contact">Get Started</Link>
+          <Button asChild size="sm" className="rounded-full bg-[hsl(var(--teal))] px-6 font-bold text-white hover:bg-[hsl(var(--primary-hover))]">
+            <Link to="/contact">Apply for a fit call</Link>
           </Button>
         </div>
 

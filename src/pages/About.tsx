@@ -12,16 +12,16 @@ const About = () => {
       "@type": "ListItem",
       "position": 1,
       "name": "Home",
-      "item": "https://home.anamechimarketing.com/"
+      "item": "https://anamechimarketing.com/"
     }, {
       "@type": "ListItem",
       "position": 2,
       "name": "About",
-      "item": "https://home.anamechimarketing.com/about/"
+      "item": "https://anamechimarketing.com/about/"
     }]
   };
   const organizationSchema = generateOrganizationSchema();
-  const speakableSchema = generateSpeakableSchema("https://home.anamechimarketing.com/about/", ['h1', '.founder-bio', '.methodology']);
+  const speakableSchema = generateSpeakableSchema("https://anamechimarketing.com/about/", ['h1', '.founder-bio', '.methodology']);
   const personSchema = generatePersonSchema();
   const expertise = [{
     icon: Target,

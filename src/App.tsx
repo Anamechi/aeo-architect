@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,35 +20,36 @@ import AITools from "./pages/AITools";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
-import Login from "./pages/admin/Login";
-import Signup from "./pages/admin/Signup";
-import Dashboard from "./pages/admin/Dashboard";
-import AdminAITools from "./pages/admin/AITools";
-import BlogGenerator from "./pages/admin/BlogGenerator";
-import BlogPosts from "./pages/admin/BlogPosts";
-import BlogAudit from "./pages/admin/BlogAudit";
-import Packages from "./pages/admin/Packages";
-import Quotes from "./pages/admin/Quotes";
-import PricingSettings from "./pages/admin/PricingSettings";
-import BusinessSettings from "./pages/admin/BusinessSettings";
-import Authors from "./pages/admin/Authors";
-import QAGenerator from "./pages/admin/QAGenerator";
-import Citations from "./pages/admin/Citations";
-import SEOSettings from "./pages/admin/SEOSettings";
-import Images from "./pages/admin/Images";
-import Diagrams from "./pages/admin/Diagrams";
-import ContentUpdates from "./pages/admin/ContentUpdates";
-import MasterPrompts from "./pages/admin/MasterPrompts";
-import CitationHealth from "./pages/admin/CitationHealth";
-import ImageAltTextGenerator from "./pages/admin/ImageAltTextGenerator";
-import FAQManager from "./pages/admin/FAQManager";
-import FAQAnalytics from "./pages/admin/FAQAnalytics";
-import ReferralTracking from "./pages/admin/ReferralTracking";
-import PointsChecker from "./pages/admin/PointsChecker";
-import SiteSettings from "./pages/admin/SiteSettings";
-import Clusters from "./pages/admin/Clusters";
-import ClusterDetail from "./pages/admin/ClusterDetail";
-import ImageHealth from "./pages/admin/ImageHealth";
+const Login = lazy(() => import("./pages/admin/Login"));
+const Signup = lazy(() => import("./pages/admin/Signup"));
+const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
+const AdminAITools = lazy(() => import("./pages/admin/AITools"));
+const BlogGenerator = lazy(() => import("./pages/admin/BlogGenerator"));
+const BlogPosts = lazy(() => import("./pages/admin/BlogPosts"));
+const BlogAudit = lazy(() => import("./pages/admin/BlogAudit"));
+const Packages = lazy(() => import("./pages/admin/Packages"));
+const Quotes = lazy(() => import("./pages/admin/Quotes"));
+const PricingSettings = lazy(() => import("./pages/admin/PricingSettings"));
+const BusinessSettings = lazy(() => import("./pages/admin/BusinessSettings"));
+const Authors = lazy(() => import("./pages/admin/Authors"));
+const QAGenerator = lazy(() => import("./pages/admin/QAGenerator"));
+const Citations = lazy(() => import("./pages/admin/Citations"));
+const SEOSettings = lazy(() => import("./pages/admin/SEOSettings"));
+const Images = lazy(() => import("./pages/admin/Images"));
+const Diagrams = lazy(() => import("./pages/admin/Diagrams"));
+const ContentUpdates = lazy(() => import("./pages/admin/ContentUpdates"));
+const MasterPrompts = lazy(() => import("./pages/admin/MasterPrompts"));
+const CitationHealth = lazy(() => import("./pages/admin/CitationHealth"));
+const ImageAltTextGenerator = lazy(() => import("./pages/admin/ImageAltTextGenerator"));
+const FAQManager = lazy(() => import("./pages/admin/FAQManager"));
+const FAQAnalytics = lazy(() => import("./pages/admin/FAQAnalytics"));
+const ReferralTracking = lazy(() => import("./pages/admin/ReferralTracking"));
+const PointsChecker = lazy(() => import("./pages/admin/PointsChecker"));
+const SiteSettings = lazy(() => import("./pages/admin/SiteSettings"));
+const Clusters = lazy(() => import("./pages/admin/Clusters"));
+import { MetaPixelTracker } from "@/components/MetaPixelTracker";
+const ClusterDetail = lazy(() => import("./pages/admin/ClusterDetail"));
+const ImageHealth = lazy(() => import("./pages/admin/ImageHealth"));
 
 const queryClient = new QueryClient();
 
@@ -59,6 +61,8 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <MetaPixelTracker />
+            <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading…</div>}>
             <Routes>
               {/* Admin routes */}
               <Route path="/admin/login" element={<Login />} />
@@ -110,6 +114,7 @@ const App = () => (
 
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </Suspense>
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>

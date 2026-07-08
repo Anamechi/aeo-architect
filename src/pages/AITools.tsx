@@ -1,12 +1,70 @@
+import { useState } from "react";
 import { SEO } from "@/components/SEO";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Star } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ExternalLink, Star, Lock, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
+const UNLOCK_KEY = "anamechi_tools_unlocked";
+
 const AITools = () => {
+  const [unlocked, setUnlocked] = useState(() => {
+    try {
+      return localStorage.getItem(UNLOCK_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+  const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const validate = () => {
+    const e: Record<string, string> = {};
+    if (!formData.name.trim()) e.name = "Full name is required";
+    if (!formData.email.trim()) e.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) e.email = "Please enter a valid email";
+    if (!formData.phone.trim()) e.phone = "Phone number is required";
+    else if (formData.phone.replace(/\D/g, "").length < 10) e.phone = "Please enter a valid phone number";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!validate()) return;
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase.functions.invoke("submit-contact-to-ghl", {
+        body: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          service: "AI Tools Access",
+          message: "[AI Tools Access] Requested access to the curated tools list.",
+          formId: "ai-tools-gate",
+        },
+      });
+      if (error) throw error;
+    } catch {
+      // Silently handle, unlock anyway; GHL will retry on its side
+    } finally {
+      try {
+        localStorage.setItem(UNLOCK_KEY, "1");
+      } catch {
+        // private browsing: session-only unlock
+      }
+      window.fbq?.("track", "Lead");
+      setUnlocked(true);
+      setIsSubmitting(false);
+    }
+  };
+
   const handleToolClick = async (toolName: string, toolUrl: string) => {
     try {
       await supabase.from('affiliate_clicks').insert({
@@ -24,8 +82,8 @@ const AITools = () => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://home.anamechimarketing.com/" },
-      { "@type": "ListItem", "position": 2, "name": "AI Tools", "item": "https://home.anamechimarketing.com/ai-tools/" }
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://anamechimarketing.com/" },
+      { "@type": "ListItem", "position": 2, "name": "AI Tools", "item": "https://anamechimarketing.com/ai-tools/" }
     ]
   };
 
@@ -104,41 +162,112 @@ const AITools = () => {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {tools.map((tool) => (
-            <Card key={tool.name} className="border-border flex flex-col">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-xl">{tool.name}</CardTitle>
-                    <Badge variant="outline" className="mt-2">
-                      {tool.category}
-                    </Badge>
-                  </div>
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: tool.rating }).map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-primary text-primary" />
-                    ))}
-                  </div>
+        {!unlocked ? (
+          <Card className="mx-auto max-w-xl border-border shadow-lg">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                <Lock className="h-5 w-5 text-primary" />
+              </div>
+              <CardTitle className="text-2xl">Unlock our favorite tools</CardTitle>
+              <CardDescription className="text-base">
+                This is the exact stack we run client systems on, with our honest ratings and what
+                each tool is best for. Tell us where to send updates when the list changes and it is
+                yours.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+                <div>
+                  <Label htmlFor="tools-name">Full name</Label>
+                  <Input
+                    id="tools-name"
+                    autoComplete="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Your name"
+                  />
+                  {errors.name && <p className="mt-1 text-sm text-destructive">{errors.name}</p>}
                 </div>
-                <CardDescription className="mt-3">{tool.description}</CardDescription>
-              </CardHeader>
-              <CardContent className="flex-1 flex flex-col justify-between">
-                <div className="mb-4">
-                  <p className="text-sm font-medium text-foreground">Best For:</p>
-                  <p className="text-sm text-muted-foreground">{tool.useCase}</p>
+                <div>
+                  <Label htmlFor="tools-email">Email</Label>
+                  <Input
+                    id="tools-email"
+                    type="email"
+                    autoComplete="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="you@company.com"
+                  />
+                  {errors.email && <p className="mt-1 text-sm text-destructive">{errors.email}</p>}
                 </div>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => handleToolClick(tool.name, tool.url)}
+                <div>
+                  <Label htmlFor="tools-phone">Phone</Label>
+                  <Input
+                    id="tools-phone"
+                    type="tel"
+                    autoComplete="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="(555) 555-5555"
+                  />
+                  {errors.phone && <p className="mt-1 text-sm text-destructive">{errors.phone}</p>}
+                </div>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full rounded-full bg-primary font-bold text-primary-foreground hover:bg-primary-hover"
                 >
-                  Visit Tool <ExternalLink className="ml-2 h-4 w-4" />
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Unlocking...
+                    </>
+                  ) : (
+                    "Show me the tools"
+                  )}
                 </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                <p className="text-center text-xs text-muted-foreground">
+                  We send occasional updates when our stack changes. No spam, unsubscribe anytime.
+                </p>
+              </form>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {tools.map((tool) => (
+              <Card key={tool.name} className="border-border flex flex-col">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="text-xl">{tool.name}</CardTitle>
+                      <Badge variant="outline" className="mt-2">
+                        {tool.category}
+                      </Badge>
+                    </div>
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: tool.rating }).map((_, i) => (
+                        <Star key={i} className="h-4 w-4 fill-primary text-primary" />
+                      ))}
+                    </div>
+                  </div>
+                  <CardDescription className="mt-3">{tool.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1 flex flex-col justify-between">
+                  <div className="mb-4">
+                    <p className="text-sm font-medium text-foreground">Best For:</p>
+                    <p className="text-sm text-muted-foreground">{tool.useCase}</p>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => handleToolClick(tool.name, tool.url)}
+                  >
+                    Visit Tool <ExternalLink className="ml-2 h-4 w-4" />
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
         <Card className="mt-12 border-border bg-gradient-subtle">
           <CardContent className="p-8 text-center">
