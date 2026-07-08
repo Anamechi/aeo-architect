@@ -15,7 +15,7 @@ const steps = [
     title: "Build",
     subtitle: "Authority Infrastructure",
     description:
-      "We build EEAT-structured content targeting your highest-value queries — formatted with schema markup, citation anchors, and the specific signals that language models use to identify credible expert sources.",
+      "We build EEAT-structured content targeting your highest-value queries, formatted with schema markup, citation anchors, and the specific signals that language models use to identify credible expert sources.",
   },
   {
     num: "03",
@@ -23,7 +23,7 @@ const steps = [
     title: "Monitor",
     subtitle: "Continuous Citation Tracking",
     description:
-      "Monthly reporting shows citation growth across AI platforms, featured snippet performance, and emerging query opportunities. You see the numbers. Not vanity metrics — citation volume, source attribution, and lead source data.",
+      "Monthly reporting shows citation growth across AI platforms, featured snippet performance, and emerging query opportunities. You see the numbers. Not vanity metrics. Citation volume, source attribution, and lead source data.",
   },
 ];
 
@@ -35,13 +35,13 @@ export const HowAEOWorksSection = () => {
           The Mechanism
         </p>
         <h2 className="text-3xl font-bold text-foreground text-center mb-6 md:text-4xl">
-          Why AI Models Cite Some Businesses — and Ignore Most
+          Why AI Models Cite Some Businesses and Ignore Most
         </h2>
         <p className="mx-auto max-w-3xl text-center text-muted-foreground mb-16">
           AI models like ChatGPT don't surface businesses at random. They cite sources
           that demonstrate verifiable expertise, consistent authority signals, and structured
           content written in formats LLMs are trained to recognize and trust. Most service
-          businesses are invisible to AI — not because they aren't good at what they do,
+          businesses are invisible to AI, not because they aren't good at what they do,
           but because their content isn't structured the way language models retrieve information.
           <span className="block mt-2 text-foreground font-medium">AEO fixes that at the infrastructure level.</span>
         </p>
@@ -70,7 +70,7 @@ export const HowAEOWorksSection = () => {
           <p className="text-sm text-muted-foreground leading-relaxed">
             <span className="text-foreground font-medium">AEO is not SEO renamed.</span>{" "}
             Traditional SEO optimizes for keyword ranking in search results pages. AEO optimizes
-            for citation in AI-generated answers — a fundamentally different retrieval mechanism
+            for citation in AI-generated answers, a fundamentally different retrieval mechanism
             that requires different content structure, different authority signals, and different measurement.
           </p>
         </div>
