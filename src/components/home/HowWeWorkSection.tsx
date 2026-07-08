@@ -39,6 +39,8 @@ export const HowWeWorkSection = () => {
       <div className="mx-auto mt-16 flex max-w-[1240px] flex-col items-center gap-8 border-t border-[hsl(245_66%_38%/.14)] pt-12 md:flex-row md:gap-12">
         <img
           src="/media/founder.jpg"
+          loading="lazy"
+          decoding="async"
           width={220}
           height={295}
           alt="Dr. Deanna Romulus, EdD, MBA, founder of ANAMECHI Marketing, in an editorial portrait in a bright modern office"
@@ -52,6 +54,8 @@ export const HowWeWorkSection = () => {
           <div className="flex flex-col items-center gap-5 md:flex-row">
             <img
               src="/media/badge.png"
+          loading="lazy"
+          decoding="async"
               width={88}
               height={88}
               alt="Certified Artificial Intelligence Consultant badge issued by the International Association of Artificial Intelligence Consultants"

@@ -29,6 +29,8 @@ export const TeamTestimonialsSection = () => {
 
       <img
         src="/media/team.jpg"
+          loading="lazy"
+          decoding="async"
         width={1600}
         height={904}
         alt="The ANAMECHI Marketing team of five gathered in a bright modern office"
