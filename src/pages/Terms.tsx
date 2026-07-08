@@ -7,8 +7,8 @@ const Terms = () => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://home.anamechimarketing.com/" },
-      { "@type": "ListItem", "position": 2, "name": "Terms of Service", "item": "https://home.anamechimarketing.com/terms/" }
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://anamechimarketing.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Terms of Service", "item": "https://anamechimarketing.com/terms/" }
     ]
   };
 

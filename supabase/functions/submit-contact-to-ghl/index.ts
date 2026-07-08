@@ -14,7 +14,16 @@ serve(async (req) => {
   }
 
   try {
-    const { name, email, phone, service, message } = await req.json();
+    const { name, email, phone, service, message, formId } = await req.json();
+
+    // Per-form source tagging so every lead is traceable to its form
+    const KNOWN_FORMS: Record<string, string> = {
+      'ai-tools-gate': 'Website: AI Tools Gate',
+      'citation-audit': 'Website: Citation Audit',
+      'contact-page': 'Website: Contact Page',
+    };
+    const formKey = typeof formId === 'string' && KNOWN_FORMS[formId] ? formId : 'website-form';
+    const leadSource = KNOWN_FORMS[formKey] ?? 'Website Contact Form';
 
     if (!name || !email) {
       return new Response(
@@ -67,15 +76,15 @@ serve(async (req) => {
           lastName: name.split(' ').slice(1).join(' ') || '',
           email: email,
           phone: phone || '',
-          source: 'Website Contact Form',
-          tags: ['website-lead', 'contact-form'],
+          source: leadSource,
+          tags: ['website-lead', `form-${formKey}`],
           customFields: [
             { key: 'service_interest', value: service || 'General Inquiry' },
             { key: 'message', value: message || '' }
           ]
         };
 
-        const ghlResponse = await fetch('https://services.leadconnectorhq.com/contacts/', {
+        const ghlResponse = await fetch('https://services.leadconnectorhq.com/contacts/upsert', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${ghlAccessToken}`,

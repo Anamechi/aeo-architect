@@ -5,7 +5,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const SITE_URL = "https://home.anamechimarketing.com";
+const SITE_URL = "https://anamechimarketing.com";
 const INDEXNOW_KEY = "anamechi-indexnow-key-2024";
 
 serve(async (req) => {
@@ -47,7 +47,7 @@ serve(async (req) => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              host: "home.anamechimarketing.com",
+              host: "anamechimarketing.com",
               key: INDEXNOW_KEY,
               keyLocation: `${SITE_URL}/${INDEXNOW_KEY}.txt`,
               urlList: urls.map((u: string) =>

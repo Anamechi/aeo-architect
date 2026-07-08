@@ -47,6 +47,7 @@ const AITools = () => {
           phone: formData.phone,
           service: "AI Tools Access",
           message: "[AI Tools Access] Requested access to the curated tools list.",
+          formId: "ai-tools-gate",
         },
       });
       if (error) throw error;
@@ -81,8 +82,8 @@ const AITools = () => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://home.anamechimarketing.com/" },
-      { "@type": "ListItem", "position": 2, "name": "AI Tools", "item": "https://home.anamechimarketing.com/ai-tools/" }
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://anamechimarketing.com/" },
+      { "@type": "ListItem", "position": 2, "name": "AI Tools", "item": "https://anamechimarketing.com/ai-tools/" }
     ]
   };
 

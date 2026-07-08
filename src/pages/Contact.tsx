@@ -67,7 +67,7 @@ const Contact = () => {
 
     try {
       const { data, error } = await supabase.functions.invoke('submit-contact-to-ghl', {
-        body: formData
+        body: { ...formData, formId: 'contact-page' }
       });
 
       if (error) throw error;
@@ -112,13 +112,13 @@ const Contact = () => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://home.anamechimarketing.com/" },
-      { "@type": "ListItem", "position": 2, "name": "Contact", "item": "https://home.anamechimarketing.com/contact/" }
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://anamechimarketing.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Contact", "item": "https://anamechimarketing.com/contact/" }
     ]
   };
 
   const organizationSchema = generateOrganizationSchema();
-  const speakableSchema = generateSpeakableSchema("https://home.anamechimarketing.com/contact/", ['h1', '.contact-info']);
+  const speakableSchema = generateSpeakableSchema("https://anamechimarketing.com/contact/", ['h1', '.contact-info']);
   const localBusinessSchema = generateLocalBusinessSchema();
 
   const structuredData = [breadcrumbsSchema, organizationSchema, speakableSchema, localBusinessSchema];

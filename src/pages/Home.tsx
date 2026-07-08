@@ -16,8 +16,8 @@ const Home = () => {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "ANAMECHI Marketing",
-    "url": "https://home.anamechimarketing.com",
-    "logo": "https://home.anamechimarketing.com/media/logo.png",
+    "url": "https://anamechimarketing.com",
+    "logo": "https://anamechimarketing.com/media/logo.png",
     "slogan": "We install the system. Then we run it.",
     "sameAs": [
       "https://www.linkedin.com/company/anamechi-marketing",
@@ -47,10 +47,10 @@ const Home = () => {
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "url": "https://home.anamechimarketing.com",
+    "url": "https://anamechimarketing.com",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://home.anamechimarketing.com/search?q={query}",
+      "target": "https://anamechimarketing.com/search?q={query}",
       "query-input": "required name=query"
     }
   };
@@ -61,7 +61,7 @@ const Home = () => {
         title="Done-For-You AI + Marketing Systems for Service Businesses"
         description="We install the system. Then we run it. ANAMECHI Marketing designs, builds, and operates the four systems every company needs: lead generation, sales, delivery, and retention, connected by one AI and automation stack."
         canonical="/"
-        structuredData={[organizationSchema, websiteSchema, generateLocalBusinessSchema(), generateSpeakableSchema("https://home.anamechimarketing.com/", ['h1', '.speakable-summary'])]}
+        structuredData={[organizationSchema, websiteSchema, generateLocalBusinessSchema(), generateSpeakableSchema("https://anamechimarketing.com/", ['h1', '.speakable-summary'])]}
       />
 
       <CinematicHero />

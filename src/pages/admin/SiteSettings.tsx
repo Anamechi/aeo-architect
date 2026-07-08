@@ -37,7 +37,7 @@ export default function SiteSettings() {
     speakable_rules: '',
     faq_rules: '',
     anti_hallucination_rules: '',
-    canonical_domain: 'home.anamechimarketing.com',
+    canonical_domain: 'anamechimarketing.com',
     enforce_hreflang: true,
     supported_languages: ['en'],
     spelling_enforcement: true,
@@ -54,7 +54,7 @@ export default function SiteSettings() {
         speakable_rules: settings.speakable_rules || '',
         faq_rules: settings.faq_rules || '',
         anti_hallucination_rules: settings.anti_hallucination_rules || '',
-        canonical_domain: settings.canonical_domain || 'home.anamechimarketing.com',
+        canonical_domain: settings.canonical_domain || 'anamechimarketing.com',
         enforce_hreflang: settings.enforce_hreflang ?? true,
         supported_languages: (settings.supported_languages as string[]) || ['en'],
         spelling_enforcement: settings.spelling_enforcement ?? true,
@@ -163,7 +163,7 @@ export default function SiteSettings() {
             <CardContent className="space-y-4">
               <div>
                 <Label>Canonical Domain</Label>
-                <Input value={form.canonical_domain} onChange={e => updateField('canonical_domain', e.target.value)} placeholder="home.anamechimarketing.com" />
+                <Input value={form.canonical_domain} onChange={e => updateField('canonical_domain', e.target.value)} placeholder="anamechimarketing.com" />
               </div>
               <div className="flex items-center gap-3">
                 <Switch checked={form.enforce_hreflang} onCheckedChange={v => updateField('enforce_hreflang', v)} />

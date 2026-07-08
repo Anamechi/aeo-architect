@@ -33,6 +33,7 @@ export const CitationAuditSection = () => {
           email: formData.email,
           service: formData.service,
           message: `[Citation Audit Request] Primary service: ${formData.service}`,
+          formId: 'citation-audit',
         },
       });
 

@@ -1,7 +1,7 @@
 // Consolidated schema generators for AEO/SEO compliance
 // Use this file for all schema generation - replaces src/utils/schema.ts
 
-export const SITE_URL = "https://home.anamechimarketing.com";
+export const SITE_URL = "https://anamechimarketing.com";
 export const SITE_NAME = "ANAMECHI Marketing";
 export const LOGO_URL = `${SITE_URL}/anamechi-logo.svg`;
 

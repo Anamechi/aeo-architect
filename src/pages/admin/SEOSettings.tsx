@@ -55,10 +55,10 @@ User-agent: CCBot
 Allow: /
 
 # Sitemap
-Sitemap: https://home.anamechimarketing.com/sitemap.xml
+Sitemap: https://anamechimarketing.com/sitemap.xml
 
 # LLM Corpus
-llms.txt: https://home.anamechimarketing.com/llms.txt`}
+llms.txt: https://anamechimarketing.com/llms.txt`}
               className="font-mono text-sm"
             />
           </div>
@@ -132,11 +132,11 @@ llms.txt: https://home.anamechimarketing.com/llms.txt`}
           </div>
           <div>
             <Label htmlFor="org-url">Organization URL</Label>
-            <Input id="org-url" defaultValue="https://home.anamechimarketing.com" />
+            <Input id="org-url" defaultValue="https://anamechimarketing.com" />
           </div>
           <div>
             <Label htmlFor="org-logo">Logo URL</Label>
-            <Input id="org-logo" placeholder="https://home.anamechimarketing.com/logo.png" />
+            <Input id="org-logo" placeholder="https://anamechimarketing.com/logo.png" />
           </div>
           <div>
             <Label htmlFor="social-links">Social Media Links (JSON)</Label>

@@ -52,16 +52,16 @@ User-agent: LinkedInBot
 Allow: /
 
 # Sitemaps
-Sitemap: https://home.anamechimarketing.com/sitemap.xml
-Sitemap: https://home.anamechimarketing.com/sitemap-pages.xml
-Sitemap: https://home.anamechimarketing.com/sitemap-blog.xml
-Sitemap: https://home.anamechimarketing.com/sitemap-qa.xml
+Sitemap: https://anamechimarketing.com/sitemap.xml
+Sitemap: https://anamechimarketing.com/sitemap-pages.xml
+Sitemap: https://anamechimarketing.com/sitemap-blog.xml
+Sitemap: https://anamechimarketing.com/sitemap-qa.xml
 
 # LLMs documentation index
-Host: https://home.anamechimarketing.com
+Host: https://anamechimarketing.com
 
 # IndexNow Key Location
-# https://home.anamechimarketing.com/anamechi-indexnow-key-2024.txt
+# https://anamechimarketing.com/anamechi-indexnow-key-2024.txt
 
 # Disallow admin areas
 User-agent: *

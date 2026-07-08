@@ -21,13 +21,13 @@ const Services = () => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://home.anamechimarketing.com/" },
-      { "@type": "ListItem", "position": 2, "name": "Services", "item": "https://home.anamechimarketing.com/services/" }
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://anamechimarketing.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Services", "item": "https://anamechimarketing.com/services/" }
     ]
   };
 
   const organizationSchema = generateOrganizationSchema();
-  const speakableSchema = generateSpeakableSchema("https://home.anamechimarketing.com/services/", ['h1', '.service-description']);
+  const speakableSchema = generateSpeakableSchema("https://anamechimarketing.com/services/", ['h1', '.service-description']);
 
   const { data: packages, isLoading: packagesLoading } = useQuery({
     queryKey: ['service-packages-public'],
