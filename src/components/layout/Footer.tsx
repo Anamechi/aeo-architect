@@ -59,13 +59,10 @@ export const Footer = () => {
     resources: [
       { name: "FAQ", href: "/faq" },
       { name: "AI Tools", href: "/ai-tools" },
-      { name: "Case Studies", href: "/case-studies" },
-      { name: "Content Updates", href: "/updates" },
     ],
     legal: [
       { name: "Privacy Policy", href: "/privacy" },
       { name: "Terms of Service", href: "/terms" },
-      { name: "Editorial Standards", href: "/editorial-standards" },
     ],
   };
 
