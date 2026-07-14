@@ -52,15 +52,23 @@ export const HowWeWorkSection = () => {
             Founder, ANAMECHI Marketing
           </p>
           <div className="flex flex-col items-center gap-5 md:flex-row">
-            <img
-              src="/media/badge.png"
-          loading="lazy"
-          decoding="async"
-              width={88}
-              height={88}
-              alt="Certified Artificial Intelligence Consultant badge issued by the International Association of Artificial Intelligence Consultants"
-              className="h-[88px] w-[88px] flex-shrink-0 object-contain"
-            />
+            <a
+              href="https://credsverse.com/credentials/83d57a8b-d501-46bf-bf54-b3b30742948d?preview=1"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Verify Dr. Deanna Romulus's AI Consultant Certification."
+              className="flex-shrink-0 cursor-pointer"
+            >
+              <img
+                src="/media/badge.png"
+                loading="lazy"
+                decoding="async"
+                width={88}
+                height={88}
+                alt="Certified Artificial Intelligence Consultant badge issued by the International Association of Artificial Intelligence Consultants"
+                className="h-[88px] w-[88px] object-contain"
+              />
+            </a>
             <p className="max-w-[52ch] text-[clamp(.98rem,1.4vw,1.12rem)] text-[hsl(var(--indigo))]/85">
               Led by a Certified Artificial Intelligence Consultant, International Association of
               Artificial Intelligence Consultants.
