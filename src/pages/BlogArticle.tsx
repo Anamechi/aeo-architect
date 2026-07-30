@@ -335,7 +335,7 @@ const BlogArticle = () => {
               </h3>
               <p className="text-primary-foreground/90 mb-6">
                 {article.funnel_stage === 'BOFU'
-                  ? "Let's discuss how we can implement these strategies for your business."
+                  ? "Let us discuss how we can implement these strategies for your business."
                   : "Discover how AEO and smart marketing automation can transform your business."}
               </p>
               <Link 

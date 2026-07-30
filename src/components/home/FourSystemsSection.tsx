@@ -121,7 +121,7 @@ export const FourSystemsSection = () => {
           Four systems. One revenue engine.
         </h2>
         <p className="speakable-summary text-[clamp(1.02rem,1.6vw,1.25rem)] text-[hsl(var(--indigo))]/80">
-          Most founders don't have a marketing problem. They have a structure problem. We design and
+          Most business owners do not have a marketing problem. They have a structure problem. We design and
           build the four systems every company needs, then we run the processes inside them, starting
           with the ones that save you the most time and money.
         </p>

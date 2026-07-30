@@ -74,7 +74,7 @@ const Contact = () => {
 
       toast({
         title: "Message Sent!",
-        description: "We've received your inquiry and will be in touch soon.",
+        description: "We have received your inquiry and will be in touch soon.",
       });
 
       // Reset form
@@ -137,7 +137,7 @@ const Contact = () => {
 
         <div className="mb-12 text-center">
           <h1 className="mb-4 text-4xl font-bold text-foreground md:text-5xl">
-            Let's Transform Your Marketing
+            Let Us Transform Your Marketing
           </h1>
           <p className="mx-auto max-w-2xl text-xl text-muted-foreground">
             Ready to automate smarter and scale with systems? Book a consultation to discuss your marketing strategy.

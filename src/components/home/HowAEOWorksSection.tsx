@@ -38,11 +38,11 @@ export const HowAEOWorksSection = () => {
           Why AI Models Cite Some Businesses and Ignore Most
         </h2>
         <p className="mx-auto max-w-3xl text-center text-muted-foreground mb-16">
-          AI models like ChatGPT don't surface businesses at random. They cite sources
+          AI models like ChatGPT do not surface businesses at random. They cite sources
           that demonstrate verifiable expertise, consistent authority signals, and structured
           content written in formats LLMs are trained to recognize and trust. Most service
-          businesses are invisible to AI, not because they aren't good at what they do,
-          but because their content isn't structured the way language models retrieve information.
+          businesses are invisible to AI, not because they are not good at what they do,
+          but because their content is not structured the way language models retrieve information.
           <span className="block mt-2 text-foreground font-medium">AEO fixes that at the infrastructure level.</span>
         </p>
 

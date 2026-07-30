@@ -82,7 +82,7 @@ export const CitationAuditSection = () => {
             <div className="rounded-lg border border-accent/30 bg-accent/5 p-8">
               <p className="text-foreground font-semibold mb-2">Your audit request is in.</p>
               <p className="text-sm text-muted-foreground">
-                You'll receive your results within 48 hours at{" "}
+                You will receive your results within 48 hours at{" "}
                 <span className="text-foreground">{formData.email}</span>.
               </p>
             </div>

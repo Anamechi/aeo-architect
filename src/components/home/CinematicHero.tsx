@@ -108,7 +108,7 @@ export const CinematicHero = () => {
           </p>
           <h1 className="text-[clamp(3rem,10.5vw,12rem)] font-bold leading-[.95] tracking-[.015em] text-white [text-shadow:0_10px_80px_hsl(246_70%_27%/.6)]">
             ANAMECHI
-            <span className="sr-only"> Marketing, done-for-you AI and marketing systems for service-based founders</span>
+            <span className="sr-only"> Marketing, done-for-you AI and marketing systems for service-based business owners</span>
           </h1>
           <p className="mt-[3vh] min-h-[1.6em] text-[clamp(1.05rem,2.4vw,1.9rem)] text-[hsl(var(--pale))]">
             <span>{typed}</span>

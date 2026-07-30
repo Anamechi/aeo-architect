@@ -238,7 +238,7 @@ const Services = () => {
             <CardContent className="text-center p-12">
               <h2 className="text-3xl font-bold mb-4">Ready to Scale Your Business?</h2>
               <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Let's create a customized strategy that fits your goals, timeline, and budget
+                Let us create a customized strategy that fits your goals, timeline, and budget
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/contact">

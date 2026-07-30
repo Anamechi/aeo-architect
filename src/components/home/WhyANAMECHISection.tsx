@@ -22,7 +22,7 @@ export const WhyANAMECHISection = () => {
               Why Service Businesses Choose ANAMECHI
             </h2>
             <p className="text-lg text-muted-foreground mb-8">
-              We don't just optimize for search engines — we optimize for the AI models and answer engines that are reshaping how people discover experts and services.
+              We do not just optimize for search engines. We optimize for the AI models and answer engines that are reshaping how people discover experts and services.
             </p>
             <ul className="space-y-4 mb-8">
               {benefits.map((benefit) => (
