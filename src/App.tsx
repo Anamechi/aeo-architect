@@ -22,6 +22,8 @@ import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 const Login = lazy(() => import("./pages/admin/Login"));
 const Signup = lazy(() => import("./pages/admin/Signup"));
+const ForgotPassword = lazy(() => import("./pages/admin/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/admin/ResetPassword"));
 const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AdminAITools = lazy(() => import("./pages/admin/AITools"));
 const BlogGenerator = lazy(() => import("./pages/admin/BlogGenerator"));
@@ -67,6 +69,8 @@ const App = () => (
               {/* Admin routes */}
               <Route path="/admin/login" element={<Login />} />
               <Route path="/admin/signup" element={<Signup />} />
+              <Route path="/admin/forgot-password" element={<ForgotPassword />} />
+              <Route path="/admin/reset-password" element={<ResetPassword />} />
               <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
                 <Route index element={<Dashboard />} />
                 <Route path="master-prompts" element={<MasterPrompts />} />
