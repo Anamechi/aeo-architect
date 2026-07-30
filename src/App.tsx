@@ -50,6 +50,7 @@ const PointsChecker = lazy(() => import("./pages/admin/PointsChecker"));
 const SiteSettings = lazy(() => import("./pages/admin/SiteSettings"));
 const Clusters = lazy(() => import("./pages/admin/Clusters"));
 import { MetaPixelTracker } from "@/components/MetaPixelTracker";
+import { RecoveryRedirect } from "@/components/RecoveryRedirect";
 const ClusterDetail = lazy(() => import("./pages/admin/ClusterDetail"));
 const ImageHealth = lazy(() => import("./pages/admin/ImageHealth"));
 
@@ -64,6 +65,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <MetaPixelTracker />
+            <RecoveryRedirect />
             <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading…</div>}>
             <Routes>
               {/* Admin routes */}
