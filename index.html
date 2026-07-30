@@ -52,6 +52,7 @@
     {
       "@context": "https://schema.org",
       "@type": "Organization",
+      "@id": "https://anamechimarketing.com/#organization",
       "name": "ANAMECHI Marketing",
       "url": "https://anamechimarketing.com",
       "logo": "https://anamechimarketing.com/anamechi-logo.svg",
@@ -76,25 +77,10 @@
         "telephone": "+1-866-752-7370",
         "availableLanguage": "English"
       },
-      "founder": {
-        "@type": "Person",
-        "name": "Dr. Deanna Romulus",
-        "honorificSuffix": "EdD, MBA",
-        "jobTitle": "Founder & CEO",
-        "hasCredential": {
-          "@type": "EducationalOccupationalCredential",
-          "name": "Certified Artificial Intelligence Consultant",
-          "recognizedBy": {
-            "@type": "Organization",
-            "name": "International Association of Artificial Intelligence Consultants"
-          }
-        }
-      },
+      "founder": { "@id": "https://anamechimarketing.com/#deanna-romulus" },
       "slogan": "We install the system. Then we run it.",
       "sameAs": [
-        "https://www.linkedin.com/in/deannaromulus",
-        "https://x.com/anamechi",
-        "https://www.youtube.com/@ANAMECHI"
+        "https://www.linkedin.com/company/anamechi-marketing"
       ],
       "knowsAbout": [
         "AI Engine Optimization",
@@ -102,6 +88,39 @@
         "CRM Implementation",
         "Brand Strategy",
         "Digital Marketing",
+        "AI Content Systems"
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "@id": "https://anamechimarketing.com/#deanna-romulus",
+      "name": "Dr. Deanna Romulus",
+      "honorificPrefix": "Dr.",
+      "honorificSuffix": "EdD, MBA",
+      "jobTitle": "Founder",
+      "worksFor": { "@id": "https://anamechimarketing.com/#organization" },
+      "url": "https://anamechimarketing.com/about",
+      "image": "https://anamechimarketing.com/media/founder.jpg",
+      "sameAs": [
+        "https://www.linkedin.com/in/deannaromulusmba"
+      ],
+      "hasCredential": {
+        "@type": "EducationalOccupationalCredential",
+        "credentialCategory": "Professional Certification",
+        "name": "Certified Artificial Intelligence Consultant",
+        "recognizedBy": {
+          "@type": "Organization",
+          "name": "International Association of Artificial Intelligence Consultants"
+        }
+      },
+      "knowsAbout": [
+        "Answer Engine Optimization",
+        "AI Engine Optimization",
+        "Marketing Automation",
+        "Revenue Systems",
         "AI Content Systems"
       ]
     }
