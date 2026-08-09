@@ -1,0 +1,32 @@
+# ai.txt - AI crawler and answer-engine policy for anamechimarketing.com
+# ANAMECHI Marketing - done-for-you AI and marketing systems for service-based business owners.
+# Founder: Dr. Deanna Romulus, EdD, MBA, Certified Artificial Intelligence Consultant (IAAIC).
+
+# Reputable AI and answer-engine crawlers are welcome.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+# Admin is not for indexing.
+Disallow: /admin
+
+# Structured context for language models:
+LLM-Content: https://anamechimarketing.com/llms.txt
+LLM-Content-Full: https://anamechimarketing.com/llms-full.txt
+Sitemap: https://anamechimarketing.com/sitemap.xml
+
+# Contact: info@anamechimarketing.com
