@@ -23,8 +23,41 @@ serve(async (req) => {
 
     console.log(`Validating ${citations.length} citations...`);
 
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+    const { data: approvedRows } = await supabaseClient
+      .from('approved_sources')
+      .select('pattern, match_type')
+      .eq('status', 'approved');
+    const approved = (approvedRows || []) as { pattern: string; match_type: string }[];
+    const hostOf = (url: string): string => {
+      try { return new URL(url).hostname.toLowerCase().replace(/^www\./, ''); } catch { return ''; }
+    };
+    const isApproved = (url: string): boolean => {
+      const host = hostOf(url);
+      if (!host) return false;
+      return approved.some((a) => {
+        const p = a.pattern.toLowerCase().replace(/^\./, '');
+        if (a.match_type === 'exact') return host === p;
+        return host === p || host.endsWith('.' + p) || host.endsWith(p);
+      });
+    };
+
     const results = await Promise.all(
       citations.map(async (citation: { url: string; title: string }) => {
+        // Allowlist gate: a live URL not on the allowlist is still rejected
+        if (!isApproved(citation.url)) {
+          return {
+            url: citation.url,
+            title: citation.title,
+            status: 'rejected',
+            statusCode: 0,
+            responseTime: 0,
+            message: 'Rejected: domain not on approved allowlist'
+          };
+        }
         try {
           const startTime = Date.now();
           const controller = new AbortController();
@@ -87,17 +120,13 @@ serve(async (req) => {
       broken: results.filter(r => r.status === 'broken').length,
       slow: results.filter(r => r.responseTime > 5000).length,
       timeout: results.filter(r => r.status === 'timeout').length,
-      error: results.filter(r => r.status === 'error').length
+      error: results.filter(r => r.status === 'error').length,
+      rejected: results.filter(r => r.status === 'rejected').length
     };
 
     console.log('Validation summary:', summary);
 
     // Store validation results in citations table
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
-
     for (const result of results) {
       if (result.statusCode > 0) {
         await supabaseClient

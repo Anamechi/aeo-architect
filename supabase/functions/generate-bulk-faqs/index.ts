@@ -34,13 +34,24 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    const systemPrompt = `You are an expert FAQ generator for ANAMECHI Marketing, a digital marketing agency.
-Generate FAQs that are:
-- Clear, concise, and answer-first
-- SEO-optimized with natural language
-- Aligned with the specified funnel stage (TOFU = awareness, MOFU = consideration, BOFU = conversion)
-- Professional yet approachable
-- Focused on marketing automation, CRM, and digital marketing topics`;
+    // Fetch the governing master prompt so bulk FAQs obey brand + IP + EDUTAIN rules
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+    const { data: settings } = await supabaseClient
+      .from('site_settings')
+      .select('master_prompt, faq_rules')
+      .limit(1)
+      .single();
+
+    const systemPrompt = `=== GOVERNING MASTER PROMPT (highest priority, obey every rule) ===
+${settings?.master_prompt || ''}
+
+=== FAQ RULES ===
+${settings?.faq_rules || ''}
+
+You are generating FAQ items for ANAMECHI Marketing. Every answer is answer-first and obeys the master prompt above: no dashes, no contractions, say "business owners" not "founders", never reveal mechanisms or build order, EDUTAIN so the reader thinks "I need this". Align each FAQ to the funnel stage (TOFU = awareness, MOFU = consideration, BOFU = conversion).`;
 
     const userPrompt = `Generate ${count} frequently asked questions about "${topic}" for ${category || 'General'} category at the ${funnelStage || 'TOFU'} funnel stage.
 

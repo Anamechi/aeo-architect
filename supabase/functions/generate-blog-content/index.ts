@@ -30,7 +30,7 @@ serve(async (req) => {
       .limit(1)
       .single();
 
-    const masterContext = settings ? `\n\nMASTER PROMPT CONTEXT:\nBrand Voice: ${settings.brand_voice || ''}\nMission: ${settings.mission_statement || ''}\nEEAT: ${settings.eeat_authority_block || ''}\nSpeakable Rules: ${settings.speakable_rules || ''}\nFAQ Rules: ${settings.faq_rules || ''}\nAnti-hallucination: ${settings.anti_hallucination_rules || ''}` : '';
+    const masterContext = settings ? `\n\n=== GOVERNING MASTER PROMPT (highest priority, obey every rule below) ===\n${settings.master_prompt || ''}\n\n=== SUPPORTING CONTEXT ===\nBrand Voice: ${settings.brand_voice || ''}\nMission: ${settings.mission_statement || ''}\nAudience Rules: ${settings.target_audience_rules || ''}\nEEAT: ${settings.eeat_authority_block || ''}\nSpeakable Rules: ${settings.speakable_rules || ''}\nFAQ Rules: ${settings.faq_rules || ''}\nAnti-hallucination: ${settings.anti_hallucination_rules || ''}` : '';
 
     let systemPrompt = "";
     let userPrompt = "";
