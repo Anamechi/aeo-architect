@@ -74,6 +74,12 @@ const sections = [
     ],
   },
   {
+    label: 'Marketing',
+    items: [
+      { name: 'Social Planner', href: 'https://app.anamechimarketing.com/v2/location/rWOphmmpghPzvovqiqGW/marketing/social-planner', icon: MessageSquare, external: true },
+    ],
+  },
+  {
     label: 'Settings',
     items: [
       { name: 'Site Settings', href: '/admin/site-settings', icon: Globe },
@@ -106,21 +112,34 @@ export default function AdminSidebar() {
             <p className="px-3 mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{section.label}</p>
             <div className="space-y-0.5">
               {section.items.map(item => (
-                <NavLink
-                  key={item.name}
-                  to={item.href}
-                  end={item.href === '/admin'}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                      isActive
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                    }`
-                  }
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.name}
-                </NavLink>
+                (item as any).external ? (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.name}
+                  </a>
+                ) : (
+                  <NavLink
+                    key={item.name}
+                    to={item.href}
+                    end={item.href === '/admin'}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                        isActive
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                      }`
+                    }
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.name}
+                  </NavLink>
+                )
               ))}
             </div>
           </div>
