@@ -69,7 +69,7 @@ const sections = [
     label: 'AI & Tools',
     items: [
       { name: 'AI Tools', href: '/admin/ai-tools', icon: Wrench },
-      { name: 'Master Prompts', href: '/admin/master-prompts', icon: Lightbulb },
+      { name: 'Master Prompt', href: '/admin/site-settings', icon: Lightbulb },
       { name: 'Referral Tracking', href: '/admin/referral-tracking', icon: TrendingUp },
     ],
   },

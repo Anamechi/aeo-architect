@@ -120,7 +120,7 @@ export default function SiteSettings() {
             <CardContent className="space-y-4">
               <div>
                 <Label>Full Master Prompt</Label>
-                <Textarea rows={6} value={form.master_prompt} onChange={e => updateField('master_prompt', e.target.value)} placeholder="Base system prompt for all content generation..." />
+                <Textarea rows={20} value={form.master_prompt} onChange={e => updateField('master_prompt', e.target.value)} className="font-mono text-sm" placeholder="Base system prompt for all content generation..." />
               </div>
               <div>
                 <Label>Brand Voice</Label>
