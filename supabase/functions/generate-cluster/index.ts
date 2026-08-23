@@ -64,7 +64,7 @@ serve(async (req) => {
         await supabaseClient.from('content_clusters').update({ progress }).eq('id', clusterId);
 
         try {
-          const systemPrompt = `${masterPrompt}\n\nYou are writing article ${articleIndex} of 6 in a content cluster about "${cluster.topic}".\nFunnel Stage: ${stage} (${desc})\nPrimary Keyword: ${cluster.primary_keyword}\nTarget Audience: ${cluster.target_audience || 'business owners, coaches, consultants'}\n\nRequirements:\n- 1500-2000 words\n- Use markdown formatting\n- Include 5-8 AEO FAQ questions and answers at the end\n- Include an EEAT authority block\n- Include a speakable summary (40-60 words)\n- Use question-based H2 headers\n- Start with a direct answer`;
+          const systemPrompt = `${masterPrompt}\n\nYou are writing article ${articleIndex} of 6 in a content cluster about "${cluster.topic}".\nFunnel Stage: ${stage} (${desc})\nPrimary Keyword: ${cluster.primary_keyword}\nTarget Audience: ${cluster.target_audience || 'business owners, coaches, consultants'}\n\nThe "content" field must be ARTICLE PROSE ONLY (markdown), 1500-2000 words: start with a direct answer, use question-based H2 headers, short paragraphs, a 40-60 word speakable summary, and an EEAT authority block written as prose.\nDo NOT put any JSON-LD, schema markup, code fence, "[ARTICLE SCHEMA]" label, or title or meta block inside content. The website adds all schema automatically.\nDo NOT put the FAQs inside content; return them only in the "faqs" field (5-8 genuine question and answer pairs).\nAlso return a meta_description of 150 to 160 characters, an excerpt of about 250 characters, and 4 to 8 topical tags.`;
 
           const userPrompt = `Write a complete ${stage} blog post about "${cluster.topic}" focusing on "${cluster.primary_keyword}". This is article ${articleIndex}/6 in the cluster. Make it unique from other articles in this cluster.\n\nReturn the content in this JSON format:\n{"title": "...", "slug": "...", "content": "...", "excerpt": "...", "meta_description": "...", "tags": [...], "faqs": [{"question": "...", "answer": "..."}]}`;
 
@@ -115,27 +115,77 @@ serve(async (req) => {
           const result = JSON.parse(data.choices[0].message.tool_calls[0].function.arguments);
 
           // Ensure unique slug
-          const slug = `${result.slug}-${Date.now()}`;
+          const baseSlug = String(result.slug || result.title || 'post')
+            .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 80);
+          const slug = `${baseSlug}-${Date.now()}`;
+
+          // Clean the body so it is prose only. Strip any schema or code fence the model may still have emitted.
+          const cleanContent = String(result.content || '')
+            .replace(/^\s*\[ARTICLE SCHEMA\][\s\S]*?(```|$)/i, '')
+            .replace(/```json[\s\S]*?```/gi, '')
+            .replace(/```[\s\S]*?@context[\s\S]*?```/gi, '')
+            .replace(/^\s*\{[\s\S]*?@context[\s\S]*?\}\s*/i, '')
+            .trim();
+
+          // Populate every SEO field, with fallbacks so nothing is left empty
+          const metaDescription = (result.meta_description && String(result.meta_description).trim())
+            || (result.excerpt && String(result.excerpt).trim())
+            || cleanContent.replace(/[#*`>_]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 157);
+          const excerpt = (result.excerpt && String(result.excerpt).trim())
+            || metaDescription.slice(0, 250);
+          const tags = (Array.isArray(result.tags) && result.tags.length)
+            ? result.tags
+            : [cluster.primary_keyword].filter(Boolean);
+          const category = cluster.category || 'AI Marketing Systems';
+          const faqs = Array.isArray(result.faqs) ? result.faqs : [];
+
+          // Build correct JSON-LD server-side (right domain + verified LinkedIn), stored in schema_data, never in the body
+          const canonical = `https://anamechimarketing.com/blog/${slug}`;
+          const schemaData = {
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "Article",
+                "headline": result.title,
+                "description": metaDescription,
+                "articleSection": stage,
+                "inLanguage": "en",
+                "mainEntityOfPage": { "@type": "WebPage", "@id": canonical },
+                "author": { "@type": "Person", "name": "Dr. Deanna Romulus", "url": "https://anamechimarketing.com/", "sameAs": ["https://www.linkedin.com/in/deannaromulusmba"] },
+                "publisher": { "@type": "Organization", "name": "ANAMECHI Marketing", "url": "https://anamechimarketing.com/" },
+              },
+              ...(faqs.length ? [{
+                "@type": "FAQPage",
+                "mainEntity": faqs.map((f: { question: string; answer: string }) => ({
+                  "@type": "Question",
+                  "name": f.question,
+                  "acceptedAnswer": { "@type": "Answer", "text": f.answer },
+                })),
+              }] : []),
+            ],
+          };
 
           // Save blog post
           const { data: post } = await supabaseClient.from('blog_posts').insert({
             title: result.title,
             slug,
-            content: result.content,
-            excerpt: result.excerpt,
-            meta_description: result.meta_description,
-            tags: result.tags,
+            content: cleanContent,
+            excerpt,
+            meta_description: metaDescription,
+            tags,
+            category,
+            schema_data: schemaData,
             funnel_stage: stage,
             status: 'draft',
             group_id: clusterId,
             language: 'en',
             hreflang: 'en',
-            reading_time: Math.ceil((result.content?.split(/\s+/).length || 0) / 200),
+            reading_time: Math.ceil((cleanContent.split(/\s+/).length || 0) / 200),
           }).select('id').single();
 
           // Save QAs
-          if (post && result.faqs?.length) {
-            const qaInserts = result.faqs.map((faq: { question: string; answer: string }) => ({
+          if (post && faqs.length) {
+            const qaInserts = faqs.map((faq: { question: string; answer: string }) => ({
               question: faq.question,
               answer: faq.answer,
               slug: `${slug}-faq-${Math.random().toString(36).slice(2, 8)}`,
