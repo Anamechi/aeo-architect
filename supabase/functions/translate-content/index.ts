@@ -11,8 +11,8 @@ serve(async (req) => {
 
   try {
     const { blogPostId, targetLanguage } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY not configured');
+    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+    if (!GEMINI_API_KEY) throw new Error('GEMINI_API_KEY not configured');
 
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -38,14 +38,14 @@ serve(async (req) => {
 
     const userPrompt = `Translate this blog post:\n\nTitle: ${source.title}\nExcerpt: ${source.excerpt}\nMeta Description: ${source.meta_description}\nContent:\n${source.content}\nImage Alt Text: ${source.image_alt_text || ''}\nImage Caption: ${source.image_caption || ''}`;
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${GEMINI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'gemini-3.6-flash',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
@@ -111,14 +111,14 @@ serve(async (req) => {
 
     if (sourceQas?.length) {
       for (const qa of sourceQas) {
-        const qaResp = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        const qaResp = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+            'Authorization': `Bearer ${GEMINI_API_KEY}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-flash',
+            model: 'gemini-3.6-flash',
             messages: [
               { role: 'system', content: `Translate this Q&A to ${targetLanguage}. Keep it concise.` },
               { role: 'user', content: `Question: ${qa.question}\nAnswer: ${qa.answer}` },

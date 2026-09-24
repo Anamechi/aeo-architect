@@ -11,8 +11,8 @@ serve(async (req) => {
 
   try {
     const { blogPostId } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY not configured');
+    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+    if (!GEMINI_API_KEY) throw new Error('GEMINI_API_KEY not configured');
 
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -35,14 +35,14 @@ serve(async (req) => {
 
     const systemPrompt = `You are an FAQ generation expert. Generate 4 contextual Q&A pairs based on the article content. Each answer must be 80-120 words, starting with a direct answer, using plain language at 8th-9th grade reading level.\n\n${settings?.faq_rules || ''}\n\n${settings?.master_prompt || ''}`;
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${GEMINI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'gemini-3.6-flash',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `Generate 4 FAQ Q&A pairs for this article:\n\nTitle: ${post.title}\n\nContent:\n${post.content?.slice(0, 4000)}` },

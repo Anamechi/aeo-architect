@@ -23,9 +23,9 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
     );
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY not configured');
+    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+    if (!GEMINI_API_KEY) {
+      throw new Error('GEMINI_API_KEY not configured');
     }
 
     const results = [];
@@ -96,19 +96,24 @@ Generate SEO-optimized alt text for the featured image that:
 
         console.log('Generating alt text with AI...');
 
-        const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        const response = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+            'Authorization': `Bearer ${GEMINI_API_KEY}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-flash',
+            model: 'gemini-3.6-flash',
             messages: [
               { role: 'system', content: systemPrompt },
               { role: 'user', content: userPrompt }
             ],
             max_tokens: 100,
+            // Gemini 3.x reasons before answering. At this cap the budget is spent
+            // thinking and the reply comes back EMPTY with finish_reason "length".
+            // Verified 2026-09-23: without this, 0 completion tokens; with it, correct
+            // alt text at 55 total tokens instead of 312.
+            reasoning_effort: 'none',
             temperature: 0.7
           }),
         });
