@@ -29,13 +29,13 @@ export const HeroSection = () => {
 
           <p className="mb-6 text-lg text-muted-foreground md:text-xl max-w-3xl mx-auto">
             Position your service business as a trusted authority that ChatGPT, Gemini,
-            Perplexity, and Google recommend — before your competitors get there first.
+            Perplexity, and Google recommend, before your competitors get there first.
           </p>
 
           {/* Founder credential line */}
           <div className="mb-8 inline-block border-l-2 border-primary pl-4 text-left">
             <p className="text-sm text-muted-foreground">
-              Built by <span className="text-foreground font-medium">Dr. Deanna Romulus, EdD, MBA</span> — AI strategist and revenue systems architect
+              Built by <span className="text-foreground font-medium">Dr. Deanna Romulus, EdD, MBA</span>, AI strategist and revenue systems architect
             </p>
           </div>
 

@@ -26,7 +26,7 @@ const About = () => {
   const expertise = [{
     icon: Target,
     title: "AEO Pioneer",
-    description: "Leading the industry in AI Engine Optimization strategies that get brands cited by LLMs and answer engines."
+    description: "Specializing in AI Engine Optimization strategies that get brands cited by LLMs and answer engines."
   }, {
     icon: BookOpen,
     title: "Content Authority",
@@ -38,10 +38,10 @@ const About = () => {
   }, {
     icon: Award,
     title: "Proven Results",
-    description: "150+ successful implementations with measurable improvements in AI citations and organic visibility."
+    description: "Client work focused on measurable improvements in AI citations and organic visibility, tracked and reported."
   }];
   return <>
-      <SEO title="About ANAMECHI Marketing - AI Engine Optimization Experts" description="Meet Dr. Deanna Romulus and the ANAMECHI team. We specialize in AI Engine Optimization (AEO), helping service businesses become trusted authorities that AI models and search engines cite." canonical="/about" structuredData={[breadcrumbsSchema, organizationSchema, speakableSchema, personSchema]} />
+      <SEO title="About ANAMECHI Marketing - AI Engine Optimization Experts" description="Meet Dr. Deanna Romulus and the ANAMECHI team. We install AI Engine Optimization (AEO) systems that make service businesses the trusted authorities AI models and search engines cite." canonical="/about" structuredData={[breadcrumbsSchema, organizationSchema, speakableSchema, personSchema]} />
 
       <div className="container mx-auto px-4 py-12">
         <Breadcrumbs items={[{
@@ -58,7 +58,7 @@ const About = () => {
             Building AI-Citable Authorities
           </h1>
           <p className="mx-auto max-w-3xl text-xl text-muted-foreground">
-            ANAMECHI Marketing was founded on a simple mission: help service businesses become the trusted authorities that AI models and search engines recommend in their answers.
+            ANAMECHI Marketing was founded on a simple mission: make service businesses the trusted authorities that AI models and search engines recommend in their answers.
           </p>
         </div>
 
@@ -71,16 +71,16 @@ const About = () => {
                   Meet Dr. Deanna Romulus
                 </h2>
                 <p className="mb-4 text-lg text-foreground">
-                  Founder & Visionary Strategist
+                  Founder, ANAMECHI Marketing
                 </p>
                 <p className="mb-4 text-muted-foreground">
                   Dr. Deanna Romulus founded ANAMECHI Marketing after recognizing the seismic shift in how people discover experts and services. With the rise of ChatGPT, Gemini, Perplexity, and other AI models, traditional SEO was no longer enough.
                 </p>
                 <p className="mb-4 text-muted-foreground">
-                  Drawing on years of experience in digital marketing, content strategy, and marketing automation, Dr. Romulus developed the AEO methodology—a comprehensive approach that combines structured data, EEAT principles, and citation-worthy content to position brands as AI-recommended authorities.
+                  Drawing on years of experience in digital marketing, content strategy, and marketing automation, Dr. Romulus developed the AEO methodology, a comprehensive approach that combines structured data, EEAT principles, and citation-worthy content to position brands as AI-recommended authorities.
                 </p>
                 <p className="text-muted-foreground">
-                  Today, ANAMECHI Marketing serves consultants, coaches, and service businesses worldwide, helping them get cited by AI models while building sustainable, authoritative online presences.
+                  Today, ANAMECHI Marketing serves consultants, coaches, and service businesses worldwide, building the structured authority that earns AI citations and a durable online presence.
                 </p>
               </div>
               <div className="space-y-4">

@@ -55,11 +55,11 @@ export const WhyANAMECHISection = () => {
                     Founder, ANAMECHI Marketing | AI Strategist | Revenue Systems Architect
                   </p>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Dr. Deanna Romulus holds an EdD in Educational Leadership and an MBA —
+                    Dr. Deanna Romulus holds an EdD in Educational Leadership and an MBA,
                     credentials she applies directly to how ANAMECHI builds client authority
                     systems. She is an active member of the AI Power Circle Mastermind and
-                    holds CAAL certification in applied AI leadership. Her methodology — the
-                    DDS Framework™ (Diagnose, Design, Scale) — is the structural backbone
+                    holds CAAL certification in applied AI leadership. Her methodology, the
+                    DDS Framework™ (Diagnose, Design, Scale) is the structural backbone
                     of every ANAMECHI engagement.
                   </p>
                 </div>

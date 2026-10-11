@@ -175,7 +175,7 @@ const FAQ = () => {
             Frequently Asked Questions
           </h1>
           <p className="mx-auto max-w-2xl text-xl text-muted-foreground">
-            Everything you need to know about AI Engine Optimization, our services, and how we help service businesses build AI-citable authority.
+            Everything you need to know about AI Engine Optimization, our services, and how service businesses build AI-citable authority with ANAMECHI.
           </p>
         </div>
 
@@ -347,7 +347,7 @@ const FAQ = () => {
                 Still Have Questions?
               </h2>
               <p className="mb-6 text-primary-foreground/90">
-                Schedule a consultation to discuss your specific needs and learn how we can help you become an AI-citable authority.
+                Schedule a consultation to discuss your specific needs and see how ANAMECHI builds your AI-citable authority.
               </p>
               <a
                 href="/contact"
