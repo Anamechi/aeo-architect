@@ -53,6 +53,7 @@ import { MetaPixelTracker } from "@/components/MetaPixelTracker";
 import { RecoveryRedirect } from "@/components/RecoveryRedirect";
 const ClusterDetail = lazy(() => import("./pages/admin/ClusterDetail"));
 const ImageHealth = lazy(() => import("./pages/admin/ImageHealth"));
+const AIBusinessAudit = lazy(() => import("./pages/admin/AIBusinessAudit"));
 
 const queryClient = new QueryClient();
 
@@ -102,6 +103,8 @@ const App = () => (
                 <Route path="clusters" element={<Clusters />} />
                 <Route path="clusters/:id" element={<ClusterDetail />} />
                 <Route path="image-health" element={<ImageHealth />} />
+                <Route path="ai-audit" element={<AIBusinessAudit />} />
+                <Route path="ai-audit/:id" element={<AIBusinessAudit />} />
               </Route>
 
               {/* Public routes */}

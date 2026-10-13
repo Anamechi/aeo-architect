@@ -23,7 +23,8 @@ import {
   ShieldCheck,
   Layers,
   HeartPulse,
-  Globe
+  Globe,
+  ClipboardCheck
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -71,6 +72,12 @@ const sections = [
       { name: 'AI Tools', href: '/admin/ai-tools', icon: Wrench },
       { name: 'Master Prompt', href: '/admin/site-settings', icon: Lightbulb },
       { name: 'Referral Tracking', href: '/admin/referral-tracking', icon: TrendingUp },
+    ],
+  },
+  {
+    label: 'Client Engagements',
+    items: [
+      { name: 'AI Business Audit', href: '/admin/ai-audit', icon: ClipboardCheck },
     ],
   },
   {
