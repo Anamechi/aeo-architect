@@ -24,7 +24,8 @@ import {
   Layers,
   HeartPulse,
   Globe,
-  ClipboardCheck
+  ClipboardCheck,
+  Calculator
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -78,6 +79,7 @@ const sections = [
     label: 'Client Engagements',
     items: [
       { name: 'AI Business Audit', href: '/admin/ai-audit', icon: ClipboardCheck },
+      { name: 'Pricing Calculator', href: '/admin/pricing-calculator', icon: Calculator },
     ],
   },
   {

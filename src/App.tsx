@@ -54,6 +54,7 @@ import { RecoveryRedirect } from "@/components/RecoveryRedirect";
 const ClusterDetail = lazy(() => import("./pages/admin/ClusterDetail"));
 const ImageHealth = lazy(() => import("./pages/admin/ImageHealth"));
 const AIBusinessAudit = lazy(() => import("./pages/admin/AIBusinessAudit"));
+const PricingCalculator = lazy(() => import("./pages/admin/PricingCalculator"));
 
 const queryClient = new QueryClient();
 
@@ -105,6 +106,7 @@ const App = () => (
                 <Route path="image-health" element={<ImageHealth />} />
                 <Route path="ai-audit" element={<AIBusinessAudit />} />
                 <Route path="ai-audit/:id" element={<AIBusinessAudit />} />
+                <Route path="pricing-calculator" element={<PricingCalculator />} />
               </Route>
 
               {/* Public routes */}
