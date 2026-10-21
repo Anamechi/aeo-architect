@@ -34,7 +34,7 @@ describe("tier pricing", () => {
   });
 
   it("covers all seven services with three packages each", () => {
-    expect(SERVICES).toHaveLength(7);
+    expect(SERVICES).toHaveLength(8);
     SERVICES.forEach((s) => {
       const tiers = computeTiers(s.key, 0.5);
       expect(tiers).toHaveLength(3);
@@ -75,5 +75,12 @@ describe("brand voice of generated copy", () => {
     const script = pricingScript("AI Readiness Audit", tiers);
     expect(script).not.toMatch(/—/);
     expect(script).not.toMatch(/\b\w+'(s|t|re|ve|ll|d|m)\b/i);
+  });
+});
+
+describe("storehouse pricing", () => {
+  it("prices $3,400 / $6,800 / $17,000 at the 6+ clients level", () => {
+    const t = computeTiers("storehouse", getFactor("many"));
+    expect(t.map((x) => x.price)).toEqual([3400, 6800, 17000]);
   });
 });

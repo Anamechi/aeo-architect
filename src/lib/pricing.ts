@@ -104,6 +104,19 @@ export const SERVICES: Service[] = [
     ],
   },
   {
+    key: "storehouse",
+    label: "ANAMECHI Storehouse (team knowledge assistant)",
+    low: 2000,
+    high: 8000,
+    unit: "one-time",
+    isCoaching: false,
+    packages: [
+      { name: "Storehouse Starter", bullets: ["1 team library built from your Google Drive", "Text questions answered with the source document named", "Missing answers logged so you know what to document next", "2 weeks of support"] },
+      { name: "Storehouse Standard", bullets: ["Everything in Starter", "Voice assistant your team can talk to", "Branded assistant face and name", "Automatic weekly document sync", "30 days of support"] },
+      { name: "Storehouse Premium", bullets: ["Multiple libraries or departments", "Voice assistant with branded face and name", "Team member access set up for your staff", "Admin training for your team", "90 days of priority support"] },
+    ],
+  },
+  {
     key: "advisor",
     label: "Monthly AI Advisor",
     low: 750,
