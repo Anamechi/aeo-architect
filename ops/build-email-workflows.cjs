@@ -2,6 +2,7 @@
  * Usage: node build-email-workflows.cjs live-export.json output-directory
  * Never commit generated exports, which contain account-specific identifiers.
  */
+const {layoutEmailWorkflow}=require('./layout-email-workflows.cjs');
 const fs=require('node:fs');const path=require('node:path');const {randomUUID}=require('node:crypto');
 function build(original,codec){
   const nodes=original.nodes;
@@ -102,7 +103,7 @@ function build(original,codec){
     if(n.name==='Setup Note')n.parameters.content='# ANAMECHI CONNECTIONS\nANAMECHI Gmail and Calendar only. Thread memory and selected read-only brain facts remain connected. Legacy unrestricted send-all removed. The reviewed dashboard/Chief of Staff release is staged separately. No email was sent by release tests.';
   }
   const legacy_guard={...workflow(original.name,[...safeLegacyNodes,read,inspect,...attachmentNodes],legacyConnections),id:original.id,settings:original.settings||{executionOrder:'v1'}};
-  return {drafting,sender,legacy_guard};
+  return {drafting:layoutEmailWorkflow(drafting,'drafting'),sender:layoutEmailWorkflow(sender,'sender'),legacy_guard:layoutEmailWorkflow(legacy_guard,'legacy')};
 }
 module.exports={build};
 if(require.main===module){
