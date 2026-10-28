@@ -2,7 +2,7 @@
 
 ## Current release status
 
-The Supabase approval and inbox migrations are installed. The website code is on this feature branch, not published to the production dashboard. Two replacement n8n workflows were imported inactive. The sender passed a live empty-queue execution without reaching Gmail. Attachment handling now uses a deterministic branch before the AI: attachment payloads are omitted from parsed conversation text and no model, draft creation or mark-read node runs for those messages. The branch saves an owner hold, stars the message, keeps it unread and applies ANAMECHI / Review Attachments. The Chief of Staff adapter and a proposed source patch are staged, not running. No customer email was sent by release testing.
+The Supabase approval and inbox migrations are installed. The website code is on this feature branch, not published to the production dashboard. Two replacement n8n workflows were imported inactive. The sender passed a live empty-queue execution without reaching Gmail. Attachment handling now uses a deterministic branch before the AI: attachment payloads are omitted from parsed conversation text and no model, draft creation or mark-read node runs for those messages. The branch saves an owner hold, stars the message, keeps it unread and applies ANAMECHI / Review Attachments. The Chief of Staff adapter is installed in the existing receiver, with the verified owner bound to the existing private chat. The live app handler and actual bot database role passed read-only briefing/review and wrong-chat checks using mocked replies. The service was rebuilt and restarted after backing up its matched live source; voice settings and the existing consumer were preserved. No test Telegram message was sent. Owner-initiated Telegram acceptance remains outstanding. No customer email was sent by release testing. The published original assistant now has its attachment hold and no unrestricted send-all path. A flag-only manual workflow succeeded on one existing unread attachment message (execution 21821), leaving an unsent Needs Deanna record with no draft or send job.
 
 The original Gmail Draft Assistant remains the production drafting workflow with the attachment guard. Its unrestricted legacy send-all branch is removed so it cannot bypass attachment holds. Disable that workflow during the wider approval release cutover; do not leave both Gmail triggers running. The replacement workflows have no unrestricted send path.
 
@@ -19,12 +19,14 @@ The original Gmail Draft Assistant remains the production drafting workflow with
 
 - Production frontend build and TypeScript compilation.
 - 24 application tests, including email eligibility and follow-through briefing.
-- Eight Node tests covering thread freshness, existing sent replies and drafts, malformed model output, MIME recipient/header constraints generated workflow connections, attachment byte exclusion and attachment branch isolation from the agent and drafting steps.
+- Eight Node tests covering thread freshness, existing sent replies and drafts, malformed model output, MIME recipient/header constraints, generated workflow connections, attachment byte exclusion and attachment branch isolation from the agent and drafting steps.
 - Four Python tests covering transcribed approval rejection, unqualified send-all opening review only, incomplete Telegram preview withholding send commands and ordinary conversation remaining with the existing agent.
 - Rolled-back SQL acceptance fixture: owner reads and approvals; non-owner/anonymous denial; no direct application writes or worker calls; missing versions and partially stale batches blocked atomically; repeated approvals blocked; changed provider content blocked; Telegram identity, selection and one-use tokens; no direct inbox table access for `atlas_bot`.
 - Live n8n sender empty queue test: false branch, no Gmail calls.
+- Live Chief of Staff checks: actual bot database role reads the scoped briefing, existing handler routes briefing and review commands, and a wrong chat is rejected. Replies were mocked; no external messages were sent.
+- Live attachment flag-only test: execution 21821 succeeded; one incoming attachment message labeled, starred and unread; one Needs Deanna record; zero send jobs. No model, draft or send nodes exist in that acceptance workflow.
 
-This is not an end-to-end delivery test. Gmail mutation, real thread ingestion through the new workflow and the running Telegram integration still require controlled acceptance after deployment.
+This is not an end-to-end delivery test. Real reply delivery, ordinary thread ingestion through the replacement drafting workflow and owner-initiated Telegram use still require controlled acceptance after the wider release.
 
 ## Production cutover
 
