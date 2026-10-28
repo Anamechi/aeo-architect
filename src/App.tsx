@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/admin/ProtectedRoute";
+import SuperAdminRoute from "@/components/admin/SuperAdminRoute";
 import AdminLayout from "@/components/admin/AdminLayout";
 import PublicLayout from "@/components/layout/PublicLayout";
 import Home from "./pages/Home";
@@ -55,6 +56,7 @@ const ClusterDetail = lazy(() => import("./pages/admin/ClusterDetail"));
 const ImageHealth = lazy(() => import("./pages/admin/ImageHealth"));
 const AIBusinessAudit = lazy(() => import("./pages/admin/AIBusinessAudit"));
 const PricingCalculator = lazy(() => import("./pages/admin/PricingCalculator"));
+const EmailReview = lazy(() => import("./pages/admin/EmailReview"));
 
 const queryClient = new QueryClient();
 
@@ -77,6 +79,7 @@ const App = () => (
               <Route path="/admin/reset-password" element={<ResetPassword />} />
               <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
                 <Route index element={<Dashboard />} />
+                <Route path="email-review" element={<SuperAdminRoute><EmailReview /></SuperAdminRoute>} />
                 <Route path="master-prompts" element={<MasterPrompts />} />
                 <Route path="ai-tools" element={<AdminAITools />} />
                 <Route path="blog" element={<BlogPosts />} />

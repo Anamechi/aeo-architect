@@ -3,8 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileText, MessageSquare, Users, Wrench, Mail } from 'lucide-react';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
+import { Link } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Dashboard() {
+  const { isSuperAdmin } = useAuth();
   const [stats, setStats] = useState({
     blogPosts: 0,
     qaArticles: 0,
@@ -89,6 +92,7 @@ export default function Dashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {isSuperAdmin && <Link to="/admin/email-review"><Card className="border-primary h-full"><CardHeader><CardTitle>Email Review</CardTitle><CardDescription>ANAMECHI drafts, decisions and follow-through. Super Admin only.</CardDescription></CardHeader><CardContent>Review emails and approve selected replies</CardContent></Card></Link>}
         {metrics.map((metric) => (
           <Card key={metric.name}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
