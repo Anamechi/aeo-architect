@@ -25,7 +25,8 @@ import {
   HeartPulse,
   Globe,
   ClipboardCheck,
-  Calculator
+  Calculator,
+  MailCheck
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -102,7 +103,7 @@ const sections = [
 ];
 
 export default function AdminSidebar() {
-  const { signOut } = useAuth();
+  const { signOut, isSuperAdmin } = useAuth();
 
   return (
     <div className="flex h-full flex-col bg-card border-r border-border">
@@ -116,6 +117,12 @@ export default function AdminSidebar() {
       </div>
       
       <nav className="flex-1 space-y-4 p-4 overflow-y-auto">
+        {isSuperAdmin && <div>
+          <p className="px-3 mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Super Admin</p>
+          <NavLink to="/admin/email-review" className={({isActive}) => `flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md ${isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent'}`}>
+            <MailCheck className="h-4 w-4" />Email Review
+          </NavLink>
+        </div>}
         {sections.map(section => (
           <div key={section.label}>
             <p className="px-3 mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{section.label}</p>

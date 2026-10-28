@@ -10,6 +10,10 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+supabase/.temp/
+ops/generated/
+ops/live-export.json
+__pycache__/
 *.local
 
 # Editor directories and files
