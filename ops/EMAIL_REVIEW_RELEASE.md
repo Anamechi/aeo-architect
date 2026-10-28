@@ -2,9 +2,15 @@
 
 ## Current release status
 
-The Supabase approval and inbox migrations are installed. The website code is on this feature branch, not published to the production dashboard. Two replacement n8n workflows were imported inactive. The sender passed a live empty-queue execution without reaching Gmail. Attachment handling now uses a deterministic branch before the AI: attachment payloads are omitted from parsed conversation text and no model, draft creation or mark-read node runs for those messages. The branch saves an owner hold, stars the message, keeps it unread and applies ANAMECHI / Review Attachments. The Chief of Staff adapter is installed in the existing receiver, with the verified owner bound to the existing private chat. The live app handler and actual bot database role passed read-only briefing/review and wrong-chat checks using mocked replies. The service was rebuilt and restarted after backing up its matched live source; voice settings and the existing consumer were preserved. No test Telegram message was sent. Owner-initiated Telegram acceptance remains outstanding. No customer email was sent by release testing. The published original assistant now has its attachment hold and no unrestricted send-all path. A flag-only manual workflow succeeded on one existing unread attachment message (execution 21821), leaving an unsent Needs Deanna record with no draft or send job.
+PR 2 was approved, merged and deployed on October 28, 2026. The production Super Admin page is live at `https://anamechimarketing.com/admin/email-review`; the signed-in owner successfully loaded its queue and an attachment hold. Six Supabase migrations are installed.
 
-The original Gmail Draft Assistant remains the production drafting workflow with the attachment guard. Its unrestricted legacy send-all branch is removed so it cannot bypass attachment holds. Disable that workflow during the wider approval release cutover; do not leave both Gmail triggers running. The replacement workflows have no unrestricted send path.
+The live n8n workflows are **ANAMECHI Marketing | Inbox decisions and drafts** (`7bdf9d6becfc4c2d`) and **ANAMECHI Marketing | Approved reply sender** (`c319d106330a4fba`). The previous assistant (`dEvh1nVyLTCNet2O`) is unpublished and explicitly named inactive, so there is only one Gmail trigger. All three canvases have separated, labeled lanes; the layout script verified that node behavior and connection routing did not change. `layout-email-workflows.cjs` preserves this layout for future workflow builds.
+
+Attachment messages bypass the model and draft creation, remain unread and starred/important, and receive `ANAMECHI / Review Attachments` plus a Needs Deanna record. Embedded attachment parts are omitted from parsed conversation text. The old unrestricted send-all shortcut is removed. Flag-only execution 21821 succeeded on one existing unread attachment email with no draft or send job.
+
+The existing Chief of Staff receiver includes the email adapter and verified owner/private-chat binding. The actual bot database role and current handler passed read-only briefing/review and wrong-chat checks using mocked replies. Its live matched source was backed up before rebuilding and restarting the same service. Voice configuration was preserved, and no second consumer was created.
+
+The sender passed an empty-queue execution. At activation verification there were zero send jobs and zero sent jobs. No customer email or test Telegram message was sent. Controlled real reply-delivery and owner-initiated Telegram acceptance remain outstanding; do not describe those as passed. Both SOPs are maintained at their original Drive identities.
 
 ## Files and responsibilities
 
@@ -26,9 +32,9 @@ The original Gmail Draft Assistant remains the production drafting workflow with
 - Live Chief of Staff checks: actual bot database role reads the scoped briefing, existing handler routes briefing and review commands, and a wrong chat is rejected. Replies were mocked; no external messages were sent.
 - Live attachment flag-only test: execution 21821 succeeded; one incoming attachment message labeled, starred and unread; one Needs Deanna record; zero send jobs. No model, draft or send nodes exist in that acceptance workflow.
 
-This is not an end-to-end delivery test. Real reply delivery, ordinary thread ingestion through the replacement drafting workflow and owner-initiated Telegram use still require controlled acceptance after the wider release.
+These checks do not replace an end-to-end delivery test. Real reply delivery, ordinary thread ingestion through the replacement drafting workflow and owner-initiated Telegram use still require controlled acceptance after the wider release.
 
-## Production cutover
+## Cutover and redeployment procedure
 
 1. Follow `CLAUDE.md` and obtain approval before merging/pushing `main`, which publishes the live site. Preserve public routes and the content publishing gates.
 2. Confirm all six additive migrations are installed in the existing shared project. Do not recreate or replace its brain. The connected n8n PostgreSQL credential can execute the worker functions. Browser credentials cannot.
@@ -47,7 +53,7 @@ Open Email Review from the Super Admin dashboard. Read the conversation and repl
 
 The queue offers Needs Deanna, Draft Ready, Team Action, Waiting on Client and Completed. Team Action records an owner and due date; it does not notify that person or grant inbox access. Completed requires evidence. Waiting on Client requires verified delivery. Due/overdue counts are visible in the dashboard and the on-demand Chief of Staff briefing; this release does not start a new recurring notification schedule or automatically send follow-up messages.
 
-Once the existing Chief of Staff adapter is deployed:
+The existing Chief of Staff adapter is deployed:
 
 - `/emails`: up to 20 eligible replies and a 15-minute saved review.
 - `/approve_emails TOKEN 1,3`: approve those numbered versions in that review.
