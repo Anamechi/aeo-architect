@@ -78,6 +78,32 @@ const Services = () => {
   const corePackages = packages?.filter(pkg => !pkg.is_addon) || [];
   const addons = packages?.filter(pkg => pkg.is_addon) || [];
 
+  // AEO: machine-readable Service entities so AI models and search engines can
+  // read and cite each offering, not just the human-visible cards.
+  const servicesSchema = corePackages.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "ANAMECHI Marketing Services",
+    "itemListElement": corePackages.map((pkg: any, index: number) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "Service",
+        "name": pkg.name,
+        "description": pkg.description,
+        "serviceType": pkg.name,
+        ...(pkg.category ? { "category": pkg.category } : {}),
+        "provider": {
+          "@type": "ProfessionalService",
+          "name": "ANAMECHI Marketing",
+          "url": "https://anamechimarketing.com"
+        },
+        "areaServed": { "@type": "Country", "name": "United States" },
+        "url": "https://anamechimarketing.com/services"
+      }
+    }))
+  } : null;
+
   // Default icon mapping
   const iconMap: { [key: string]: any } = {
     'AEO': Bot,
@@ -97,7 +123,7 @@ const Services = () => {
         description="Transform your business with AI Engine Optimization, SEO, marketing automation, and brand visibility services. Customized strategies for ambitious business owners."
         canonical="/services"
         type="website"
-        structuredData={[breadcrumbsSchema, organizationSchema, speakableSchema]}
+        structuredData={[breadcrumbsSchema, organizationSchema, speakableSchema, ...(servicesSchema ? [servicesSchema] : [])]}
       />
 
       <div className="min-h-screen bg-gradient-to-b from-background to-background/80">
