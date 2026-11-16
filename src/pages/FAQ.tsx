@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { SEO } from "@/components/SEO";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -18,6 +19,7 @@ import { generateOrganizationSchema, generateSpeakableSchema } from "@/utils/sch
 
 interface FAQ {
   id: string;
+  slug: string;
   question: string;
   answer: string;
   tags: string[];
@@ -61,7 +63,7 @@ const FAQ = () => {
     try {
       const { data, error } = await supabase
         .from('qa_articles')
-        .select('id, question, answer, tags, funnel_stage')
+        .select('id, slug, question, answer, tags, funnel_stage')
         .eq('status', 'published')
         .order('created_at', { ascending: false });
 
@@ -275,7 +277,16 @@ const FAQ = () => {
                       </AccordionTrigger>
                       <AccordionContent className="text-base text-muted-foreground leading-relaxed space-y-4">
                         <div>{highlightText(faq.answer, searchQuery)}</div>
-                        
+
+                        {faq.slug && (
+                          <Link
+                            to={`/faq/${faq.slug}`}
+                            className="inline-block text-sm font-medium text-primary hover:underline"
+                          >
+                            View this answer on its own page →
+                          </Link>
+                        )}
+
                         {/* Tags - exclude funnel stage abbreviations */}
                         {faq.tags.filter(tag => !['TOFU', 'MOFU', 'BOFU'].includes(tag.toUpperCase())).length > 0 && (
                           <div className="flex flex-wrap gap-2 pt-2">

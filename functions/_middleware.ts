@@ -98,6 +98,7 @@ async function renderPath(path: string): Promise<string | null> {
   if (path === "/blog") return blogIndexPage();
   if (path.startsWith("/blog/")) return blogArticlePage(decodeURIComponent(path.slice("/blog/".length)));
   if (path === "/faq") return faqPage();
+  if (path.startsWith("/faq/")) return qaArticlePage(decodeURIComponent(path.slice("/faq/".length)));
   return null; // unknown route -> fall open to the SPA
 }
 
@@ -471,6 +472,48 @@ async function blogArticlePage(slug: string): Promise<string | null> {
 ${post.excerpt ? `<p><em>${esc(post.excerpt)}</em></p>` : ""}
 <p>By ${esc(author)}${post.published_at ? ` on ${esc(new Date(post.published_at).toISOString().slice(0, 10))}` : ""}${post.reading_time ? ` &middot; ${esc(post.reading_time)} min read` : ""}</p>
 <div>${mdToHtml(post.content || "")}</div>
+</article>`,
+  });
+}
+
+async function qaArticlePage(slug: string): Promise<string | null> {
+  if (!slug) return null;
+  const rows = await sb(
+    `qa_articles?slug=eq.${encodeURIComponent(slug)}&status=eq.published&select=question,answer,meta_description,published_at,updated_at&limit=1`,
+  );
+  const qa = Array.isArray(rows) && rows.length ? rows[0] : null;
+  if (!qa) return null; // unknown/unpublished -> fall open
+  const canonical = `${SITE}/faq/${slug}`;
+  const desc =
+    qa.meta_description || String(qa.answer || "").replace(/\s+/g, " ").slice(0, 160).trim();
+  return page({
+    title: qa.question,
+    description: desc,
+    canonical,
+    ogType: "article",
+    schemas: [
+      breadcrumb([
+        { name: "Home", url: `${SITE}/` },
+        { name: "FAQ", url: `${SITE}/faq` },
+        { name: qa.question, url: canonical },
+      ]),
+      {
+        "@context": "https://schema.org",
+        "@type": "QAPage",
+        mainEntity: {
+          "@type": "Question",
+          name: qa.question,
+          text: qa.question,
+          answerCount: 1,
+          acceptedAnswer: { "@type": "Answer", text: String(qa.answer || "").slice(0, 2000), url: canonical },
+        },
+      },
+    ],
+    bodyHtml: `
+<article>
+<h1>${esc(qa.question)}</h1>
+<div>${mdToHtml(qa.answer || "")}</div>
+<p><a href="${SITE}/faq">Back to all questions</a></p>
 </article>`,
   });
 }

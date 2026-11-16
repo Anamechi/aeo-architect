@@ -15,6 +15,7 @@ import Services from "./pages/Services";
 import Blog from "./pages/Blog";
 import BlogArticle from "./pages/BlogArticle";
 import FAQ from "./pages/FAQ";
+import QAArticle from "./pages/QAArticle";
 import Contact from "./pages/Contact";
 import AITools from "./pages/AITools";
 import Privacy from "./pages/Privacy";
@@ -106,6 +107,7 @@ const App = () => (
                 <Route path="blog" element={<Blog />} />
                 <Route path="blog/:slug" element={<BlogArticle />} />
                 <Route path="faq" element={<FAQ />} />
+                <Route path="faq/:slug" element={<QAArticle />} />
                 <Route path="contact" element={<Contact />} />
                 <Route path="ai-tools" element={<AITools />} />
                 <Route path="privacy" element={<Privacy />} />
