@@ -1,6 +1,7 @@
 // Pre-render edge function for AI crawler discoverability
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
+import { marked } from "https://esm.sh/marked@12.0.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -43,9 +44,8 @@ const organizationSchema = {
     jobTitle: "Founder & CEO",
   },
   sameAs: [
-    "https://www.linkedin.com/in/deannaromulus",
-    "https://x.com/anamechi",
-    "https://www.youtube.com/@ANAMECHI",
+    "https://www.linkedin.com/in/deannaromulusmba",
+    "https://www.youtube.com/@ANAMECHIMarketing",
   ],
   knowsAbout: [
     "AI Engine Optimization",
@@ -306,8 +306,7 @@ async function generateAboutPage(): Promise<string> {
       "Brand Development",
     ],
     sameAs: [
-      "https://www.linkedin.com/in/deannaromulus",
-      "https://x.com/anamechi",
+      "https://www.linkedin.com/in/deannaromulusmba",
     ],
   };
 
@@ -583,7 +582,7 @@ async function generateBlogArticlePage(supabase: any, slug: string): Promise<str
       </header>
       
       <div class="article-content">
-        ${post.content || ""}
+        ${post.content ? marked.parse(post.content) : ""}
       </div>
       
       ${post.authors ? `
