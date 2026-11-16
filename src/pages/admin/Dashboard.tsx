@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, MessageSquare, Users, Wrench, Mail } from 'lucide-react';
+import { FileText, MessageSquare, Users, Mail } from 'lucide-react';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -12,7 +12,6 @@ export default function Dashboard() {
     blogPosts: 0,
     qaArticles: 0,
     authors: 0,
-    aiTools: 0,
     leadsToday: 0,
     leadsThisWeek: 0,
   });
@@ -27,11 +26,10 @@ export default function Dashboard() {
     const todayStart = startOfDay(now).toISOString();
     const weekStart = startOfDay(subDays(now, 7)).toISOString();
 
-    const [blogCount, qaCount, authorsCount, toolsCount, leadsToday, leadsWeek] = await Promise.all([
+    const [blogCount, qaCount, authorsCount, leadsToday, leadsWeek] = await Promise.all([
       supabase.from('blog_posts').select('id', { count: 'exact', head: true }),
       supabase.from('qa_articles').select('id', { count: 'exact', head: true }),
       supabase.from('authors').select('id', { count: 'exact', head: true }),
-      supabase.from('ai_tools').select('id', { count: 'exact', head: true }),
       supabase.from('contact_submissions').select('id', { count: 'exact', head: true }).gte('submitted_at', todayStart),
       supabase.from('contact_submissions').select('id', { count: 'exact', head: true }).gte('submitted_at', weekStart),
     ]);
@@ -40,7 +38,6 @@ export default function Dashboard() {
       blogPosts: blogCount.count || 0,
       qaArticles: qaCount.count || 0,
       authors: authorsCount.count || 0,
-      aiTools: toolsCount.count || 0,
       leadsToday: leadsToday.count || 0,
       leadsThisWeek: leadsWeek.count || 0,
     });
@@ -79,7 +76,6 @@ export default function Dashboard() {
     { name: 'Blog Posts', value: stats.blogPosts, icon: FileText, color: 'text-blue-600' },
     { name: 'QA Articles', value: stats.qaArticles, icon: MessageSquare, color: 'text-green-600' },
     { name: 'Authors', value: stats.authors, icon: Users, color: 'text-purple-600' },
-    { name: 'AI Tools', value: stats.aiTools, icon: Wrench, color: 'text-orange-600' },
   ];
 
   return (
@@ -138,9 +134,9 @@ export default function Dashboard() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <h3 className="font-medium">1. Manage AI Tools</h3>
+            <h3 className="font-medium">1. Manage Service Packages</h3>
             <p className="text-sm text-muted-foreground">
-              Add and categorize the AI tools ANAMECHI uses for content creation and optimization.
+              Set up the services ANAMECHI offers and control how they appear on the public site.
             </p>
           </div>
           <div className="space-y-2">

@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Calendar, RefreshCw, AlertTriangle, TrendingUp } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 
@@ -137,14 +136,6 @@ export default function ContentUpdates() {
                       </span>
                       <span className="text-xs">({age} days ago)</span>
                     </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline">
-                      View
-                    </Button>
-                    <Button size="sm">
-                      Update
-                    </Button>
                   </div>
                 </div>
               );

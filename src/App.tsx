@@ -26,7 +26,6 @@ const Signup = lazy(() => import("./pages/admin/Signup"));
 const ForgotPassword = lazy(() => import("./pages/admin/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/admin/ResetPassword"));
 const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
-const AdminAITools = lazy(() => import("./pages/admin/AITools"));
 const BlogGenerator = lazy(() => import("./pages/admin/BlogGenerator"));
 const BlogPosts = lazy(() => import("./pages/admin/BlogPosts"));
 const BlogAudit = lazy(() => import("./pages/admin/BlogAudit"));
@@ -36,16 +35,11 @@ const PricingSettings = lazy(() => import("./pages/admin/PricingSettings"));
 const BusinessSettings = lazy(() => import("./pages/admin/BusinessSettings"));
 const Authors = lazy(() => import("./pages/admin/Authors"));
 const QAGenerator = lazy(() => import("./pages/admin/QAGenerator"));
-const Citations = lazy(() => import("./pages/admin/Citations"));
-const SEOSettings = lazy(() => import("./pages/admin/SEOSettings"));
-const Images = lazy(() => import("./pages/admin/Images"));
 const Diagrams = lazy(() => import("./pages/admin/Diagrams"));
 const ContentUpdates = lazy(() => import("./pages/admin/ContentUpdates"));
-const MasterPrompts = lazy(() => import("./pages/admin/MasterPrompts"));
 const CitationHealth = lazy(() => import("./pages/admin/CitationHealth"));
 const ImageAltTextGenerator = lazy(() => import("./pages/admin/ImageAltTextGenerator"));
 const FAQManager = lazy(() => import("./pages/admin/FAQManager"));
-const FAQAnalytics = lazy(() => import("./pages/admin/FAQAnalytics"));
 const ReferralTracking = lazy(() => import("./pages/admin/ReferralTracking"));
 const PointsChecker = lazy(() => import("./pages/admin/PointsChecker"));
 const SiteSettings = lazy(() => import("./pages/admin/SiteSettings"));
@@ -80,25 +74,19 @@ const App = () => (
               <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
                 <Route index element={<Dashboard />} />
                 <Route path="email-review" element={<SuperAdminRoute><EmailReview /></SuperAdminRoute>} />
-                <Route path="master-prompts" element={<MasterPrompts />} />
-                <Route path="ai-tools" element={<AdminAITools />} />
                 <Route path="blog" element={<BlogPosts />} />
                 <Route path="blog/new" element={<BlogGenerator />} />
                 <Route path="blog/edit/:id" element={<BlogGenerator />} />
                 <Route path="blog/audit" element={<BlogAudit />} />
                 <Route path="qa-generator" element={<QAGenerator />} />
                 <Route path="faq-manager" element={<FAQManager />} />
-                <Route path="faq-analytics" element={<FAQAnalytics />} />
                 <Route path="authors" element={<Authors />} />
-                <Route path="citations" element={<Citations />} />
                 <Route path="citation-health" element={<CitationHealth />} />
                 <Route path="image-alt-text" element={<ImageAltTextGenerator />} />
                 <Route path="packages" element={<Packages />} />
                 <Route path="quotes" element={<Quotes />} />
-                <Route path="images" element={<Images />} />
                 <Route path="diagrams" element={<Diagrams />} />
                 <Route path="content-updates" element={<ContentUpdates />} />
-                <Route path="seo-settings" element={<SEOSettings />} />
                 <Route path="pricing-settings" element={<PricingSettings />} />
                 <Route path="business-settings" element={<BusinessSettings />} />
                 <Route path="referral-tracking" element={<ReferralTracking />} />

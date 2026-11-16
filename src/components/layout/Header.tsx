@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Shield, Settings, FileText, Users, Image, HelpCircle } from "lucide-react";
+import { Menu, X, Shield, Settings, FileText, Users, HelpCircle } from "lucide-react";
 import { useState, useRef } from "react";
 import {
   Dialog,
@@ -28,9 +28,8 @@ export const Header = () => {
 
   const adminLinks = [
     { name: "Dashboard", href: "/admin", icon: Shield },
-    { name: "Blog Posts", href: "/admin/blog-posts", icon: FileText },
+    { name: "Blog Posts", href: "/admin/blog", icon: FileText },
     { name: "FAQ Manager", href: "/admin/faq-manager", icon: HelpCircle },
-    { name: "Images", href: "/admin/images", icon: Image },
     { name: "Settings", href: "/admin/business-settings", icon: Settings },
   ];
 

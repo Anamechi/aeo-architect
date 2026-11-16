@@ -185,8 +185,8 @@ const BlogArticle = () => {
           {article.featured_image_url && (
             <div className="mb-8 rounded-lg overflow-hidden">
               <img 
-                src={article.featured_image_url} 
-                alt={article.title}
+                src={article.featured_image_url}
+                alt={article.image_alt_text || article.title}
                 className="w-full h-auto max-h-96 object-cover"
               />
             </div>

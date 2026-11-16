@@ -1,13 +1,10 @@
 import { NavLink } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Wrench, 
-  FileText, 
-  MessageSquare, 
-  Image, 
+import {
+  LayoutDashboard,
+  FileText,
+  MessageSquare,
   Network,
   Users,
-  Link as LinkIcon,
   Calendar,
   Settings,
   Building,
@@ -47,14 +44,12 @@ const sections = [
       { name: 'Blog Audit', href: '/admin/blog/audit', icon: Sparkles },
       { name: 'QA Generator', href: '/admin/qa-generator', icon: MessageSquare },
       { name: 'FAQ Manager', href: '/admin/faq-manager', icon: HelpCircle },
-      { name: 'FAQ Analytics', href: '/admin/faq-analytics', icon: TrendingUp },
       { name: 'Authors', href: '/admin/authors', icon: Users },
     ],
   },
   {
     label: 'SEO & Quality',
     items: [
-      { name: 'Citations', href: '/admin/citations', icon: LinkIcon },
       { name: 'Citation Health', href: '/admin/citation-health', icon: CheckCircle },
       { name: 'Image Alt Text', href: '/admin/image-alt-text', icon: ImagePlus },
       { name: 'Content Updates', href: '/admin/content-updates', icon: Calendar },
@@ -63,7 +58,6 @@ const sections = [
   {
     label: 'Media',
     items: [
-      { name: 'Image Generator', href: '/admin/images', icon: Image },
       { name: 'Image Health', href: '/admin/image-health', icon: HeartPulse },
       { name: 'Diagram Generator', href: '/admin/diagrams', icon: Network },
     ],
@@ -71,7 +65,6 @@ const sections = [
   {
     label: 'AI & Tools',
     items: [
-      { name: 'AI Tools', href: '/admin/ai-tools', icon: Wrench },
       { name: 'Master Prompt', href: '/admin/site-settings', icon: Lightbulb },
       { name: 'Referral Tracking', href: '/admin/referral-tracking', icon: TrendingUp },
     ],
@@ -97,7 +90,6 @@ const sections = [
       { name: 'Custom Quotes', href: '/admin/quotes', icon: Quote },
       { name: 'Pricing Settings', href: '/admin/pricing-settings', icon: Settings },
       { name: 'Business Settings', href: '/admin/business-settings', icon: Building },
-      { name: 'SEO Settings', href: '/admin/seo-settings', icon: Settings },
     ],
   },
 ];

@@ -10,7 +10,7 @@ interface BlogPost {
   id: string;
   title: string;
   featured_image_url: string | null;
-  schema_data: any;
+  image_alt_text: string | null;
 }
 
 interface AltTextResult {
@@ -38,7 +38,7 @@ export default function ImageAltTextGenerator() {
     setLoading(true);
     const { data, error } = await supabase
       .from('blog_posts')
-      .select('id, title, featured_image_url, schema_data')
+      .select('id, title, featured_image_url, image_alt_text')
       .not('featured_image_url', 'is', null)
       .order('created_at', { ascending: false });
 
@@ -105,11 +105,11 @@ export default function ImageAltTextGenerator() {
   };
 
   const hasAltText = (post: BlogPost) => {
-    return post.schema_data?.image_alt_text ? true : false;
+    return post.image_alt_text ? true : false;
   };
 
   const getAltText = (post: BlogPost) => {
-    return post.schema_data?.image_alt_text || 'No alt text';
+    return post.image_alt_text || 'No alt text';
   };
 
   const stats = {

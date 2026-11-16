@@ -178,8 +178,8 @@ const Blog = () => {
                 </div>
                 {featuredPost.featured_image_url ? (
                   <img 
-                    src={featuredPost.featured_image_url} 
-                    alt={featuredPost.title}
+                    src={featuredPost.featured_image_url}
+                    alt={featuredPost.image_alt_text || featuredPost.title}
                     className="rounded-lg object-cover w-full h-full max-h-96"
                   />
                 ) : (
@@ -203,8 +203,8 @@ const Blog = () => {
                 {post.featured_image_url && (
                   <div className="overflow-hidden rounded-t-lg">
                     <img 
-                      src={post.featured_image_url} 
-                      alt={post.title}
+                      src={post.featured_image_url}
+                      alt={post.image_alt_text || post.title}
                       className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
                     />
                   </div>

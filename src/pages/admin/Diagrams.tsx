@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Network, ArrowDown, Loader2, Sparkles, Zap, GitBranch, PieChart, BarChart3, Copy, Check, Download } from 'lucide-react';
+import { Network, Loader2, Sparkles, Zap, GitBranch, PieChart, BarChart3, Copy, Check, Download } from 'lucide-react';
 import mermaid from 'mermaid';
 import { toast } from 'sonner';
 
@@ -235,14 +235,6 @@ export default function Diagrams() {
               >
                 <Download className="h-4 w-4 mr-2" />
                 Export SVG
-              </Button>
-              <Button 
-                variant="outline" 
-                disabled={!renderedSvg}
-                className="flex-1 border-primary/20 hover:bg-primary/5 hover:border-primary/30"
-              >
-                <ArrowDown className="h-4 w-4 mr-2" />
-                Export PNG
               </Button>
             </div>
           </CardContent>

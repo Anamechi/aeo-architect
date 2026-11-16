@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet-async";
+import { useLocation } from "react-router-dom";
 
 interface SEOProps {
   title: string;
@@ -23,9 +24,11 @@ export const SEO = ({
   article,
   structuredData = [],
 }: SEOProps) => {
+  const { pathname } = useLocation();
   const siteUrl = "https://anamechimarketing.com";
-  const fullTitle = `${title} | ANAMECHI Marketing`;
-  const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
+  const brandSuffix = " | ANAMECHI Marketing";
+  const fullTitle = title.includes(brandSuffix) ? title : `${title}${brandSuffix}`;
+  const canonicalUrl = `${siteUrl}${canonical ?? pathname}`;
 
   return (
     <Helmet>

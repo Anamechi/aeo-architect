@@ -168,18 +168,12 @@ Generate SEO-optimized alt text for the featured image that:
 
         console.log('Generated alt text:', altText);
 
-        // Store in schema_data for now (we'll add alt_text column later if needed)
-        const currentSchemaData = post.schema_data || {};
-        const updatedSchemaData = {
-          ...currentSchemaData,
-          image_alt_text: altText
-        };
-
-        // Update post
+        // Store in the blog_posts.image_alt_text column, the same column the public
+        // Blog and BlogArticle pages read and the cluster generator already writes.
         const { error: updateError } = await supabaseClient
           .from('blog_posts')
           .update({
-            schema_data: updatedSchemaData,
+            image_alt_text: altText,
             updated_at: new Date().toISOString()
           })
           .eq('id', postId);

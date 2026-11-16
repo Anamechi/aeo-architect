@@ -19,7 +19,9 @@ Commit identity for this repo is Deanna Romulus <info@anamechimarketing.com>.
 7. Brand voice applies to every user-facing string. No dashes as punctuation, no contractions, "business owners" never "founders".
 
 ## Known state
-`supabase/functions/generate-social-images/` is untracked and uncommitted. Decide whether it ships before touching adjacent functions.
+**Fourteen of the twenty edge functions call `ai.gateway.lovable.dev` and need `LOVABLE_API_KEY`.** The whole content engine runs on that gateway: blog and cluster generation, QA articles, FAQs, citations, image generation, alt text, translation, audit and reoptimise. If that key lapses or the plan drops, all fourteen fail at runtime and nothing on the site changes to show it. Moving off that gateway is one endpoint plus one env var per function, and it is the prerequisite for retiring Lovable.
+
+The Lovable editor itself is effectively already retired: the `gpt-engineer-app[bot]` last committed 7 Jan 2026 and every commit since is code-authored. The GitHub sync still exists, it is simply unused. Note the sync and the API key are separate things that happen to share a vendor.
 
 ## Cross-references
 Site strategy, the AEO decisions, and the prerender gap live in the wiki at `~/Desktop/AI Website Builds/`. Offers, prices and positioning live in the brain. Do not restate any of them here.
