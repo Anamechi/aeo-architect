@@ -65,18 +65,20 @@ const AITools = () => {
     }
   };
 
-  const handleToolClick = async (toolName: string, toolUrl: string) => {
-    try {
-      await supabase.from('affiliate_clicks').insert({
+  // Records the click without blocking navigation. The link itself is a normal anchor,
+  // so the affiliate URL reaches the vendor exactly as provided.
+  const trackToolClick = (toolName: string, toolUrl: string) => {
+    void supabase
+      .from('affiliate_clicks')
+      .insert({
         tool_name: toolName,
         tool_url: toolUrl,
         user_agent: navigator.userAgent,
         referrer: document.referrer || null
+      })
+      .then(({ error }) => {
+        if (error) console.error('Error tracking click:', error);
       });
-    } catch (error) {
-      console.error('Error tracking click:', error);
-    }
-    window.open(toolUrl, '_blank');
   };
   const breadcrumbsSchema = {
     "@context": "https://schema.org",
@@ -94,7 +96,9 @@ const AITools = () => {
       description: "OpenAI's conversational AI model for content generation, research, and problem-solving.",
       rating: 5,
       url: "https://chat.openai.com",
-      useCase: "Content ideation, research, copywriting"
+      useCase: "Content ideation, research, copywriting",
+      freePath: "The free plan covers most of this. A paid plan adds higher limits.",
+      affiliate: false
     },
     {
       name: "Perplexity AI",
@@ -102,7 +106,9 @@ const AITools = () => {
       description: "AI-powered answer engine that provides cited, sourced responses to queries.",
       rating: 5,
       url: "https://perplexity.ai",
-      useCase: "Research, fact-checking, citation tracking"
+      useCase: "Research, fact-checking, citation tracking",
+      freePath: "The free plan answers most research questions with citations.",
+      affiliate: false
     },
     {
       name: "Google Gemini",
@@ -110,7 +116,9 @@ const AITools = () => {
       description: "Google's multimodal AI model integrated with Google Workspace and search.",
       rating: 4,
       url: "https://gemini.google.com",
-      useCase: "Google integration, multimodal tasks"
+      useCase: "Google integration, multimodal tasks",
+      freePath: "Free with a Google account. Works well if you already live in Google Workspace.",
+      affiliate: false
     },
     {
       name: "Claude",
@@ -118,7 +126,9 @@ const AITools = () => {
       description: "Anthropic's AI assistant known for long-context understanding and detailed analysis.",
       rating: 5,
       url: "https://claude.ai",
-      useCase: "Long-form content, analysis, research"
+      useCase: "Long-form content, analysis, research",
+      freePath: "The free plan handles most writing and analysis. A paid plan adds longer sessions.",
+      affiliate: false
     },
     {
       name: "GoHighLevel",
@@ -126,7 +136,9 @@ const AITools = () => {
       description: "All-in-one CRM, funnel builder, and marketing automation platform for agencies.",
       rating: 5,
       url: "https://www.gohighlevel.com/?fp_ref=anamechi-marketing42",
-      useCase: "Client management, funnels, automation"
+      useCase: "Client management, funnels, automation",
+      freePath: "A spreadsheet CRM, a free form tool, and a free calendar link cover the basics. Expect more manual work and no built in automation.",
+      affiliate: true
     },
     {
       name: "Ahrefs",
@@ -134,7 +146,9 @@ const AITools = () => {
       description: "Comprehensive SEO toolset for backlink analysis, keyword research, and site audits.",
       rating: 5,
       url: "https://ahrefs.com",
-      useCase: "SEO research, backlink tracking, content gaps"
+      useCase: "SEO research, backlink tracking, content gaps",
+      freePath: "Google Search Console and Bing Webmaster Tools are free and cover the essentials for a small site.",
+      affiliate: false
     }
   ];
 
@@ -232,6 +246,16 @@ const AITools = () => {
             </CardContent>
           </Card>
         ) : (
+          <>
+          <p
+            className="mx-auto mb-8 max-w-3xl rounded-lg border border-border bg-muted/40 px-4 py-3 text-center text-sm text-foreground"
+            data-testid="affiliate-disclosure"
+          >
+            <strong>Affiliate disclosure:</strong> ANAMECHI Marketing earns a commission if you sign up for
+            GoHighLevel through the link on this page. It costs you nothing extra. Every other tool on this
+            list is a plain link with no commission. Each card shows a free option so you can start without
+            spending anything.
+          </p>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {tools.map((tool) => (
               <Card key={tool.name} className="border-border flex flex-col">
@@ -252,21 +276,36 @@ const AITools = () => {
                   <CardDescription className="mt-3">{tool.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-1 flex flex-col justify-between">
-                  <div className="mb-4">
-                    <p className="text-sm font-medium text-foreground">Best For:</p>
-                    <p className="text-sm text-muted-foreground">{tool.useCase}</p>
+                  <div className="mb-4 space-y-3">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Best For:</p>
+                      <p className="text-sm text-muted-foreground">{tool.useCase}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Free option:</p>
+                      <p className="text-sm text-muted-foreground">{tool.freePath}</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {tool.affiliate
+                        ? "Affiliate link. We earn a commission if you sign up, at no extra cost to you."
+                        : "Plain link. No commission."}
+                    </p>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => handleToolClick(tool.name, tool.url)}
-                  >
-                    Visit Tool <ExternalLink className="ml-2 h-4 w-4" />
+                  <Button asChild variant="outline" className="w-full">
+                    <a
+                      href={tool.url}
+                      target="_blank"
+                      rel={tool.affiliate ? "sponsored noopener" : "noopener"}
+                      onClick={() => trackToolClick(tool.name, tool.url)}
+                    >
+                      Visit Tool <ExternalLink className="ml-2 h-4 w-4" />
+                    </a>
                   </Button>
                 </CardContent>
               </Card>
             ))}
           </div>
+          </>
         )}
 
         <Card className="mt-12 border-border bg-gradient-subtle">
