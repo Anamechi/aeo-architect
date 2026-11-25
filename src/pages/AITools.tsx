@@ -99,16 +99,18 @@ const AITools = () => {
       description: "OpenAI's conversational AI model for content generation, research, and problem-solving.",
       url: "https://chat.openai.com",
       useCase: "Content ideation, research, copywriting",
+      whyUse: "I use it for drafting and image work. It forgets your business between chats unless you set up memory.",
       freePath: "The free plan covers most of this. A paid plan adds higher limits.",
       affiliate: false
     },
     {
-      name: "Perplexity AI",
-      category: "AI Search",
-      description: "AI-powered answer engine that provides cited, sourced responses to queries.",
-      url: "https://perplexity.ai",
-      useCase: "Research, fact-checking, citation tracking",
-      freePath: "The free plan answers most research questions with citations.",
+      name: "Claude",
+      category: "AI Assistant",
+      description: "Anthropic's AI assistant known for long-context understanding and detailed analysis.",
+      url: "https://claude.ai",
+      useCase: "Long-form content, analysis, building systems",
+      whyUse: "I use it for long documents and building systems. It needs clear instructions to stay on brand.",
+      freePath: "The free plan handles most writing and analysis. A paid plan adds longer sessions.",
       affiliate: false
     },
     {
@@ -117,16 +119,18 @@ const AITools = () => {
       description: "Google's multimodal AI model integrated with Google Workspace and search.",
       url: "https://gemini.google.com",
       useCase: "Google integration, multimodal tasks",
+      whyUse: "It is useful inside Google Workspace. I check its answers before I rely on them.",
       freePath: "Free with a Google account. Works well if you already live in Google Workspace.",
       affiliate: false
     },
     {
-      name: "Claude",
-      category: "AI Assistant",
-      description: "Anthropic's AI assistant known for long-context understanding and detailed analysis.",
-      url: "https://claude.ai",
-      useCase: "Long-form content, analysis, research",
-      freePath: "The free plan handles most writing and analysis. A paid plan adds longer sessions.",
+      name: "Perplexity AI",
+      category: "AI Search",
+      description: "AI-powered answer engine that provides cited, sourced responses to queries.",
+      url: "https://perplexity.ai",
+      useCase: "Research, fact-checking, citation tracking",
+      whyUse: "I use the free plan for research with sources. It is a search tool, so I still verify what it cites.",
+      freePath: "The free plan answers most research questions with citations.",
       affiliate: false
     },
     {
@@ -135,18 +139,29 @@ const AITools = () => {
       description: "All-in-one CRM, funnel builder, and marketing automation platform for agencies.",
       url: "https://www.gohighlevel.com/?fp_ref=anamechi-marketing42",
       useCase: "Client management, funnels, automation",
-      freePath: "A spreadsheet CRM, a free form tool, and a free calendar link cover the basics. Expect more manual work and no built in automation.",
       whyUse: "It keeps leads from falling through the cracks, though it takes real setup time to do well.",
+      freePath: "A spreadsheet CRM, a free form tool, and a free calendar link cover the basics. Expect more manual work and no built in automation.",
       affiliate: true
     },
     {
-      name: "Ahrefs",
-      category: "SEO & AEO",
-      description: "Comprehensive SEO toolset for backlink analysis, keyword research, and site audits.",
-      url: "https://ahrefs.com",
-      useCase: "SEO research, backlink tracking, content gaps",
-      freePath: "Google Search Console and Bing Webmaster Tools are free and cover the essentials for a small site.",
-      affiliate: false
+      name: "Higgsfield",
+      category: "AI Video",
+      description: "Turns still images and prompts into short cinematic AI video clips.",
+      url: "https://higgsfield.ai?fpr=deanna-8422f2",
+      useCase: "Short video clips, ad and social visuals",
+      whyUse: "It makes cinematic scenes quickly, though credits run out fast and a real person's face can drift between clips.",
+      freePath: "Start on the free plan, or use stock footage you already own.",
+      affiliate: true
+    },
+    {
+      name: "The AI Agent Course",
+      category: "Training",
+      description: "A course on building and selling AI agents, with ready to import automation templates.",
+      url: "https://aibusinesssummit.com/aiagentcoursepif?fpr=deanna85",
+      useCase: "Learning to build and sell AI agents",
+      whyUse: "I took it myself and the templates saved me setup time. It is a real investment, so only take it if you plan to build.",
+      freePath: "The platforms publish free documentation and many free video tutorials that cover the basics.",
+      affiliate: true
     }
   ];
 
