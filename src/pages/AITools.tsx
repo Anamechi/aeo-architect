@@ -286,6 +286,12 @@ const AITools = () => {
                     <p className="text-xs font-medium text-muted-foreground">
                       {tool.affiliate ? "Affiliate link" : "Not an affiliate"}
                     </p>
+                    {tool.affiliate && (
+                      <p className="text-sm text-muted-foreground" data-testid="inline-disclosure">
+                        Full disclosure: I earn a commission if you start a paid plan through this link. It
+                        costs you nothing extra.
+                      </p>
+                    )}
                   </div>
                   <Button asChild variant="outline" className="w-full">
                     <a
