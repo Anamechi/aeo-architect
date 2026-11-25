@@ -18,6 +18,7 @@ import FAQ from "./pages/FAQ";
 import QAArticle from "./pages/QAArticle";
 import Contact from "./pages/Contact";
 import AITools from "./pages/AITools";
+import AffiliateDisclosure from "./pages/AffiliateDisclosure";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
@@ -110,6 +111,7 @@ const App = () => (
                 <Route path="faq/:slug" element={<QAArticle />} />
                 <Route path="contact" element={<Contact />} />
                 <Route path="ai-tools" element={<AITools />} />
+                <Route path="ai-tools/affiliate-disclosure" element={<AffiliateDisclosure />} />
                 <Route path="privacy" element={<Privacy />} />
                 <Route path="terms" element={<Terms />} />
               </Route>
